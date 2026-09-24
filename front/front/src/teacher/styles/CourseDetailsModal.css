@@ -1,0 +1,379 @@
+/* استایل مودال تحلیلی پیشرفته */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(7, 10, 19, 0.82);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  direction: rtl;
+  padding: 16px;
+}
+
+.modal-card.modal-analytics {
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+  border-radius: 18px;
+  width: 100%;
+  max-width: 780px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  color: #f1f5f9;
+  font-family: inherit;
+  overflow: hidden;
+  animation: modalScale 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalScale {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* هدر */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px 24px 14px;
+  border-bottom: 1px solid #1e293b;
+}
+
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.title-row h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0;
+  color: #38bdf8;
+}
+
+.modal-id {
+  background: #1e293b;
+  color: #94a3b8;
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.modal-subtitle {
+  color: #64748b;
+  font-size: 0.85rem;
+  margin: 4px 0 0;
+}
+
+.close-modal-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.close-modal-btn:hover {
+  background: #1e293b;
+  color: #ef4444;
+}
+
+/* نوار مشخصات کلی */
+.modal-meta-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 12px 24px;
+  background: #131d35;
+  border-bottom: 1px solid #1e293b;
+  font-size: 0.85rem;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #94a3b8;
+}
+
+.meta-icon {
+  color: #38bdf8;
+}
+
+.meta-item strong {
+  color: #e2e8f0;
+}
+
+/* تب‌های بالا */
+.analytics-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 10px 24px 0;
+  background: #0b1120;
+  border-bottom: 1px solid #1e293b;
+  overflow-x: auto;
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  padding: 10px 14px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.tab-btn:hover {
+  color: #38bdf8;
+}
+
+.tab-btn.active {
+  color: #38bdf8;
+  border-bottom-color: #38bdf8;
+  background: rgba(56, 189, 248, 0.05);
+}
+
+/* بدنه */
+.analytics-body {
+  padding: 20px 24px;
+  overflow-y: auto;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.kpi-card {
+  background: #131d35;
+  border: 1px solid #1e293b;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.kpi-card.highlight {
+  border-color: rgba(56, 189, 248, 0.4);
+  background: linear-gradient(145deg, #131d35, #172554);
+}
+
+.kpi-card.highlight-profit {
+  border-color: rgba(16, 185, 129, 0.4);
+  background: linear-gradient(145deg, #131d35, #064e3b);
+}
+
+.kpi-label {
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.kpi-val-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.kpi-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #f8fafc;
+}
+
+.kpi-value-sm {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.kpi-sub {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.kpi-hint {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.badge-pill.success {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 20px;
+  width: fit-content;
+}
+
+.pacing-badge.ahead {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #34d399;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* نوارهای پیشرفت کوچک */
+.progress-bar-mini {
+  width: 100%;
+  height: 6px;
+  background: #1e293b;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 10px;
+}
+
+.fill-cyan { background: #38bdf8; }
+.fill-emerald { background: #10b981; }
+.fill-amber { background: #f59e0b; }
+
+.text-emerald { color: #34d399 !important; }
+.text-cyan { color: #38bdf8 !important; }
+
+/* نمودار هیستوگرام */
+.chart-card {
+  background: #131d35;
+  border: 1px solid #1e293b;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.chart-header h4 {
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.chart-legend {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.histogram-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  height: 140px;
+  padding-top: 20px;
+  border-bottom: 1px solid #1e293b;
+}
+
+.histogram-bar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 50px;
+}
+
+.bar-count {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.histogram-bar-track {
+  width: 28px;
+  height: 90px;
+  background: #1e293b;
+  border-radius: 6px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.histogram-bar-fill {
+  width: 100%;
+  background: linear-gradient(180deg, #38bdf8, #2563eb);
+  border-radius: 6px;
+  transition: height 0.4s ease;
+}
+
+.bar-label {
+  font-size: 0.75rem;
+  color: #64748b;
+  direction: ltr;
+}
+
+/* کادر نکته و پیشنهاد */
+.insight-box {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 0.85rem;
+}
+
+.insight-icon {
+  color: #38bdf8;
+  font-size: 1.2rem;
+  margin-top: 2px;
+}
+
+/* فوتر دکمه‌ها */
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid #1e293b;
+  background: #0f172a;
+}
+
+.btn-primary {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: #1d4ed8;
+}
+
+.btn-secondary {
+  background: #1e293b;
+  color: #cbd5e1;
+  border: 1px solid #334155;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  background: #334155;
+}

@@ -1,0 +1,1259 @@
+/* کانتینر اصلی */
+.teacher-courses-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  direction: rtl;
+  font-family: inherit;
+}
+
+/* هدر صفحه */
+.courses-header {
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 60%, #312e81 100%);
+  padding: 26px 30px;
+  border-radius: 16px;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+}
+
+.courses-title {
+  margin: 0 0 6px 0;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #f8fafc;
+}
+
+.courses-subtitle {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 0.95rem;
+}
+
+/* کارت‌های آماری (KPIs) */
+.courses-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.kpi-card {
+  background: #ffffff;
+  padding: 18px 20px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+}
+
+.kpi-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.kpi-icon-blue { background: #eff6ff; color: #2563eb; }
+.kpi-icon-green { background: #f0fdf4; color: #16a34a; }
+.kpi-icon-purple { background: #faf5ff; color: #9333ea; }
+.kpi-icon-amber { background: #fffbeb; color: #d97706; }
+
+.kpi-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.kpi-label {
+  font-size: 0.82rem;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.kpi-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* پنل فیلتر و جستجو */
+.courses-filter-panel {
+  background: #ffffff;
+  padding: 16px 20px;
+  border-radius: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border: 1px solid #e2e8f0;
+}
+
+.search-box {
+  position: relative;
+  flex: 1;
+  min-width: 260px;
+}
+
+.search-icon {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 10px 42px 10px 36px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 0.92rem;
+  background: #f8fafc;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.search-box input:focus {
+  border-color: #6366f1;
+  background: #ffffff;
+}
+
+.clear-btn {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+}
+
+.filter-selects {
+  display: flex;
+  gap: 12px;
+}
+
+.select-wrapper {
+  position: relative;
+}
+
+.select-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #64748b;
+  pointer-events: none;
+}
+
+.filter-selects select {
+  padding: 10px 32px 10px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  background: #ffffff;
+  color: #334155;
+  outline: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* جدول دوره‌ها */
+.courses-table-card {
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+  overflow: hidden;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.courses-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: right;
+  font-size: 0.93rem;
+}
+
+.courses-table th {
+  background: #f8fafc;
+  color: #475569;
+  font-weight: 600;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.courses-table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+  vertical-align: middle;
+}
+
+.courses-table tr:hover td {
+  background: #fafcff;
+}
+
+.course-cell-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.course-id {
+  font-size: 0.75rem;
+  color: #6366f1;
+  font-weight: 700;
+}
+
+.course-name {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.category-tag {
+  background: #f1f5f9;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  color: #475569;
+}
+
+.type-tag {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  color: #334155;
+}
+
+.students-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #475569;
+  font-size: 0.88rem;
+}
+
+/* نوار پیشرفت */
+.progress-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.progress-bar-bg {
+  width: 80px;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6366f1, #4f46e5);
+  border-radius: 10px;
+}
+
+.progress-text {
+  font-size: 0.82rem;
+  color: #64748b;
+  min-width: 28px;
+}
+
+/* وضعیت‌ها (بج‌ها) */
+.badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.badge-active { background: #dcfce7; color: #15803d; }
+.badge-upcoming { background: #fef3c7; color: #b45309; }
+.badge-completed { background: #f1f5f9; color: #64748b; }
+
+/* دکمه جزئیات */
+.details-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.details-btn:hover {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px !important;
+  color: #94a3b8;
+}
+
+/* ==================== مدال جزئیات ==================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.modal-card {
+  background: #ffffff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 550px;
+  padding: 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  animation: modalFadeIn 0.25s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 14px;
+  margin-bottom: 16px;
+}
+
+.modal-header-text h3 {
+  margin: 0 0 4px 0;
+  font-size: 1.2rem;
+  color: #0f172a;
+}
+
+.modal-id {
+  font-size: 0.8rem;
+  color: #6366f1;
+  font-weight: 600;
+}
+
+.close-modal-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+}
+
+.close-modal-btn:hover {
+  color: #ef4444;
+}
+
+.modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.modal-info-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.info-icon {
+  color: #6366f1;
+  margin-top: 3px;
+}
+
+.info-title {
+  display: block;
+  font-size: 0.78rem;
+  color: #64748b;
+}
+
+.info-desc {
+  font-size: 0.88rem;
+  color: #1e293b;
+  font-weight: 500;
+}
+
+.modal-desc-box {
+  background: #f8fafc;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 16px;
+}
+
+.modal-desc-box h4 {
+  margin: 0 0 6px 0;
+  font-size: 0.88rem;
+  color: #334155;
+}
+
+.modal-desc-box p {
+  margin: 0;
+  font-size: 0.84rem;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+.modal-footer-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.85rem;
+  color: #475569;
+}
+
+.modal-bar {
+  flex: 1;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.btn-secondary {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  padding: 8px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.btn-secondary:hover {
+  background: #e2e8f0;
+}
+/* شبکه قرارگیری کارت‌ها */
+.courses-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+/* ساختار کلی هر کارت */
+.kpi-card {
+  position: relative;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.02);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+/* افکت ملایم هاور */
+.kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px -4px rgba(15, 23, 42, 0.08);
+}
+
+/* نوار باریک رنگی لبه راست کارت */
+.kpi-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 4px;
+  height: 100%;
+  border-radius: 4px 0 0 4px;
+  transition: width 0.2s ease;
+}
+
+.kpi-card:hover::before {
+  width: 6px;
+}
+
+/* رنگ نوار و بردر اختصاصی هر کارت */
+.kpi-card.card-blue::before { background-color: #3b82f6; }
+.kpi-card.card-blue:hover { border-color: #bfdbfe; }
+
+.kpi-card.card-emerald::before { background-color: #10b981; }
+.kpi-card.card-emerald:hover { border-color: #a7f3d0; }
+
+.kpi-card.card-purple::before { background-color: #8b5cf6; }
+.kpi-card.card-purple:hover { border-color: #ddd6fe; }
+
+.kpi-card.card-amber::before { background-color: #f59e0b; }
+.kpi-card.card-amber:hover { border-color: #fde68a; }
+
+/* آیکون کارت‌ها با پس‌زمینه محو و شیک */
+.kpi-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.kpi-icon-blue {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.kpi-icon-green {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.kpi-icon-purple {
+  background: #f5f3ff;
+  color: #7c3aed;
+}
+
+.kpi-icon-amber {
+  background: #fffbeb;
+  color: #d97706;
+}
+
+/* متن و اطلاعات کارت */
+.kpi-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.kpi-label {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.kpi-value {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0f172a;
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.kpi-value small {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #94a3b8;
+}
+/* ==================== سکشن تحلیل و آمار نموداری ==================== */
+.courses-analytics-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 992px) {
+  .courses-analytics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* باکس اصلی کارت‌های تحلیلی */
+.analytics-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 22px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.02);
+  display: flex;
+  flex-direction: column;
+}
+
+.analytics-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.analytics-title {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+}
+
+.analytics-subtitle {
+  font-size: 0.78rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.analytics-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.success-badge {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.alert-badge {
+  background: #fef2f2;
+  color: #e11d48;
+}
+
+/* لیست نوارهای پیشرفت و قبولی */
+.progress-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.progress-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.83rem;
+}
+
+.course-name {
+  font-weight: 600;
+  color: #334155;
+}
+
+.course-rate {
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.success-text { color: #059669; }
+.info-text { color: #2563eb; }
+.warning-text { color: #d97706; }
+.primary-text { color: #7c3aed; }
+
+/* پروگرس بار شیک */
+.progress-bar-bg {
+  width: 100%;
+  height: 8px;
+  background: #f1f5f9;
+  border-radius: 100px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 100px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fill-emerald { background: linear-gradient(90deg, #10b981, #059669); }
+.fill-blue { background: linear-gradient(90deg, #3b82f6, #2563eb); }
+.fill-amber { background: linear-gradient(90deg, #f59e0b, #d97706); }
+.fill-purple { background: linear-gradient(90deg, #8b5cf6, #7c3aed); }
+
+/* لیست کلاس‌های نیازمند توجه */
+.attention-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.attention-item {
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 14px 16px;
+  border-right: 4px solid transparent;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.attention-item:hover {
+  background: #f1f5f9;
+  transform: translateX(-3px);
+}
+
+.alert-border {
+  border-right-color: #ef4444;
+}
+
+.warning-border {
+  border-right-color: #f59e0b;
+}
+
+.attention-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.attention-title {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.attention-tag {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.tag-danger {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.tag-warning {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.attention-desc {
+  font-size: 0.78rem;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.5;
+}
+/* تنظیم چیدمان در یک ردیف */
+.courses-filter-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: #ffffff;
+  padding: 16px 20px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.filter-selects {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* دکمه بازنشانی فیلترها */
+.reset-filters-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background-color: #fef2f2;
+  color: #ef4444;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  animation: fadeIn 0.25s ease-in-out;
+}
+
+.reset-filters-btn:hover {
+  background-color: #fee2e2;
+  color: #dc2626;
+  border-color: #fca5a5;
+  transform: translateY(-1px);
+}
+
+.reset-filters-btn:active {
+  transform: translateY(0);
+}
+
+/* انیمیشن نرم ظاهر شدن دکمه */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+/* متناسب‌سازی ابعاد مودال برای نمایش کامل تحلیل‌ها */
+.modal-card.modal-analytics-card {
+  max-width: 760px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+/* شبکه کارت‌های تحلیلی ۴ گانه */
+.analytics-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.metric-box {
+  background: #131d35;
+  border: 1px solid #1e293b;
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.metric-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.metric-stat {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 4px 0;
+}
+
+.metric-stat strong {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #f8fafc;
+}
+
+.metric-stat span {
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+.metric-sub {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  border-top: 1px dashed #1e293b;
+  padding-top: 6px;
+}
+
+.metric-tag {
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  width: fit-content;
+}
+.metric-tag.success { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+.metric-tag.gold { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+.metric-tag.info { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
+
+/* نمودار توزیع نمرات */
+.modal-chart-section {
+  background: #131d35;
+  border: 1px solid #1e293b;
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.chart-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  margin-bottom: 12px;
+}
+
+.mini-histogram {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  height: 100px;
+  border-bottom: 1px solid #1e293b;
+  padding-bottom: 4px;
+}
+
+.hist-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.hist-num {
+  font-size: 0.7rem;
+  color: #94a3b8;
+}
+
+.hist-bar-track {
+  width: 28px;
+  height: 70px;
+  background: #1e293b;
+  border-radius: 4px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.hist-bar-fill {
+  width: 100%;
+  border-radius: 4px;
+  transition: height 0.3s ease;
+}
+
+.hist-lbl {
+  font-size: 0.72rem;
+  color: #64748b;
+  direction: ltr;
+}
+
+.text-cyan { color: #38bdf8; }
+.text-emerald { color: #34d399; }
+.text-amber { color: #fbbf24; }
+
+/* ==================== بک‌دراپ و ساختار مودال ==================== */
+.tc-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 16px;
+  animation: fadeInModal 0.2s ease;
+}
+
+.tc-modal-dialog {
+  background: #ffffff;
+  width: 100%;
+  max-width: 950px;
+  max-height: 90vh;
+  border-radius: 16px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+/* هدر مودال */
+.tc-modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fafafa;
+}
+
+.tc-modal-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+}
+
+.tc-modal-subtitle {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.tc-modal-close-btn {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.tc-modal-close-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+/* بدنه مودال */
+.tc-modal-body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* کارت‌های KPI بالای مودال */
+.tc-modal-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.tc-modal-kpi-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tc-modal-kpi-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.icon-blue { background: #eff6ff; }
+.icon-emerald { background: #ecfdf5; }
+.icon-purple { background: #f5f3ff; }
+
+.tc-modal-kpi-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.kpi-title {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.kpi-number {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.text-emerald { color: #059669; }
+.text-purple { color: #7c3aed; }
+
+/* فیلتر داخل مودال */
+.tc-modal-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.tc-modal-search {
+  flex: 1;
+  min-width: 220px;
+}
+
+.tc-modal-search input,
+.tc-modal-select select {
+  width: 100%;
+  height: 40px;
+  padding: 0 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  outline: none;
+  background: #ffffff;
+  transition: border-color 0.2s;
+  font-family: inherit;
+}
+
+.tc-modal-search input:focus,
+.tc-modal-select select:focus {
+  border-color: #3b82f6;
+}
+
+/* جدول داخل مودال */
+.tc-modal-table-container {
+  overflow-x: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.tc-modal-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: right;
+  font-size: 0.84rem;
+}
+
+.tc-modal-table th {
+  background: #f8fafc;
+  color: #475569;
+  font-weight: 700;
+  padding: 12px 14px;
+  border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.tc-modal-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+  vertical-align: middle;
+}
+
+.tc-modal-table tr:last-child td {
+  border-bottom: none;
+}
+
+.tc-modal-table tr:hover {
+  background-color: #f8fafc;
+}
+
+/* سلول اطلاعات دانشجو */
+.std-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.std-name {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.std-id {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  font-family: monospace;
+}
+
+.ltr-text {
+  direction: ltr;
+  text-align: right;
+  font-family: monospace;
+}
+
+.score-val {
+  font-weight: 700;
+  font-family: monospace;
+}
+
+.blue-score { color: #0284c7; }
+.purple-score { color: #9333ea; }
+.total-score { color: #059669; font-size: 0.95rem; }
+
+/* برچسب‌های وضعیت */
+.status-pill {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-excellent { background: #fef9c3; color: #a16207; }
+.status-progress { background: #e0f2fe; color: #0369a1; }
+.status-warning { background: #fee2e2; color: #b91c1c; }
+
+.payment-pill {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.pay-success { background: #ecfdf5; color: #047857; }
+.pay-warning { background: #fffbeb; color: #b45309; }
+
+/* فوتر مودال */
+.tc-modal-footer {
+  padding: 14px 24px;
+  border-top: 1px solid #f1f5f9;
+  background: #fafafa;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.tc-modal-btn-secondary {
+  padding: 8px 18px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tc-modal-btn-secondary:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+@keyframes fadeInModal {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}

@@ -1,0 +1,1065 @@
+/* ==========================================================================
+   AdminClasses.css - استایل‌های اختصاصی صفحه مدیریت کلاس‌ها (فناوران فردا)
+   ========================================================================== */
+
+:root {
+  --cls-primary: #3b82f6;
+  --cls-primary-hover: #2563eb;
+  --cls-primary-soft: rgba(59, 130, 246, 0.12);
+
+  --cls-purple: #8b5cf6;
+  --cls-purple-hover: #7c3aed;
+  --cls-purple-soft: rgba(139, 92, 246, 0.12);
+
+  --cls-green: #10b981;
+  --cls-green-hover: #059669;
+  --cls-green-soft: rgba(16, 185, 129, 0.12);
+
+  --cls-orange: #f59e0b;
+  --cls-orange-hover: #d97706;
+  --cls-orange-soft: rgba(245, 158, 11, 0.14);
+
+  --cls-red: #ef4444;
+  --cls-red-hover: #dc2626;
+  --cls-red-soft: rgba(239, 68, 68, 0.12);
+
+  --cls-bg-main: #f8fafc;
+  --cls-card-bg: #ffffff;
+  --cls-border: #e2e8f0;
+  --cls-border-light: #f1f5f9;
+
+  --cls-text-main: #1e293b;
+  --cls-text-muted: #64748b;
+  --cls-text-light: #94a3b8;
+
+  --cls-radius-sm: 8px;
+  --cls-radius-md: 12px;
+  --cls-radius-lg: 16px;
+  --cls-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --cls-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.07);
+  --cls-shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.admin-classes-page {
+  padding: 1.5rem;
+  background-color: var(--cls-bg-main);
+  min-height: 100vh;
+  color: var(--cls-text-main);
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+/* ---------------- 1. هدر صفحه ---------------- */
+.classes2-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.classes2-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--cls-text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.classes2-page-heading h1 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--cls-text-main);
+  margin: 0 0 0.4rem 0;
+}
+
+.classes2-page-heading p {
+  color: var(--cls-text-muted);
+  font-size: 0.92rem;
+  margin: 0;
+}
+
+.classes2-page-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+/* ---------------- دکمه‌های عمومی ---------------- */
+.classes2-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: var(--cls-radius-md);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.classes2-btn-primary {
+  background-color: var(--cls-primary);
+  color: #fff;
+}
+.classes2-btn-primary:hover {
+  background-color: var(--cls-primary-hover);
+}
+
+.classes2-btn-purple {
+  background-color: var(--cls-purple);
+  color: #fff;
+}
+.classes2-btn-purple:hover {
+  background-color: var(--cls-purple-hover);
+}
+
+.classes2-btn-secondary {
+  background-color: #fff;
+  border-color: var(--cls-border);
+  color: var(--cls-text-main);
+}
+.classes2-btn-secondary:hover {
+  background-color: #f1f5f9;
+}
+
+.classes2-btn-danger {
+  background-color: var(--cls-red);
+  color: #fff;
+}
+.classes2-btn-danger:hover {
+  background-color: var(--cls-red-hover);
+}
+
+.classes2-btn-outline-orange {
+  background-color: transparent;
+  border: 1px solid var(--cls-orange);
+  color: var(--cls-orange);
+}
+.classes2-btn-outline-orange:hover {
+  background-color: var(--cls-orange-soft);
+}
+
+.classes2-btn-sm {
+  padding: 0.45rem 0.8rem;
+  font-size: 0.82rem;
+}
+
+/* ---------------- 2. کارت‌های آمار بالای صفحه ---------------- */
+.classes2-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.classes2-stat-card {
+  background: var(--cls-card-bg);
+  border: 1px solid var(--cls-border);
+  border-radius: var(--cls-radius-lg);
+  padding: 1.25rem 1.4rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: var(--cls-shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.classes2-stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--cls-shadow-md);
+}
+
+.classes2-stat-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.classes2-stat-content span {
+  font-size: 0.85rem;
+  color: var(--cls-text-muted);
+}
+
+.classes2-stat-content strong {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--cls-text-main);
+}
+
+.classes2-stat-badge-sub {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.78rem;
+  font-weight: 500;
+  margin-top: 0.2rem;
+}
+.classes2-stat-badge-sub.green { color: var(--cls-green); }
+.classes2-stat-badge-sub.blue { color: var(--cls-primary); }
+.classes2-stat-badge-sub.orange { color: var(--cls-orange); }
+.classes2-stat-badge-sub.purple { color: var(--cls-purple); }
+
+.classes2-stat-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--cls-radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+.classes2-stat-card-green .classes2-stat-icon { background-color: var(--cls-green-soft); color: var(--cls-green); }
+.classes2-stat-card-blue .classes2-stat-icon { background-color: var(--cls-primary-soft); color: var(--cls-primary); }
+.classes2-stat-card-orange .classes2-stat-icon { background-color: var(--cls-orange-soft); color: var(--cls-orange); }
+.classes2-stat-card-purple .classes2-stat-icon { background-color: var(--cls-purple-soft); color: var(--cls-purple); }
+
+/* ---------------- 3. بخش کلاس‌های زنده و امروز ---------------- */
+.classes2-today-section {
+  margin-bottom: 2rem;
+}
+
+.classes2-section-title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 1.1rem;
+}
+
+.classes2-section-title h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--cls-text-main);
+  margin: 0;
+}
+
+.classes2-section-title span {
+  font-size: 0.85rem;
+  color: var(--cls-text-muted);
+}
+
+.classes2-live-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+.classes2-live-card {
+  background: var(--cls-card-bg);
+  border: 1px solid var(--cls-border);
+  border-radius: var(--cls-radius-lg);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--cls-shadow-sm);
+  border-top: 4px solid var(--cls-primary);
+  transition: all 0.2s ease;
+}
+.classes2-live-card.classes2-live-green { border-top-color: var(--cls-green); }
+.classes2-live-card.classes2-live-orange { border-top-color: var(--cls-orange); }
+.classes2-live-card.classes2-live-purple { border-top-color: var(--cls-purple); }
+
+.classes2-live-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.85rem;
+}
+
+.classes2-live-time {
+  font-size: 0.82rem;
+  color: var(--cls-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.classes2-status-pill {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 20px;
+  font-weight: 600;
+  background: var(--cls-primary-soft);
+  color: var(--cls-primary);
+}
+.classes2-status-pill.today { background: var(--cls-green-soft); color: var(--cls-green); }
+.classes2-status-pill.rescheduled { background: var(--cls-orange-soft); color: var(--cls-orange); }
+
+.classes2-live-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: var(--cls-text-main);
+}
+
+.classes2-live-teacher,
+.classes2-live-room {
+  font-size: 0.86rem;
+  color: var(--cls-text-muted);
+  margin: 0 0 0.35rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.classes2-live-card-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.45rem;
+  margin-top: 1rem;
+  padding-top: 0.85rem;
+  border-top: 1px dashed var(--cls-border);
+}
+
+.classes2-live-btn {
+  background: #f8fafc;
+  border: 1px solid var(--cls-border);
+  border-radius: var(--cls-radius-sm);
+  padding: 0.45rem 0.65rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--cls-text-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.classes2-live-btn:hover {
+  background: #e2e8f0;
+}
+
+/* ---------------- 4. جدول لیست کلاس‌ها ---------------- */
+.classes2-table-wrapper-card {
+  background: var(--cls-card-bg);
+  border: 1px solid var(--cls-border);
+  border-radius: var(--cls-radius-lg);
+  box-shadow: var(--cls-shadow-sm);
+  margin-bottom: 2rem;
+  overflow: hidden;
+}
+
+.classes2-table-toolbar {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--cls-border);
+}
+
+.classes2-toolbar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+}
+
+.classes2-toolbar-header h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.25rem 0;
+}
+
+.classes2-toolbar-header p {
+  font-size: 0.85rem;
+  color: var(--cls-text-muted);
+  margin: 0;
+}
+
+.classes2-bulk-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: #f1f5f9;
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--cls-radius-md);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.classes2-filters-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.classes2-search-input-box {
+  flex: 1;
+  min-width: 260px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.classes2-search-input-box i.bi-search {
+  position: absolute;
+  right: 0.9rem;
+  color: var(--cls-text-light);
+  font-size: 0.95rem;
+}
+
+.classes2-search-input-box input {
+  width: 100%;
+  padding: 0.6rem 2.4rem 0.6rem 2rem;
+  border-radius: var(--cls-radius-md);
+  border: 1px solid var(--cls-border);
+  font-size: 0.88rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.classes2-search-input-box input:focus {
+  border-color: var(--cls-primary);
+}
+
+.classes2-search-clear {
+  position: absolute;
+  left: 0.6rem;
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  color: var(--cls-text-muted);
+  cursor: pointer;
+}
+
+.classes2-filter-select {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.classes2-filter-select i {
+  position: absolute;
+  right: 0.85rem;
+  color: var(--cls-text-muted);
+}
+
+.classes2-filter-select select {
+  padding: 0.6rem 2.2rem 0.6rem 1rem;
+  border-radius: var(--cls-radius-md);
+  border: 1px solid var(--cls-border);
+  font-size: 0.88rem;
+  background: #fff;
+  cursor: pointer;
+  outline: none;
+}
+
+/* جدول داده‌ها */
+.classes2-table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.classes2-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: right;
+  font-size: 0.88rem;
+}
+
+.classes2-data-table th {
+  background: #f8fafc;
+  color: var(--cls-text-muted);
+  font-weight: 700;
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--cls-border);
+  white-space: nowrap;
+}
+
+.classes2-data-table td {
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--cls-border-light);
+  vertical-align: middle;
+}
+
+.classes2-data-table tr:hover {
+  background-color: #fcfdfe;
+}
+
+.classes2-row-selected {
+  background-color: #eff6ff !important;
+}
+
+/* سلول‌های سفارشی جدول */
+.classes2-cell-class-name {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.classes2-cell-class-name strong { color: var(--cls-text-main); font-size: 0.92rem; }
+.classes2-cell-course-sub { font-size: 0.78rem; color: var(--cls-text-muted); }
+
+.classes2-code-badge {
+  background: #f1f5f9;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-family: monospace;
+  font-weight: 600;
+  color: #475569;
+}
+
+.classes2-cell-instructor {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.classes2-avatar-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--cls-primary-soft);
+  color: var(--cls-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.classes2-cell-dates {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.82rem;
+}
+.classes2-cell-dates small { color: var(--cls-text-light); }
+
+.classes2-cell-schedule {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.classes2-schedule-days { font-weight: 600; }
+.classes2-schedule-time { font-size: 0.78rem; color: var(--cls-text-muted); display: flex; align-items: center; gap: 0.25rem; }
+
+.classes2-room-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: #475569;
+}
+
+.classes2-cell-sessions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 110px;
+}
+.classes2-progress-mini {
+  width: 100%;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.classes2-progress-fill {
+  height: 100%;
+  background: var(--cls-primary);
+  border-radius: 10px;
+}
+
+.classes2-cell-capacity {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 100px;
+}
+.classes2-capacity-bar {
+  width: 100%;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.classes2-capacity-fill {
+  height: 100%;
+  background: var(--cls-green);
+  border-radius: 10px;
+}
+.classes2-capacity-fill.full {
+  background: var(--cls-red);
+}
+
+.classes2-badge {
+  padding: 0.25rem 0.65rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-block;
+  white-space: nowrap;
+}
+.status-active { background: var(--cls-primary-soft); color: var(--cls-primary); }
+.status-today { background: var(--cls-green-soft); color: var(--cls-green); }
+.status-rescheduled { background: var(--cls-orange-soft); color: var(--cls-orange); }
+.status-completed { background: #f1f5f9; color: var(--cls-text-muted); }
+.status-cancelled { background: var(--cls-red-soft); color: var(--cls-red); }
+
+/* سوییچ فعال/غیرفعال */
+.classes2-switch {
+  position: relative;
+  display: inline-block;
+  width: 38px;
+  height: 22px;
+}
+.classes2-switch input { opacity: 0; width: 0; height: 0; }
+.classes2-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: #cbd5e1;
+  border-radius: 24px;
+  transition: 0.3s;
+}
+.classes2-slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+.classes2-switch input:checked + .classes2-slider {
+  background-color: var(--cls-green);
+}
+.classes2-switch input:checked + .classes2-slider:before {
+  transform: translateX(16px);
+}
+
+/* دکمه‌های عملیات جدول */
+.classes2-action-buttons-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.classes2-action-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--cls-border);
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: 0.2s;
+  color: var(--cls-text-muted);
+}
+.classes2-action-btn.view:hover { color: var(--cls-primary); border-color: var(--cls-primary); background: var(--cls-primary-soft); }
+.classes2-action-btn.edit:hover { color: var(--cls-orange); border-color: var(--cls-orange); background: var(--cls-orange-soft); }
+.classes2-action-btn.delete:hover { color: var(--cls-red); border-color: var(--cls-red); background: var(--cls-red-soft); }
+
+.classes2-empty-td {
+  text-align: center;
+  padding: 3rem 1rem !important;
+}
+.classes2-empty-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--cls-text-muted);
+}
+.classes2-empty-box i { font-size: 2.5rem; color: var(--cls-text-light); }
+
+.classes2-table-footer {
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--cls-border);
+  font-size: 0.85rem;
+  color: var(--cls-text-muted);
+}
+.classes2-table-pagination-dummy {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.classes2-page-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: 1px solid var(--cls-border);
+  background: #fff;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.classes2-active-page {
+  width: 30px;
+  height: 30px;
+  background: var(--cls-primary);
+  color: #fff;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+/* ---------------- 5. ویجت‌های پایین صفحه ---------------- */
+.classes2-bottom-widgets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.classes2-widget-card {
+  background: var(--cls-card-bg);
+  border: 1px solid var(--cls-border);
+  border-radius: var(--cls-radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--cls-shadow-sm);
+}
+
+.classes2-widget-header {
+  margin-bottom: 1.2rem;
+}
+.classes2-widget-header h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.25rem 0;
+}
+.classes2-sub-label {
+  font-size: 0.82rem;
+  color: var(--cls-text-muted);
+}
+
+.classes2-quick-sms-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.classes2-widget-action-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.25rem;
+}
+.classes2-char-count {
+  font-size: 0.78rem;
+  color: var(--cls-text-light);
+}
+
+.classes2-rescheduled-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+.classes2-rescheduled-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.85rem;
+  background: #f8fafc;
+  border: 1px solid var(--cls-border);
+  border-radius: var(--cls-radius-md);
+}
+.classes2-rescheduled-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.classes2-rescheduled-info strong { font-size: 0.88rem; }
+.classes2-rescheduled-info span { font-size: 0.78rem; color: var(--cls-orange); }
+
+/* ---------------- 6. استایل‌های مودال‌ها ---------------- */
+.classes2-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  padding: 1.5rem;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.classes2-modal {
+  background: #fff;
+  border-radius: var(--cls-radius-lg);
+  box-shadow: var(--cls-shadow-lg);
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: modalScale 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.classes2-form-modal { max-width: 760px; }
+.classes2-details-modal { max-width: 860px; }
+.classes2-delete-modal { max-width: 480px; }
+
+.classes2-modal-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--cls-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.classes2-modal-header h2 {
+  font-size: 1.2rem;
+  font-weight: 800;
+  margin: 0 0 0.3rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.classes2-modal-header p {
+  font-size: 0.82rem;
+  color: var(--cls-text-muted);
+  margin: 0;
+}
+.classes2-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: var(--cls-text-muted);
+  cursor: pointer;
+}
+
+.classes2-modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.classes2-modal-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--cls-border);
+  background: #f8fafc;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+/* فیلدهای فرم */
+.classes2-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.1rem;
+}
+.classes2-form-field-full {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.classes2-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.classes2-form-field label,
+.classes2-form-field-full label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--cls-text-main);
+}
+.classes2-form-field input,
+.classes2-form-field select,
+.classes2-form-field textarea,
+.classes2-form-field-full textarea {
+  padding: 0.6rem 0.85rem;
+  border-radius: var(--cls-radius-md);
+  border: 1px solid var(--cls-border);
+  font-size: 0.88rem;
+  outline: none;
+  font-family: inherit;
+}
+.classes2-form-field input:focus,
+.classes2-form-field select:focus,
+.classes2-form-field textarea:focus {
+  border-color: var(--cls-primary);
+}
+
+.classes2-checkbox-inline {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.classes2-form-error {
+  background: var(--cls-red-soft);
+  color: var(--cls-red);
+  padding: 0.75rem 1rem;
+  border-radius: var(--cls-radius-md);
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.2rem;
+}
+
+/* استایل‌های درون مودال جزئیات */
+.classes2-details-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.classes2-sum-card {
+  background: #f8fafc;
+  padding: 0.85rem 1rem;
+  border-radius: var(--cls-radius-md);
+  border: 1px solid var(--cls-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.classes2-sum-card span { font-size: 0.78rem; color: var(--cls-text-muted); }
+.classes2-sum-card strong { font-size: 0.92rem; color: var(--cls-text-main); }
+
+.classes2-tab-block {
+  margin-bottom: 1.5rem;
+}
+.classes2-tab-block h4 {
+  font-size: 0.98rem;
+  font-weight: 700;
+  margin: 0 0 0.75rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}:focus {
+  border-color: var(--cls-primary);
+}
+
+.classes2-checkbox-inline {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.classes2-form-error {
+  background: var(--cls-red-soft);
+  color: var(--cls-red);
+  padding: 0.75rem 1rem;
+  border-radius: var(--cls-radius-md);
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.2rem;
+}
+
+/* استایل‌های درون مودال جزئیات */
+.classes2-details-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.classes2-sum-card {
+  background: #f8fafc;
+  padding: 0.85rem 1rem;
+  border-radius: var(--cls-radius-md);
+  border: 1px solid var(--cls-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.classes2-sum-card span { font-size: 0.78rem; color: var(--cls-text-muted); }
+.classes2-sum-card strong { font-size: 0.92rem; color: var(--cls-text-main); }
+
+.classes2-tab-block {
+  margin-bottom: 1.5rem;
+}
+.classes2-tab-block h4 {
+  font-size: 0.98rem;
+  font-weight: 700;
+  margin: 0 0 0.75rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+
+  padding: 1rem;
+}
+.classes2-tab-box h5 {
+  font-size: 0.88rem;
+  font-weight: 700;
+  margin: 0 0 0.6rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.classes2-check-list,
+.classes2-files-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.classes2-delete-warning {
+  text-align: center;
+  padding: 1rem 0;
+}
+.classes2-delete-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--cls-red-soft);
+  color: var(--cls-red);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  margin: 0 auto 1rem auto;
+}
+.classes2-delete-warning h3 {
+  font-size: 1.15rem;
+  margin: 0 0 0.5rem 0;
+}
+.classes2-delete-warning p {
+  font-size: 0.88rem;
+  color: var(--cls-text-muted);
+  line-height: 1.6;
+}
+
+/* انیمیشن‌ها */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes modalScale {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* ---------------- ریسپانسیو (Responsive) ---------------- */
+@media (max-width: 768px) {
+  .admin-classes-page { padding: 1rem; }
+  .classes2-page-header { flex-direction: column; align-items: stretch; }
+  .classes2-form-grid { grid-template-columns: 1fr; }
+  .classes2-filters-row { flex-direction: column; }
+  .classes2-search-input-box, .classes2-filter-select, .classes2-filter-select select { width: 100%; }
+}

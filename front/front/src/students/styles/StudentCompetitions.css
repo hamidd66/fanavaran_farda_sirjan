@@ -1,0 +1,576 @@
+/* ========================================================
+   استایل‌های بهینه‌شده صفحه مسابقات و چالش‌ها (۲ ستونه)
+   آموزشگاه فناوری و هوش مصنوعی فناوران فردا
+======================================================== */
+
+.comp-page-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+/* --------------------------------------------------------
+   ۱. پنل هیرو
+-------------------------------------------------------- */
+.comp-hero-panel {
+  background: radial-gradient(circle at 10% 20%, #1e1b4b 0%, #090d16 100%);
+  border-radius: 16px;
+  padding: 20px 24px;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 25px -8px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.comp-hero-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.comp-hero-title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.comp-badge-icon {
+  width: 44px;
+  height: 44px;
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  flex-shrink: 0;
+}
+
+.comp-hero-title h2 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  margin: 0 0 4px 0;
+  color: #f8fafc;
+}
+
+.comp-hero-title p {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.comp-stats-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 10px 16px;
+}
+
+.comp-stat-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-label {
+  font-size: 0.72rem;
+  color: #94a3b8;
+}
+
+.stat-value {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.text-gold { color: #f59e0b !important; }
+.text-cyan { color: #38bdf8 !important; }
+.text-emerald { color: #34d399 !important; }
+
+/* --------------------------------------------------------
+   ۲. چیدمان دقیق دو ستونه کارت‌ها (۲ ستون در دسکتاپ)
+-------------------------------------------------------- */
+.eval-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr) !important; /* اجبار دو ستونه بودن */
+  gap: 16px !important;
+  width: 100%;
+}
+
+@media (max-width: 992px) {
+  .eval-cards-grid {
+    grid-template-columns: 1fr !important; /* تک‌ستون در موبایل و تبلت */
+  }
+  .comp-stats-strip {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* کارت بهینه‌شده و فشرده‌تر */
+.comp-card-item {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 14px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.03);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.comp-card-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.07);
+}
+
+.comp-card-ended {
+  border-top: 4px solid #10b981;
+}
+
+.comp-card-live {
+  border: 2px solid #ef4444;
+  background: linear-gradient(180deg, #ffffff 0%, #fffbfb 100%);
+}
+
+.comp-card-upcoming {
+  border-top: 4px solid #6366f1;
+}
+
+/* استامپ فشرده وضعیت مسابقه */
+.comp-status-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.big-status-stamp {
+  font-size: 0.76rem;
+  font-weight: 800;
+  padding: 5px 10px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stamp-ended {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
+}
+
+.stamp-live {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fca5a5;
+}
+
+.stamp-upcoming {
+  background: #e0e7ff;
+  color: #4338ca;
+  border: 1px solid #c7d2fe;
+}
+
+.pulse-dot {
+  width: 7px;
+  height: 7px;
+  background: #ef4444;
+  border-radius: 50%;
+  display: inline-block;
+  animation: pulseAnim 1.4s infinite;
+}
+
+@keyframes pulseAnim {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 6px #ef4444; }
+  100% { transform: scale(0.9); opacity: 0.8; }
+}
+
+.comp-tag-badge {
+  font-size: 0.7rem;
+  background: #f1f5f9;
+  color: #475569;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-weight: 700;
+  border: 1px solid #e2e8f0;
+}
+
+/* محتوای کارت */
+.comp-body-main {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.comp-cat {
+  font-size: 0.72rem;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.comp-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+  line-height: 1.45;
+}
+
+.comp-meta-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 4px;
+}
+
+.meta-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.76rem;
+  color: #475569;
+}
+
+.meta-row svg {
+  color: #94a3b8;
+  font-size: 0.82rem;
+}
+
+/* باکس رتبه و نتیجه مسابقه تمام شده */
+.comp-result-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rank-stamp-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 10px;
+}
+
+.rank-gold {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border: 1px solid #fcd34d;
+  color: #92400e;
+}
+
+.rank-silver {
+  background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+  border: 1px solid #cbd5e1;
+  color: #334155;
+}
+
+.rank-bronze {
+  background: linear-gradient(135deg, #ffedd5, #fed7aa);
+  border: 1px solid #fdba74;
+  color: #9a3412;
+}
+
+.rank-general {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1e40af;
+}
+
+.rank-trophy-icon {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.rank-data {
+  display: flex;
+  flex-direction: column;
+}
+
+.rank-num {
+  font-size: 0.88rem;
+  font-weight: 800;
+}
+
+.rank-sub {
+  font-size: 0.7rem;
+  opacity: 0.85;
+}
+
+.comp-score-row {
+  display: flex;
+  justify-content: space-between;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+
+.score-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+}
+
+.sc-title { color: #64748b; }
+.sc-val { color: #0f172a; font-weight: 800; }
+
+.comp-not-ended-box {
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.live-entry-banner, .upcoming-entry-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.live-entry-banner p, .upcoming-entry-banner p {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: #64748b;
+}
+
+.btn-comp-action {
+  width: 100%;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-view-report {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+}
+
+.btn-view-report:hover {
+  background: #dbeafe;
+}
+
+.btn-enter-live {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #ffffff;
+}
+
+.btn-upcoming-info {
+  background: #f1f5f9;
+  color: #94a3b8;
+  cursor: not-allowed;
+  border: 1px solid #e2e8f0;
+}
+
+/* --------------------------------------------------------
+   ۳. اصلاح کامل پوزیشن مودال در مرکز صفحه (Fixed Center)
+-------------------------------------------------------- */
+.std-modal-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background-color: rgba(15, 23, 42, 0.65) !important;
+  backdrop-filter: blur(5px) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 99999 !important; /* اطمینان از قرار گرفتن روی تمام لایه‌ها */
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.std-modal-container {
+  background: #ffffff !important;
+  width: 100%;
+  max-width: 540px !important;
+  max-height: 90vh !important;
+  border-radius: 18px !important;
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.25) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalPop {
+  0% { transform: scale(0.92); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.std-modal-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f8fafc;
+}
+
+.std-modal-header h3 {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.std-modal-close {
+  background: transparent;
+  border: none;
+  font-size: 1.1rem;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+}
+
+.std-modal-close:hover {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.std-modal-body {
+  padding: 20px;
+  overflow-y: auto !important;
+  max-height: calc(90vh - 75px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modal-result-spotlight {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.spotlight-text h4 {
+  margin: 0 0 3px 0;
+  font-size: 0.88rem;
+  color: #0f172a;
+}
+
+.spotlight-text p {
+  margin: 0;
+  font-size: 0.74rem;
+  color: #64748b;
+}
+
+.modal-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.m-metric-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+}
+
+.m-title {
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+.m-val {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.modal-prize-box {
+  background: #fefce8;
+  border: 1px solid #fef08a;
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.prize-icon {
+  font-size: 1.5rem;
+  color: #ca8a04;
+  flex-shrink: 0;
+}
+
+.modal-prize-box h5 {
+  margin: 0 0 2px 0;
+  font-size: 0.82rem;
+  color: #854d0e;
+}
+
+.modal-prize-box p {
+  margin: 0;
+  font-size: 0.76rem;
+  color: #713f12;
+  margin: 0;
+}
+
+.modal-actions-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.btn-modal-cancel {
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #475569;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-modal-cancel:hover {
+  background: #f1f5f9;
+}

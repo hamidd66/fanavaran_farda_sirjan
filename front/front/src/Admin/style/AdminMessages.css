@@ -1,0 +1,666 @@
+/* ==========================================================================
+   Admin Messenger Style — منطبق بر سیستم طراحی AdminCourses
+   ========================================================================== */
+
+/* ناوبری تب‌های پیام‌رسان */
+.messenger-nav-tabs {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  background: #ffffff;
+  padding: 8px 12px;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+  overflow-x: auto;
+}
+
+.messenger-nav-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.messenger-nav-tab:hover {
+  color: #2563eb;
+  background: #f1f5f9;
+}
+
+.messenger-nav-tab.active {
+  background: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.28);
+}
+
+.tab-count-badge {
+  background: #e2e8f0;
+  color: #334155;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+.messenger-nav-tab.active .tab-count-badge {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+.tab-count-badge.unread {
+  background: #8b5cf6;
+  color: #ffffff;
+}
+
+.tab-count-badge.danger {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+/* نوار ابزار بالای جداول پیام‌رسان */
+.messenger-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 24px;
+  border-bottom: 1px solid #e2e8f0;
+  flex-wrap: wrap;
+}
+
+.monitor-notice-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #eff6ff;
+  color: #2563eb;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid #bfdbfe;
+}
+
+/* سلول عنوان اطلاعیه همگانی */
+.broadcast-title-cell strong {
+  display: block;
+  font-size: 14px;
+  color: #0f172a;
+  margin-bottom: 4px;
+}
+
+.broadcast-title-cell p {
+  margin: 0;
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+/* نشان‌های برچسب */
+.audience-tag {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.course-tag {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: #f5f3ff;
+  border: 1px solid #ddd6fe;
+  color: #6d28d9;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.views-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #64748b;
+  font-size: 13px;
+}
+
+/* اولویت‌ها */
+.priority-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.priority-badge.normal {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.priority-badge.important {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.priority-badge.emergency {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+/* دکمه تیک نمایش/مخفی فعال/غیرفعال */
+.status-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.status-toggle-btn.active {
+  background: #ecfdf5;
+  color: #059669;
+  border-color: #a7f3d0;
+}
+
+.status-toggle-btn.inactive {
+  background: #f8fafc;
+  color: #94a3b8;
+  border-color: #e2e8f0;
+}
+
+.status-toggle-btn:hover {
+  transform: translateY(-1px);
+}
+
+.toggle-icon-on {
+  color: #10b981;
+}
+
+.toggle-icon-off {
+  color: #94a3b8;
+}
+
+/* ================= ساختار چت دونفره مستقیم ================= */
+.direct-messenger-layout {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 20px;
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+  min-height: 600px;
+  overflow: hidden;
+}
+
+.direct-threads-sidebar {
+  border-left: 1px solid #e2e8f0;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+}
+
+.threads-search-box {
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  color: #94a3b8;
+}
+
+.threads-search-box input {
+  border: none;
+  outline: none;
+  background: transparent;
+  width: 100%;
+  font-size: 13px;
+  color: #0f172a;
+}
+
+.threads-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.thread-item-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.thread-item-card:hover {
+  background: #f1f5f9;
+}
+
+.thread-item-card.active {
+  background: #eff6ff;
+  border-right: 3px solid #2563eb;
+}
+
+.thread-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.thread-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.thread-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.thread-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.thread-time {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.thread-role-badge {
+  display: block;
+  font-size: 11px;
+  color: #2563eb;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.thread-last-msg {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.thread-unread-pill {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* پنجره پیام‌های گفتگو */
+.direct-chat-window {
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+}
+
+.chat-window-header {
+  padding: 16px 24px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+}
+
+.chat-user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chat-user-info h3 {
+  margin: 0 0 2px 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.chat-user-info span {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.chat-messages-container {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: #f8fafc;
+}
+
+.chat-bubble-row {
+  display: flex;
+}
+
+.chat-bubble-row.admin {
+  justify-content: flex-start;
+}
+
+.chat-bubble-row.incoming {
+  justify-content: flex-end;
+}
+
+.chat-bubble {
+  max-width: 65%;
+  padding: 12px 16px;
+  border-radius: 14px;
+  position: relative;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+}
+
+.chat-bubble-row.admin .chat-bubble {
+  background: #2563eb;
+  color: #ffffff;
+  border-bottom-right-radius: 2px;
+}
+
+.chat-bubble-row.incoming .chat-bubble {
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid #e2e8f0;
+  border-bottom-left-radius: 2px;
+}
+
+.chat-text {
+  margin: 0 0 4px 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.chat-timestamp {
+  font-size: 10px;
+  display: block;
+  text-align: left;
+  opacity: 0.8;
+}
+
+.chat-input-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+.chat-attachment-btn {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.chat-attachment-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.chat-text-input {
+  flex: 1;
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  outline: none;
+  font-size: 13px;
+  transition: border-color 0.2s;
+}
+
+.chat-text-input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.chat-send-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+  transition: all 0.2s;
+}
+
+.chat-send-btn:hover {
+  background: #1d4ed8;
+}
+
+/* ================= هشدارهای هوشمند سیستم ================= */
+.alerts-grid-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 18px;
+}
+
+.system-alert-card {
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  padding: 18px;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
+  display: flex;
+  flex-direction: column;
+  transition: all 0.2s ease;
+}
+
+.system-alert-card.danger {
+  border-right: 4px solid #ef4444;
+}
+
+.system-alert-card.warning {
+  border-right: 4px solid #f59e0b;
+}
+
+.system-alert-card.resolved {
+  opacity: 0.7;
+  border-right: 4px solid #10b981;
+}
+
+.alert-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.system-alert-card.danger .alert-icon-wrap {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.system-alert-card.warning .alert-icon-wrap {
+  background: #fef3c7;
+  color: #f59e0b;
+}
+
+.alert-icon-wrap {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.alert-title-wrap {
+  flex: 1;
+}
+
+.alert-title-wrap h4 {
+  margin: 0 0 3px 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.alert-target-name {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.alert-status-pill {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+.alert-status-pill.pending {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.alert-status-pill.done {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.alert-card-body p {
+  margin: 0 0 16px 0;
+  font-size: 13px;
+  color: #334155;
+  line-height: 1.5;
+}
+
+.alert-card-footer {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 12px;
+}
+
+.alert-time {
+  font-size: 11px;
+  color: #94a3b8;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.alert-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* مودال مانیتورینگ مکالمات */
+.monitored-chat-history {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 380px;
+  overflow-y: auto;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.monitored-bubble-row {
+  display: flex;
+}
+
+.monitored-bubble-row.teacher {
+  justify-content: flex-start;
+}
+
+.monitored-bubble-row.student {
+  justify-content: flex-end;
+}
+
+.monitored-bubble {
+  max-width: 70%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 13px;
+}
+
+.monitored-bubble-row.teacher .monitored-bubble {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1e3a8a;
+}
+
+.monitored-bubble-row.student .monitored-bubble {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  color: #0f172a;
+}
+
+.bubble-author {
+  font-weight: 700;
+  font-size: 11px;
+  margin-bottom: 2px;
+  display: block;
+}
+
+.bubble-time {
+  font-size: 10px;
+  opacity: 0.7;
+  display: block;
+  text-align: left;
+  margin-top: 4px;
+}

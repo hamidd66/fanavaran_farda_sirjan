@@ -1,0 +1,299 @@
+/* ==========================================================================
+   استایل سایدبار دارک هنرجو (StudentSidebar.css)
+   ========================================================================== */
+
+.std-main-sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: var(--std-sidebar-width, 280px);
+  background-color: #0f1222;
+  z-index: 950;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -4px 0 25px rgba(0, 0, 0, 0.3);
+  direction: rtl;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.std-main-sidebar.is-open {
+  transform: translateX(0);
+}
+
+.std-main-sidebar.is-closed {
+  transform: translateX(100%);
+}
+
+/* در دسکتاپ اورلی خاموش است */
+@media (min-width: 1024px) {
+  .std-mobile-overlay {
+    display: none !important;
+  }
+}
+
+/* در موبایل: صفحه بدون تاری (No Blur) با وضوح ۱۰۰٪ زیرین */
+@media (max-width: 1023px) {
+  .std-mobile-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    z-index: 920;
+  }
+  .std-sidebar-close-btn {
+    display: flex !important;
+  }
+}
+
+.std-sidebar-inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 16px 14px;
+  overflow-y: auto;
+}
+
+.std-sidebar-inner::-webkit-scrollbar {
+  width: 4px;
+}
+.std-sidebar-inner::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+}
+
+/* برندینگ */
+.std-sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 6px 16px 6px;
+  position: relative;
+}
+
+.std-brand-logo {
+  width: 44px;
+  height: 44px;
+  background: #ffffff;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  flex-shrink: 0;
+}
+
+.std-brand-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 2px;
+}
+
+.std-brand-fallback {
+  display: none;
+  font-weight: 800;
+  color: #4338ca;
+  font-size: 1.1rem;
+}
+
+.std-brand-info {
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+}
+
+.std-brand-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.std-brand-title span {
+  color: #818cf8;
+}
+
+.std-brand-tag {
+  font-size: 0.72rem;
+  color: #8e9bb3;
+  margin-top: 2px;
+}
+
+.std-sidebar-close-btn {
+  position: absolute;
+  left: 0;
+  top: 10px;
+  background: transparent;
+  border: none;
+  color: #8e9bb3;
+  font-size: 1.3rem;
+  cursor: pointer;
+  display: none;
+}
+
+/* کارت پروفایل هنرجو */
+.std-user-card {
+  background: #181d33;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.std-avatar-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  flex-shrink: 0;
+}
+
+.std-avatar-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.std-user-meta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+  overflow: hidden;
+}
+
+.std-user-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.std-user-name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.std-verify-icon {
+  color: #6366f1;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.std-student-code {
+  font-size: 0.72rem;
+  color: #8e9bb3;
+  margin-top: 2px;
+}
+
+.std-logout-btn {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  font-size: 1.15rem;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.75;
+  transition: opacity 0.2s ease;
+}
+
+.std-logout-btn:hover {
+  opacity: 1;
+}
+
+.std-nav-category-title {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #6b7280;
+  padding: 0 10px 8px 10px;
+  text-align: right;
+}
+
+.std-nav-menu {
+  flex: 1;
+}
+
+.std-nav-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.std-nav-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.std-nav-link-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.std-nav-item-icon {
+  font-size: 1.2rem;
+  color: #94a3b8;
+  transition: color 0.2s;
+  flex-shrink: 0;
+}
+
+.std-nav-link:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #f8fafc;
+}
+
+.std-nav-link:hover .std-nav-item-icon {
+  color: #ffffff;
+}
+
+.std-nav-link.active {
+  background: linear-gradient(135deg, #4447e4 0%, #5850ec 100%) !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.35);
+}
+
+.std-nav-link.active .std-nav-item-icon {
+  color: #ffffff !important;
+}
+
+.std-sidebar-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 6px 2px 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin-top: 10px;
+  font-size: 0.74rem;
+  color: #4b5563;
+}
+
+.std-ver {
+  direction: ltr;
+}

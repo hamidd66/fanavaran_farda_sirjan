@@ -1,0 +1,322 @@
+
+/* Register Teacher Page Styles - Fanavaran Farda */
+
+.register-teacher-page {
+  font-family: "Vazirmatn", sans-serif;
+  direction: rtl;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+/* Hero Section */
+.apply-hero {
+  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 45%, #4f46e5 100%);
+  color: #fff;
+  padding: 60px 0 45px;
+  text-align: center;
+  position: relative;
+}
+
+.apply-hero h1 {
+  font-weight: 800;
+  font-size: 2rem;
+  margin-bottom: 12px;
+}
+
+.apply-hero p {
+  font-size: 0.95rem;
+  color: #c7d2fe;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.8;
+}
+
+/* Form Container Section */
+.apply-section {
+  padding: 45px 0 80px;
+}
+
+.apply-form-wrap {
+  background: #fff;
+  border-radius: 22px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  padding: 35px 30px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Success Alerts & Validations */
+.submit-alert {
+  border-radius: 12px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  padding: 15px 20px;
+  margin-bottom: 24px;
+}
+
+/* Step Titles */
+.form-step-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #1e1b4b;
+  border-bottom: 2px solid #eef2ff;
+  padding-bottom: 10px;
+  margin-top: 28px;
+  margin-bottom: 20px;
+}
+
+.form-step-title:first-of-type {
+  margin-top: 0;
+}
+
+.step-num {
+  width: 28px;
+  height: 28px;
+  background: #4f46e5;
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.88rem;
+  font-weight: bold;
+}
+
+/* Inputs & Form Controls */
+.register-teacher-page .form-label {
+  font-weight: 700;
+  color: #374151;
+  font-size: 0.88rem;
+  margin-bottom: 8px;
+}
+
+.register-teacher-page .form-control,
+.register-teacher-page .form-select {
+  border: 1.5px solid #d1d5db;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  color: #1f2937;
+  background-color: #f9fafb;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.register-teacher-page .form-control:focus,
+.register-teacher-page .form-select:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+  background-color: #ffffff;
+}
+
+.register-teacher-page textarea.form-control {
+  resize: vertical;
+}
+
+/* Track Cards Option */
+.track-option {
+  display: none !important;
+}
+
+.track-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 18px 10px;
+  background: #fafafa;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  height: 100%;
+}
+
+.track-label i {
+  color: #6b7280;
+  transition: color 0.3s;
+}
+
+.track-label span {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #4b5563;
+}
+
+/* Track Selection Checked Effect */
+.track-option:checked + .track-label {
+  border-color: #4f46e5;
+  background: #eef2ff;
+  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.15);
+}
+
+.track-option:checked + .track-label i {
+  color: #4f46e5;
+}
+
+.track-option:checked + .track-label span {
+  color: #4f46e5;
+}
+
+/* Sub-track Skill block */
+.sub-track-block {
+  display: none;
+  background: #f8f9fc;
+  border: 1.5px dashed #c7d2fe;
+  border-radius: 14px;
+  padding: 16px 18px;
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+
+.sub-track-block.active {
+  display: block;
+  animation: blockFadeIn 0.35s ease forwards;
+}
+
+@keyframes blockFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Skill pills option */
+.skill-option {
+  display: none !important;
+}
+
+.skill-label {
+  display: inline-block;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 20px;
+  padding: 6px 16px;
+  margin: 3px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #4b5563;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.skill-option:checked + .skill-label {
+  background: #4f46e5;
+  color: #ffffff;
+  border-color: #4f46e5;
+}
+
+/* Days selection option */
+.day-option {
+  display: none !important;
+}
+
+.day-label {
+  display: inline-block;
+  min-width: 56px;
+  text-align: center;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 8px 6px;
+  margin: 3px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #4b5563;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.day-option:checked + .day-label {
+  background: #4f46e5;
+  color: #ffffff;
+  border-color: #4f46e5;
+}
+
+/* File upload boxes */
+.upload-box {
+  border: 2px dashed #d1d5db;
+  border-radius: 14px;
+  padding: 22px;
+  text-align: center;
+  background: #f8f9fc;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.upload-box:hover {
+  border-color: #4f46e5;
+  background: #eef2ff;
+}
+
+.upload-box span {
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: #4f46e5;
+}
+
+.upload-filename {
+  display: inline-block;
+  background: #eef2ff;
+  color: #4f46e5;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+/* Terms checkbox */
+.register-teacher-page .form-check-input {
+  cursor: pointer;
+  accent-color: #4f46e5;
+}
+
+.register-teacher-page .form-check-label {
+  font-weight: 600;
+  color: #4b5563;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
+/* Primary register button */
+.register-teacher-page .btn-primary {
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  border: none;
+  border-radius: 12px;
+  padding: 12px;
+  font-weight: 800;
+  font-size: 1rem;
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.2);
+  transition: all 0.25s ease;
+}
+
+.register-teacher-page .btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(79, 70, 229, 0.3);
+}
+
+.register-teacher-page .btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: #9ca3af;
+  box-shadow: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .apply-form-wrap {
+    padding: 24px 16px;
+  }
+  .apply-hero h1 {
+    font-size: 1.6rem;
+  }
+}

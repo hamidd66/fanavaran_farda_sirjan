@@ -1,0 +1,632 @@
+/* ==========================================================================
+   MASTER STYLESHEET - پنل جامع هنرجویان فناوران فردا
+   شامل: لی‌اوت، هدرها، کارت‌های آماری، جداول، فیلترها و کامپوننت‌های عمومی
+   ========================================================================== */
+
+:root {
+  --std-bg-main: #f8fafc;
+  --std-card-bg: #ffffff;
+  --std-dark-sidebar: #0f1222;
+  --std-dark-surface: #181d33;
+  --std-primary: #4f46e5;
+  --std-primary-hover: #4338ca;
+  --std-primary-light: rgba(79, 70, 229, 0.08);
+  --std-text-title: #0f172a;
+  --std-text-body: #334155;
+  --std-text-muted: #64748b;
+  --std-border: #e2e8f0;
+  --std-border-subtle: rgba(255, 255, 255, 0.08);
+  --std-success: #10b981;
+  --std-warning: #f59e0b;
+  --std-danger: #ef4444;
+  --std-info: #06b6d4;
+  --std-radius-sm: 8px;
+  --std-radius-md: 12px;
+  --std-radius-lg: 18px;
+  --std-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
+  --std-shadow-md: 0 4px 14px rgba(0, 0, 0, 0.05);
+  --std-shadow-card: 0 8px 24px rgba(15, 23, 42, 0.04);
+  --std-sidebar-width: 280px;
+}
+
+/* ------------------- ساختار کلی لی‌اوت (Layout Grid) ------------------- */
+.student-layout-container {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background-color: var(--std-bg-main);
+  direction: rtl;
+  font-family: inherit;
+}
+
+.student-main-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 100vh;
+  background-color: var(--std-bg-main);
+  transition: margin-right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (min-width: 1024px) {
+  .student-main-wrapper {
+    margin-right: var(--std-sidebar-width);
+  }
+  .student-main-wrapper.sidebar-collapsed {
+    margin-right: 0 !important;
+  }
+}
+
+@media (max-width: 1023px) {
+  .student-main-wrapper {
+    margin-right: 0 !important;
+  }
+}
+
+/* ------------------- هدر بالای صفحه (Top Header) ------------------- */
+.student-top-header {
+  height: 68px;
+  background: #ffffff;
+  border-bottom: 1px solid var(--std-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  box-shadow: var(--std-shadow-sm);
+}
+
+.header-right-tools {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.std-hamburger-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--std-radius-md);
+  border: 1px solid var(--std-border);
+  background: #ffffff;
+  color: var(--std-text-body);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.std-hamburger-btn:hover {
+  background: #f1f5f9;
+  color: var(--std-text-title);
+  border-color: #cbd5e1;
+}
+
+.header-institute-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--std-text-title);
+}
+
+.header-left-tools {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.std-header-icon-btn {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  border-radius: var(--std-radius-md);
+  border: 1px solid var(--std-border);
+  background: #ffffff;
+  color: var(--std-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.std-header-icon-btn:hover {
+  background: #f8fafc;
+  color: var(--std-text-title);
+}
+
+.std-notif-dot {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  width: 9px;
+  height: 9px;
+  background: var(--std-danger);
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+}
+
+.std-profile-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 12px 4px 6px;
+  background: #f8fafc;
+  border: 1px solid var(--std-border);
+  border-radius: 40px;
+}
+
+.std-avatar-circle {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #e0e7ff;
+  color: var(--std-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  overflow: hidden;
+}
+
+.std-avatar-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.std-pill-text {
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+}
+
+.std-user-fullname {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--std-text-title);
+}
+
+.std-user-role {
+  font-size: 0.72rem;
+  color: var(--std-text-muted);
+}
+
+.student-content-area {
+  flex: 1;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+/* ==========================================================================
+   کامپوننت‌های سراسری صفحات داخلی (قابل استفاده در تمام صفحات بدون کد مجدد)
+   ========================================================================== */
+
+/* 1. هدر دارک و شیک بالای صفحات (دقیقاً مشابه الگوی درخواستی قبلی) */
+.page-header {
+  background: linear-gradient(135deg, #181d33 0%, #0f1222 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--std-radius-lg);
+  padding: 24px 28px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+}
+
+.header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: right;
+}
+
+.header-title-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-title-badge h1 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  margin: 0;
+  color: #ffffff;
+}
+
+.header-icon {
+  font-size: 1.4rem;
+  color: #818cf8;
+  flex-shrink: 0;
+}
+
+.header-subtitle {
+  margin: 0;
+  font-size: 0.86rem;
+  color: #94a3b8;
+  line-height: 1.6;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* 2. کانتینر اصلی صفحات */
+.std-page-container {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* 3. کارت‌های آمار و خلاصه‌وضعیت (Overview Cards Grid) */
+.std-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.std-stat-card {
+  background: var(--std-card-bg);
+  border: 1px solid var(--std-border);
+  border-radius: var(--std-radius-lg);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: var(--std-shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.std-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--std-shadow-md);
+}
+
+.std-stat-icon-wrap {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--std-radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.std-stat-icon-wrap.indigo { background: #e0e7ff; color: #4338ca; }
+.std-stat-icon-wrap.emerald { background: #d1fae5; color: #059669; }
+.std-stat-icon-wrap.amber { background: #fef3c7; color: #d97706; }
+.std-stat-icon-wrap.rose { background: #ffe4e6; color: #e11d48; }
+
+.std-stat-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.std-stat-title {
+  font-size: 0.8rem;
+  color: var(--std-text-muted);
+  font-weight: 600;
+}
+
+.std-stat-value {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--std-text-title);
+}
+
+/* 4. نوار ابزار و فیلترها (Filter & Search Bar) */
+.std-filter-bar {
+  background: #ffffff;
+  border: 1px solid var(--std-border);
+  border-radius: var(--std-radius-lg);
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  box-shadow: var(--std-shadow-sm);
+}
+
+.std-search-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f8fafc;
+  border: 1px solid var(--std-border);
+  border-radius: var(--std-radius-md);
+  padding: 8px 14px;
+  min-width: 280px;
+}
+
+.std-search-box input {
+  border: none;
+  background: transparent;
+  outline: none;
+  width: 100%;
+  font-size: 0.88rem;
+  color: var(--std-text-title);
+}
+
+.std-filter-options {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.std-select {
+  background: #f8fafc;
+  border: 1px solid var(--std-border);
+  border-radius: var(--std-radius-md);
+  padding: 8px 14px;
+  font-size: 0.86rem;
+  color: var(--std-text-title);
+  outline: none;
+  cursor: pointer;
+}
+
+/* 5. کارت‌های عمومی محتوا (Base Card) */
+.std-content-card {
+  background: #ffffff;
+  border: 1px solid var(--std-border);
+  border-radius: var(--std-radius-lg);
+  padding: 24px;
+  box-shadow: var(--std-shadow-card);
+  margin-bottom: 24px;
+}
+
+.std-card-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--std-border);
+}
+
+.std-card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--std-text-title);
+}
+
+/* 6. جداول استاندارد (Data Tables) */
+.std-table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: var(--std-radius-md);
+}
+
+.std-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: right;
+}
+
+.std-table th {
+  background: #f8fafc;
+  padding: 14px 18px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--std-text-muted);
+  border-bottom: 1px solid var(--std-border);
+  white-space: nowrap;
+}
+
+.std-table td {
+  padding: 14px 18px;
+  font-size: 0.88rem;
+  color: var(--std-text-body);
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.std-table tr:hover td {
+  background-color: #fafbfc;
+}
+
+/* 7. بج‌ها و وضعیت‌ها (Badges & Status) */
+.std-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.std-badge.success { background: #dcfce7; color: #15803d; }
+.std-badge.warning { background: #fef3c7; color: #b45309; }
+.std-badge.danger { background: #fee2e2; color: #b91c1c; }
+.std-badge.info { background: #e0f2fe; color: #0369a1; }
+.std-badge.neutral { background: #f1f5f9; color: #475569; }
+
+/* 8. دکمه‌های پرکاربرد (Buttons) */
+.std-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 18px;
+  border-radius: var(--std-radius-md);
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.std-btn-primary {
+  background: var(--std-primary);
+  color: #ffffff;
+}
+.std-btn-primary:hover {
+  background: var(--std-primary-hover);
+}
+
+.std-btn-secondary {
+  background: #f1f5f9;
+  color: var(--std-text-body);
+  border: 1px solid var(--std-border);
+}
+.std-btn-secondary:hover {
+  background: #e2e8f0;
+}
+
+/* 9. نوار پیشرفت (Progress Bar) */
+.std-progress-track {
+  width: 100%;
+  height: 8px;
+  background-color: #e2e8f0;
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.std-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6366f1 0%, #4f46e5 100%);
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+/* ========================================================
+   کلاس‌های پایه و مشترک پنل هنرجو (کارت‌ها، هدرها، بج‌ها)
+======================================================== */
+
+/* کانتینر اصلی کارت سفید با سایه و بوردر استاندارد */
+.std-card {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  padding: 24px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+}
+
+/* هدر استاندارد بالای هر کارت */
+.std-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 14px;
+}
+
+.std-card-head h3 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.std-card-head p {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin: 0;
+}
+
+/* لینک مشاهده همه در کارت‌ها */
+.std-card-link {
+  font-size: 0.82rem;
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: color 0.2s ease;
+}
+
+.std-card-link:hover {
+  color: #1d4ed8;
+}
+
+/* نوار پیشرفت استاندارد (Progress Bar) */
+.std-progress-track {
+  width: 100%;
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.std-progress-bar {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.6s ease;
+}
+
+/* بج‌های وضعیت استاندارد */
+.std-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 12px;
+}
+
+.std-chip.primary { background: #eff6ff; color: #1d4ed8; }
+.std-chip.success { background: #dcfce7; color: #15803d; }
+.std-chip.warning { background: #fef3c7; color: #b45309; }
+.std-chip.danger  { background: #fee2e2; color: #b91c1c; }
+
+/* دکمه‌های مشترک */
+.std-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.std-btn-primary:hover {
+  background: #1d4ed8;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+
+.std-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.std-btn-secondary:hover {
+  background: #e2e8f0;
+}

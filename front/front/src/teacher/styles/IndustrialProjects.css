@@ -1,0 +1,1440 @@
+/* Container & Base Layout */
+.teacher-finance-wrapper {
+  padding: 1.5rem;
+  background-color: #f8fafc;
+  min-height: 100vh;
+  color: #1e293b;
+  font-family: inherit;
+}
+
+/* Page Header */
+.page-header {
+background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 60%, #312e81 100%);
+  padding: 22px 30px;
+  border-radius: 16px;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);}
+
+.header-title-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.header-title-badge h1 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+.header-info{
+  color: white;
+}
+
+
+.header-icon {
+  font-size: 1.6rem;
+  color: #0284c7;
+}
+
+.header-subtitle {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin-top: 0.35rem;
+}
+
+/* ==========================================================================
+   KPI Cards Grid & Color Borders
+   ========================================================================== */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.kpi-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+  border-right-width: 5px; /* نوار رنگی عمودی سمت راست */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+}
+
+/* نوار رنگی عمودی لبه راست برای هر کارت */
+.kpi-card.highlight-orange {
+  border-right-color: #ea580c;
+}
+.kpi-card.highlight-green {
+  border-right-color: #16a34a;
+}
+.kpi-card.highlight-purple {
+  border-right-color: #9333ea;
+}
+.kpi-card.highlight-blue {
+  border-right-color: #0284c7;
+}
+
+/* پشتیبانی همزمان از kpi-icon-box و kpi-icon-wrapper */
+.kpi-icon-box,
+.kpi-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.highlight-orange .kpi-icon-box,
+.kpi-icon-wrapper.orange {
+  background-color: #fff7ed;
+  color: #ea580c;
+}
+.highlight-green .kpi-icon-box,
+.kpi-icon-wrapper.green {
+  background-color: #f0fdf4;
+  color: #16a34a;
+}
+.highlight-purple .kpi-icon-box,
+.kpi-icon-wrapper.purple {
+  background-color: #faf5ff;
+  color: #9333ea;
+}
+.highlight-blue .kpi-icon-box,
+.kpi-icon-wrapper.blue {
+  background-color: #f0f9ff;
+  color: #0284c7;
+}
+
+/* پشتیبانی همزمان از kpi-details و kpi-info */
+.kpi-details,
+.kpi-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.kpi-label {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin-bottom: 0.25rem;
+}
+
+.kpi-value {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.kpi-subtext {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  margin-top: 0.2rem;
+}
+
+.text-orange {
+  color: #ea580c !important;
+}
+.text-green {
+  color: #16a34a !important;
+}
+.text-purple {
+  color: #9333ea !important;
+}
+.text-blue {
+  color: #0284c7 !important;
+}
+
+
+/* Filter & Search Toolbar */
+.filter-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 1.25rem;
+}
+
+.search-box {
+  position: relative;
+  flex: 1;
+  min-width: 280px;
+}
+
+.search-icon {
+  position: absolute;
+  right: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 0.65rem 2.4rem 0.65rem 2.2rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  outline: none;
+  background: #f8fafc;
+  transition: border-color 0.2s;
+}
+
+.search-box input:focus {
+  border-color: #0284c7;
+  background: #ffffff;
+}
+
+.clear-search-btn {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+}
+
+.filter-select-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.select-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.select-wrapper select {
+  appearance: none;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 0.65rem 2.2rem 0.65rem 1.8rem;
+  font-size: 0.85rem;
+  color: #334155;
+  cursor: pointer;
+  outline: none;
+}
+
+.select-wrapper .select-icon {
+  position: absolute;
+  right: 0.75rem;
+  color: #64748b;
+  pointer-events: none;
+}
+
+.select-wrapper .arrow-icon {
+  position: absolute;
+  left: 0.6rem;
+  color: #94a3b8;
+  pointer-events: none;
+  font-size: 0.85rem;
+}
+
+.btn-reset-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #fee2e2;
+  color: #dc2626;
+  border: none;
+  padding: 0.6rem 0.9rem;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Table Design */
+.table-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+.finance-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: right;
+  font-size: 0.875rem;
+}
+
+.finance-table thead th {
+  background: #f1f5f9;
+  color: #475569;
+  font-weight: 700;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid #cbd5e1;
+  white-space: nowrap;
+}
+
+.finance-table tbody td {
+  padding: 0.95rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.finance-table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+.col-idx {
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.course-title-cell strong {
+  display: block;
+  font-size: 0.9rem;
+  color: #0f172a;
+  margin-bottom: 0.25rem;
+}
+
+.course-badges {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.code-tag {
+  background: #e0f2fe;
+  color: #0369a1;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+}
+
+.term-tag {
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 0.72rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+}
+
+.rate-text {
+  font-weight: 600;
+  color: #334155;
+}
+
+/* Progress bar inside table */
+.sessions-progress-cell {
+  min-width: 130px;
+}
+
+.sessions-count-text {
+  font-size: 0.8rem;
+  color: #475569;
+  margin-bottom: 0.3rem;
+}
+
+.progress-bar-bg {
+  width: 100%;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+}
+
+.fill-green {
+  background-color: #16a34a;
+}
+.fill-blue {
+  background-color: #0284c7;
+}
+
+/* Badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.status-badge.finalized {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+.status-badge.in-progress {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.finance-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.finance-badge.settled {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.finance-badge.creditor {
+  background: #ffedd5;
+  color: #c2410c;
+  animation: pulse-border 2s infinite;
+}
+
+.finance-badge.pending-calc {
+  background: #f1f5f9;
+  color: #64748b;
+  font-weight: 500;
+}
+
+@keyframes pulse-border {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(234, 88, 12, 0.2); }
+  50% { box-shadow: 0 0 0 4px rgba(234, 88, 12, 0.15); }
+}
+
+.amount-cell {
+  display: flex;
+  flex-direction: column;
+}
+
+.amount-text {
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.settle-meta {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  margin-top: 0.15rem;
+}
+
+.in-progress-note {
+  font-size: 0.8rem;
+  color: #64748b;
+  font-style: italic;
+}
+
+/* Actions */
+.actions-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.7rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.action-btn.view-logs {
+  background: #f0f9ff;
+  color: #0369a1;
+  border-color: #bae6fd;
+}
+.action-btn.view-logs:hover {
+  background: #e0f2fe;
+}
+
+.action-btn.view-receipt {
+  background: #f0fdf4;
+  color: #15803d;
+  border-color: #bbf7d0;
+}
+.action-btn.view-receipt:hover {
+  background: #dcfce7;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+.empty-icon {
+  font-size: 2.5rem;
+  color: #cbd5e1;
+  margin-bottom: 0.5rem;
+}
+.btn-outline {
+  margin-top: 0.75rem;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  padding: 0.45rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* Modals */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  padding: 1rem;
+}
+
+.modal-box {
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal-medium {
+  max-width: 600px;
+}
+.modal-receipt {
+  max-width: 720px;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.modal-header-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.modal-header-title h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #0f172a;
+}
+
+.modal-sub {
+  font-size: 0.78rem;
+  color: #64748b;
+}
+
+.close-modal-btn {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: #94a3b8;
+  cursor: pointer;
+}
+
+.modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+/* Quick info inside modal */
+.course-quick-info {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.85rem;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+
+.logs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.log-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.log-idx {
+  font-weight: 700;
+  color: #0284c7;
+  font-size: 0.85rem;
+  min-width: 60px;
+}
+
+.log-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.log-topic {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 0.85rem;
+}
+
+.log-date {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.log-status.held {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  color: #16a34a;
+  background: #f0fdf4;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+/* Printable Receipt Paper */
+.receipt-paper {
+  border: 2px dashed #cbd5e1;
+  padding: 1.5rem;
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.receipt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.receipt-org h2 {
+  font-size: 1.05rem;
+  margin: 0 0 0.35rem 0;
+  color: #0f172a;
+}
+
+.receipt-org p {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.receipt-badge {
+  text-align: left;
+}
+
+.receipt-badge span {
+  display: block;
+  background: #0284c7;
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  margin-bottom: 0.25rem;
+}
+
+.receipt-divider {
+  border: none;
+  border-top: 1px solid #e2e8f0;
+  margin: 1rem 0;
+}
+
+.receipt-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.85rem;
+}
+
+.receipt-item label {
+  color: #64748b;
+  margin-left: 0.35rem;
+}
+
+.receipt-calc-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+}
+
+.receipt-calc-table th, .receipt-calc-table td {
+  border: 1px solid #e2e8f0;
+  padding: 0.6rem 0.75rem;
+  text-align: center;
+}
+
+.receipt-calc-table th {
+  background: #f8fafc;
+  color: #475569;
+}
+
+.receipt-total-bar {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1rem;
+  color: #15803d;
+  margin-bottom: 2rem;
+}
+
+.receipt-signatures {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.sign-box {
+  text-align: center;
+  flex: 1;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.sign-line {
+  margin-top: 2.5rem;
+  border-top: 1px dotted #94a3b8;
+}
+
+/* Buttons */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #0284c7;
+  color: #ffffff;
+  border: none;
+  padding: 0.6rem 1.1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-secondary {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  padding: 0.6rem 1.1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+/* Print CSS Rules */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .print-area, .print-area * {
+    visibility: visible;
+  }
+  .print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .receipt-paper {
+    border: 1px solid #000;
+  }
+}
+
+/* ==========================================================================
+   نوار ابزار فیلتر و جستجو (Filter Toolbar - Single Row Alignment)
+   ========================================================================== */
+.filter-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: #ffffff;
+  padding: 1rem 1.25rem;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  margin-bottom: 1.25rem;
+  flex-wrap: nowrap; /* تضمین قرارگیری تمام عناصر در یک ردیف */
+}
+
+/* ۱. جعبه جستجو (بزرگ‌تر و پهن‌تر از فیلترها) */
+.search-box {
+  position: relative;
+  flex: 2.5; /* تخصیص فضای بیشتر نسبت به فیلترها */
+  min-width: 260px;
+}
+
+.search-icon {
+  position: absolute;
+  right: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  font-size: 1.1rem;
+  pointer-events: none;
+  transition: color 0.2s ease;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 0.65rem 2.6rem 0.65rem 2.2rem;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  outline: none;
+  background: #f8fafc;
+  color: #1e293b;
+  transition: all 0.2s ease-in-out;
+}
+
+.search-box input:focus {
+  border-color: #0284c7;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
+}
+
+.search-box input:focus + .search-icon {
+  color: #0284c7;
+}
+
+.clear-search-btn {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  padding: 2px;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.clear-search-btn:hover {
+  color: #ef4444;
+  background-color: #fee2e2;
+}
+
+/* ۲. گروه فیلترهای انتخابی (کوچک‌تر و یکنواخت) */
+.filter-select-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 2; /* فضای متناسب و فشرده‌تر */
+}
+
+.select-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1; /* تقسیم مساوی بین فیلترهای انتخابی */
+  min-width: 170px;
+}
+
+.styled-select {
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  background: #f8fafc;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 0.65rem 2.4rem 0.65rem 1.8rem;
+  font-size: 0.85rem;
+  color: #334155;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease-in-out;
+}
+
+.styled-select:hover {
+  border-color: #94a3b8;
+  background-color: #ffffff;
+}
+
+.styled-select:focus {
+  border-color: #0284c7;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
+}
+
+.select-icon {
+  position: absolute;
+  right: 0.75rem;
+  color: #64748b;
+  font-size: 1rem;
+  pointer-events: none;
+}
+
+.arrow-icon {
+  position: absolute;
+  left: 0.65rem;
+  color: #94a3b8;
+  font-size: 0.9rem;
+  pointer-events: none;
+  transition: transform 0.2s ease;
+}
+
+.select-wrapper:hover .arrow-icon {
+  color: #475569;
+}
+
+/* ۳. دکمه بازنشانی فیلترها (گرافیک اکتیو و انیمیشن) */
+.btn-reset-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.65rem 1rem;
+  border-radius: 10px;
+  font-size: 0.83rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  border: 1px solid transparent;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: fadeInReset 0.3s ease-in-out;
+}
+
+/* حالت فعال (با اعمال فیلتر) */
+.btn-reset-filter.active {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fca5a5;
+  box-shadow: 0 2px 6px rgba(220, 38, 38, 0.12);
+}
+
+.btn-reset-filter.active:hover {
+  background: #dc2626;
+  color: #ffffff;
+  border-color: #dc2626;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+  transform: translateY(-1px);
+}
+
+.btn-reset-filter.active:active {
+  transform: translateY(0);
+}
+
+/* انیمیشن چرخش آیکون هنگام hover روی دکمه بازنشانی */
+.btn-reset-filter.active:hover .reset-icon {
+  transform: rotate(-180deg);
+}
+
+.reset-icon {
+  font-size: 0.95rem;
+  transition: transform 0.4s ease;
+}
+
+@keyframes fadeInReset {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* پاسخگویی در صفحه‌نمایش‌های کوچک (Responsive) */
+@media (max-width: 992px) {
+  .filter-toolbar {
+    flex-wrap: wrap;
+  }
+  
+  .search-box {
+    flex: 100%;
+  }
+  
+  .filter-select-group {
+    flex: 100%;
+    width: 100%;
+  }
+}
+
+
+/* ==========================================================================
+   طراحی مدرن و کارت‌بندی شده مودال صورت‌حساب رسمی (Modern Receipt Modal)
+   ========================================================================== */
+
+/* فریم مودال و انیمیشن ورودی */
+.modern-receipt-modal {
+  max-width: 820px !important;
+  border-radius: 20px !important;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.28) !important;
+}
+
+.modal-icon-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+}
+
+.text-dark {
+  color: #0f172a !important;
+}
+
+/* برگه کاغذ مدرن */
+.modern-sheet {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.75rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+/* ۱. هدر رسمی و هویت برند */
+.receipt-brand-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+}
+
+.brand-title-area {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.brand-logo-mark {
+  width: 48px;
+  height: 48px;
+  background: #0f172a;
+  color: #38bdf8;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.25rem;
+  letter-spacing: -0.5px;
+}
+
+.brand-title-area h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.brand-department {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+/* بج اطلاعات بالای فاکتور */
+.receipt-badge-info {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  min-width: 220px;
+}
+
+.badge-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  margin-bottom: 0.4rem;
+}
+
+.badge-row:last-child {
+  margin-bottom: 0;
+}
+
+.b-label {
+  color: #64748b;
+}
+
+.status-pill {
+  padding: 0.15rem 0.55rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.pill-success {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.pill-warning {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+/* خط جداکننده با گرادیانت */
+.receipt-glow-divider {
+  height: 2px;
+  background: linear-gradient(90deg, #0284c7 0%, #e2e8f0 70%, transparent 100%);
+  margin: 1.5rem 0;
+  border-radius: 2px;
+}
+
+/* ۲. شبکه کارت‌های ۳گانه اطلاعات (Cards Grid) */
+.receipt-cards-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.info-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1rem;
+  transition: all 0.2s ease;
+}
+
+.info-card:hover {
+  border-color: #cbd5e1;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.card-top-title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #475569;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px dashed #e2e8f0;
+  padding-bottom: 0.4rem;
+}
+
+.card-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.dot-blue { background: #0284c7; }
+.dot-purple { background: #8b5cf6; }
+.dot-green { background: #10b981; }
+
+.card-item-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.card-item-row:last-child {
+  margin-bottom: 0;
+}
+
+.c-label {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.c-val {
+  font-size: 0.84rem;
+  color: #1e293b;
+}
+
+.tag-category {
+  display: inline-block;
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 0.15rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  width: fit-content;
+}
+
+/* ۳. کارت محاسبات مالی و تراز (Financial Summary Card) */
+.financial-summary-card {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  color: #ffffff;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.2);
+}
+
+.fin-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #94a3b8;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 0.6rem;
+}
+
+.fin-percentage {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.fin-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.fin-metric-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.f-title {
+  font-size: 0.78rem;
+  color: #94a3b8;
+}
+
+.f-amount {
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.text-success {
+  color: #4ade80 !important;
+}
+
+.text-complete {
+  color: #38bdf8 !important;
+}
+
+.text-danger {
+  color: #f87171 !important;
+}
+
+/* ۴. یادداشت حقوقی و قانونی */
+.receipt-legal-note {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  background: #f1f5f9;
+  border-right: 3px solid #0284c7;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  color: #475569;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.legal-icon {
+  width: 18px;
+  height: 18px;
+  background: #0284c7;
+  color: #ffffff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: bold;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* ۵. امضا و مهر سازمانی رسمی */
+.receipt-signatures-block {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 1.5rem;
+  padding-top: 0.5rem;
+}
+
+.sign-unit {
+  text-align: center;
+}
+
+.sign-role {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #475569;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.sign-signature-area {
+  height: 55px;
+  border-bottom: 1.5px dashed #cbd5e1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 4px;
+}
+
+.sign-teacher-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #0284c7;
+  font-style: italic;
+}
+
+/* شبیه‌سازی مهر رسمی */
+.official-stamp-sim {
+  width: 95px;
+  height: 95px;
+  border: 2px dashed #0284c7;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #0284c7;
+  transform: rotate(-8deg);
+  opacity: 0.85;
+  background: rgba(2, 132, 199, 0.02);
+}
+
+.official-stamp-sim span {
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.official-stamp-sim small {
+  font-size: 0.55rem;
+  margin: 2px 0;
+}
+
+.official-stamp-sim strong {
+  font-size: 0.65rem;
+  border-top: 1px solid #0284c7;
+  border-bottom: 1px solid #0284c7;
+  padding: 1px 4px;
+}
+
+/* ۶. بهینه‌سازی اختصاصی چاپ (Print Optimization) */
+@media print {
+  .receipt-paper {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+  .financial-summary-card {
+    background: #f1f5f9 !important;
+    color: #000000 !important;
+    border: 1px solid #cbd5e1;
+  }
+  .fin-card-header, .f-title {
+    color: #475569 !important;
+  }
+  .f-amount {
+    color: #000000 !important;
+  }
+}
+
+/* ریسپانسیو در موبایل و تبلت */
+@media (max-width: 768px) {
+  .receipt-cards-container,
+  .fin-metric-grid,
+  .receipt-signatures-block {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .receipt-brand-header {
+    flex-direction: column;
+  }
+  .official-stamp-sim {
+    margin: 0 auto;
+  }
+}

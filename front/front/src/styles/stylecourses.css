@@ -1,0 +1,148 @@
+/* Courses Page Specific Styles */
+body {
+    background-color: #f8f9fa;
+    color: #1a1a2e;
+}
+
+/* Hero Section */
+.courses-hero {
+    background: linear-gradient(135deg, #4f46e5 0%, #621bde 100%);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.courses-hero h1 {
+    font-size: 2.5rem;
+    letter-spacing: -1px;
+}
+
+/* Sidebar Cards */
+.sidebar-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 15px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.search-box {
+    position: relative;
+    
+}
+
+.search-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+}
+
+.search-input {
+    padding-right: 40px;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    border-color: #4f46e5;
+}
+
+/* Category List */
+.cat-list a {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    margin-bottom: 5px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #475569;
+    transition: all 0.2s ease;
+}
+
+.cat-list a:hover, .cat-list a.active {
+    background-color: #f0f0ff;
+    color: #4f46e5;
+    font-weight: 600;
+}
+
+/* Course Card Pro */
+.course-card-pro {
+    background: #fff;
+    border-radius: 18px;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: default;
+}
+
+.course-card-pro:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
+}
+
+.cover-wrap {
+    position: relative;
+    height: 110px;
+    overflow: hidden;
+}
+
+.course-cover-pro {
+   width: 100%;
+    height: 110px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    
+}
+
+.course-card-pro:hover .course-cover-pro {
+    transform: scale(1.1);
+}
+
+.course-cover-pro i,
+.course-cover-pro span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.badge-status {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge-status.online {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.badge-status.in-person {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.btn-course-pro {
+    background: linear-gradient(135deg, #6366f1 0%, #3b82f6 100%);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    padding: 6px 12px;
+    transition: all 0.3s ease;
+}
+
+.btn-course-pro:hover {
+    background: linear-gradient(135deg, #4f46e5 0%, #2563eb 100%);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}

@@ -1,0 +1,1544 @@
+/* Container */
+.teacher-grades-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  direction: rtl;
+  font-family: inherit;
+}
+
+/* Toast */
+.toast-notification {
+  position: fixed;
+  top: 24px;
+  left: 24px;
+  background-color: #10b981;
+  color: #ffffff;
+  padding: 12px 20px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3);
+  z-index: 9999;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Page Header */
+.page-header {
+   background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 60%, #312e81 100%);
+  padding: 26px 30px;
+  border-radius: 16px;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+}
+
+/* بخش پایین جدول برای دکمه ذخیره موقت */
+.table-bottom-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background-color: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+}
+
+.save-hint-text {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 6px 0;
+}
+
+.page-subtitle {
+   margin: 0;
+  color: #94a3b8;
+  font-size: 0.95rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.btn-primary {
+  background-color: #2563eb;
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background-color: #1d4ed8;
+}
+
+.btn-outline {
+  background-color: #ffffff;
+  color: #334155;
+  border-color: #cbd5e1;
+}
+
+.btn-outline:hover {
+  background-color: #f1f5f9;
+}
+
+/* KPI Cards */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.kpi-card {
+  background-color: #ffffff;
+  border-radius: 14px;
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.kpi-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kpi-icon.blue { background-color: #eff6ff; color: #2563eb; }
+.kpi-icon.purple { background-color: #faf5ff; color: #9333ea; }
+.kpi-icon.green { background-color: #f0fdf4; color: #16a34a; }
+.kpi-icon.orange { background-color: #fff7ed; color: #ea580c; }
+
+.kpi-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.kpi-label {
+  font-size: 0.82rem;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.kpi-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* Course Tabs */
+.course-selection-bar {
+  background-color: #ffffff;
+  border-radius: 14px;
+  padding: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #e2e8f0;
+}
+
+.course-tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+}
+
+.course-tab-btn {
+  background: transparent;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #64748b;
+  font-weight: 600;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.course-tab-btn.active {
+  background-color: #eff6ff;
+  color: #2563eb;
+}
+
+.course-tab-code {
+  font-size: 0.78rem;
+  opacity: 0.8;
+}
+
+/* Table Controls */
+.table-controls-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.nav-tabs {
+  display: flex;
+  background-color: #e2e8f0;
+  padding: 4px;
+  border-radius: 10px;
+  gap: 4px;
+}
+
+.nav-tabs .tab-btn {
+  border: none;
+  background: transparent;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.88rem;
+  transition: all 0.2s;
+}
+
+.nav-tabs .tab-btn.active {
+  background-color: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.right-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.session-select-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.select-input {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background-color: #ffffff;
+  font-family: inherit;
+  font-size: 0.88rem;
+}
+
+.search-box {
+  position: relative;
+  flex: 1;
+  min-width: 260px;
+}
+
+.search-icon {
+  position: absolute;
+  right: 12px;
+  color: #94a3b8;
+}
+
+.search-input {
+  padding: 8px 36px 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  font-size: 0.88rem;
+  font-family: inherit;
+  width: 220px;
+}
+
+/* Responsive Table */
+.table-responsive-container {
+  background-color: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  overflow-x: auto;
+}
+
+.grades-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: right;
+  font-size: 0.9rem;
+}
+
+.grades-table th {
+  background-color: #f8fafc;
+  padding: 14px 16px;
+  font-weight: 700;
+  color: #475569;
+  border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.grades-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.student-name-cell strong {
+  color: #0f172a;
+}
+
+.student-code-badge {
+  background-color: #f1f5f9;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.grade-input {
+  width: 75px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.grade-input.bold {
+  font-weight: 800;
+  color: #2563eb;
+}
+
+.status-select {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  font-size: 0.85rem;
+}
+
+.notes-input {
+  width: 100%;
+  min-width: 160px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  font-size: 0.85rem;
+}
+
+.total-score-badge {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.status-tag {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.status-tag.pass {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.status-tag.fail {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.action-icon-btn {
+  background-color: #f1f5f9;
+  border: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.action-icon-btn:hover {
+  background-color: #e2e8f0;
+  color: #0f172a;
+}
+
+.empty-table-state {
+  text-align: center;
+  padding: 40px !important;
+  color: #94a3b8;
+}
+
+/* Modals */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.modal-card {
+  background-color: #ffffff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.close-modal-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #94a3b8;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.modal-footer {
+  display: flex;
+}
+
+.page-title {
+  margin: 0 0 6px 0;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #f8fafc;
+}
+
+/* ==========================================================
+   نوار جستجو و فیلتر (سبک دراپ‌داون)
+   ========================================================== */
+.grades-controls-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+/* ورودی جستجو — بزرگ و در تمام عرض */
+.grades-controls-bar .search-input-wrapper {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.grades-controls-bar .search-icon {
+  position: absolute;
+  right: 18px;
+  color: #9ca3af;
+  font-size: 1.15rem;
+  pointer-events: none;
+}
+
+.grades-controls-bar .grades-search-input {
+  width: 100%;
+  padding: 16px 50px 16px 20px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  color: #1f2937;
+  font-size: 1rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.grades-controls-bar .grades-search-input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
+}
+
+.grades-controls-bar .grades-search-input::placeholder {
+  color: #9ca3af;
+}
+
+/* فیلتر دراپ‌داون */
+.filter-select-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.filter-select-icon {
+  position: absolute;
+  right: 14px;
+  color: #6b7280;
+  font-size: 1rem;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.filter-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: #ffffff url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") no-repeat left 14px center;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 14px 44px 14px 40px;
+  color: #1f2937;
+  font-size: 0.95rem;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+  border-color: #d1d5db;
+}
+
+.filter-select:focus {
+.filter-select:hover {
+  border-color: #d1d5db;
+}
+
+.filter-select:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
+}
+
+/* واکنش‌گرایی */
+@media (max-width: 768px) {
+  .grades-controls-bar {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .filter-select {
+    width: 100%;
+  }
+}}
+
+/* ==========================================================
+   پنل فیلتر و جستجوی کلاس‌ها (courses-filter-panel)
+   ========================================================== */
+.courses-filter-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+  width: 100%;
+}
+
+/* کادر جستجو */
+.courses-filter-panel .search-box {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.courses-filter-panel .search-box .search-icon {
+  position: absolute;
+  right: 16px;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.courses-filter-panel .search-box input {
+  width: 100%;
+  padding: 13px 46px 13px 40px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  color: #1e293b;
+  font-size: 0.95rem;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.courses-filter-panel .search-box input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+.courses-filter-panel .search-box input::placeholder {
+  color: #94a3b8;
+}
+
+.courses-filter-panel .clear-btn {
+  position: absolute;
+  left: 14px;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease;
+}
+
+.courses-filter-panel .clear-btn:hover {
+  color: #ef4444;
+}
+
+/* بخش انتخاب‌گرها و بازنشانی */
+.courses-filter-panel .filter-selects {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.courses-filter-panel .select-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.courses-filter-panel .select-wrapper .select-icon {
+  position: absolute;
+  right: 14px;
+  color: #64748b;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.courses-filter-panel .select-wrapper select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: #ffffff url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") no-repeat left 14px center;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 13px 40px 13px 38px;
+  color: #334155;
+  font-size: 0.92rem;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.courses-filter-panel .select-wrapper select:hover {
+  border-color: #cbd5e1;
+}
+
+.courses-filter-panel .select-wrapper select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+/* دکمه بازنشانی فیلترها */
+.courses-filter-panel .reset-filters-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 16px;
+  background: #fa8d8d;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  color: #64748b;
+  font-size: 0.88rem;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.courses-filter-panel .reset-filters-btn:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #dc2626;
+}
+
+.courses-filter-panel .reset-filters-btn:hover svg {
+  transform: rotate(-90deg);
+  transition: transform 0.25s ease;
+}
+
+/* ریسپانسیو */
+@media (max-width: 768px) {
+  .courses-filter-panel {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .courses-filter-panel .filter-selects {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .courses-filter-panel .select-wrapper select {
+    width: 100%;
+  }
+
+  .courses-filter-panel .reset-filters-btn {
+    justify-content: center;
+  }
+}
+/* ==========================================================
+   مودال کارنامه تحصیلی جامع و مدرن
+   ========================================================== */
+.report-card-modal {
+  max-width: 860px !important;
+  width: 95%;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: modalEnter 0.25s ease-out;
+}
+
+@keyframes modalEnter {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal-title-icon {
+  color: #3b82f6;
+}
+
+/* سربرگ رسمی آموزشگاه */
+.rc-official-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #f1f5f9;
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+}
+
+.rc-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.rc-logo-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+  color: #ffffff;
+  font-weight: 900;
+  font-size: 1.15rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rc-brand-text h4 {
+  margin: 0 0 4px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.rc-brand-text p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.rc-doc-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+/* کارت مشخصات فراگیر */
+.rc-profile-banner {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.rc-student-avatar {
+  width: 48px;
+  height: 48px;
+  background: #eff6ff;
+  color: #2563eb;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.rc-profile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 10px 16px;
+  width: 100%;
+}
+
+.rc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rc-field-lbl {
+  font-size: 0.76rem;
+  color: #64748b;
+}
+
+.rc-field-val {
+  font-size: 0.92rem;
+  color: #1e293b;
+}
+
+/* کارت‌های آماری خلاصه */
+.rc-summary-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.rc-kpi-item {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: center;
+}
+
+.rc-kpi-item .lbl {
+  font-size: 0.78rem;
+  color: #64748b;
+}
+
+.rc-kpi-item .val {
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.rc-kpi-item .val small {
+  font-size: 0.75rem;
+  font-weight: normal;
+  color: #94a3b8;
+}
+
+.rc-status-pill {
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 8px;
+  display: inline-block;
+  margin-top: 2px;
+}
+
+.status-pass { background: #ecfdf5; color: #059669; }
+.status-fail { background: #fef2f2; color: #dc2626; }
+.text-success { color: #059669; }
+.text-danger { color: #dc2626; }
+.text-primary { color: #2563eb; }
+.text-muted { color: #475569; }
+
+/* جدول ریز نمرات */
+.rc-table-wrapper {
+  margin-bottom: 22px;
+}
+
+.rc-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 12px;
+}
+
+.rc-scores-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+.rc-scores-table th {
+  background: #f8fafc;
+  color: #475569;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 11px 14px;
+  text-align: right;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.rc-scores-table td {
+  padding: 11px 14px;
+  font-size: 0.88rem;
+  color: #334155;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.rc-scores-table td small {
+  display: block;
+  font-size: 0.74rem;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+.rc-scores-table .badge-pill {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  display: inline-block;
+}
+
+.badge-green { background: #dcfce7; color: #15803d; }
+.badge-amber { background: #fef3c7; color: #b45309; }
+.badge-red { background: #fee2e2; color: #b91c1c; }
+
+.rc-total-row td {
+  background: #f8fafc;
+  border-top: 2px solid #cbd5e1;
+  border-bottom: none;
+  font-weight: 700;
+}
+
+.rc-grand-score {
+  font-size: 1.15rem !important;
+  color: #2563eb !important;
+}
+
+/* نوار مقایسه عملکرد با میانگین کلاس */
+.rc-benchmark-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 16px 18px;
+  margin-bottom: 20px;
+}
+
+.benchmark-bar-container {
+  margin-top: 8px;
+}
+
+.bar-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+.bar-labels strong {
+  color: #0f172a;
+}
+
+.benchmark-progress-track {
+  position: relative;
+  height: 20px;
+  background: #e2e8f0;
+  border-radius: 10px;
+}
+
+.benchmark-student-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #6366f1);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-left: 8px;
+  color: #ffffff;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.benchmark-avg-marker {
+  position: absolute;
+  top: -5px;
+  bottom: -5px;
+  width: 2px;
+  background: #ef4444;
+  z-index: 2;
+}
+
+.marker-pin {
+  width: 8px;
+  height: 8px;
+  background: #ef4444;
+  border-radius: 50%;
+  position: absolute;
+  top: -4px;
+  right: -3px;
+}
+
+.marker-txt {
+  position: absolute;
+  top: -18px;
+  right: -30px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #ef4444;
+  white-space: nowrap;
+}
+
+/* نظرات و کادرهای امضا */
+.rc-feedback-signatures {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.rc-feedback-card {
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: #334155;
+  line-height: 1.6;
+}
+
+.rc-signatures-card {
+  display: flex;
+  gap: 12px;
+}
+
+.sign-box {
+  flex: 1;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: #64748b;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.sign-space {
+  height: 38px;
+}
+
+/* سازگاری با پرینت (Print Media) */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .modal-backdrop, .modal-backdrop * {
+    visibility: visible;
+  }
+  .modal-backdrop {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background: #ffffff;
+    padding: 0;
+  }
+  .report-card-modal {
+    box-shadow: none;
+    border: none;
+    width: 100%;
+    max-width: 100% !important;
+  }
+  .modal-header, .modal-footer, .close-modal-btn {
+    display: none !important;
+  }
+}
+
+/* ریسپانسیو موبایل */
+@media (max-width: 768px) {
+  .rc-summary-kpis {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .rc-feedback-signatures {
+    grid-template-columns: 1fr;
+  }
+}
+/* اصلاح بک‌دراپ و موقعیت مودال */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+/* کارت مودال کارنامه */
+.report-card-modal {
+  width: 100%;
+  max-width: 880px;
+  max-height: 90vh; /* محدود کردن ارتفاع مودال به ۹۰ درصد صفحه */
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* جلوگیری از بیرون‌زدگی هدر و فوتر */
+  animation: modalFadeIn 0.25s ease-out;
+}
+
+/* سربرگ مودال (ثابت در بالا) */
+.report-card-modal .modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+  flex-shrink: 0;
+}
+
+/* بدنه مودال (فعال‌سازی اسکرول عمودی روان) */
+.report-card-modal .modal-body {
+  flex: 1 1 auto;
+  overflow-y: auto; /* فعال‌سازی اسکرول */
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* زیباسازی اسکرول‌بار داخل مودال */
+.report-card-modal .modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+.report-card-modal .modal-body::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+.report-card-modal .modal-body::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+.report-card-modal .modal-body::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* فوتر مودال (ثابت در پایین) */
+.report-card-modal .modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+  flex-shrink: 0;
+}
+
+/* انیمیشن باز شدن */
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* تنظیمات حالت پرینت (بدون اسکرول و نمایش کامل محتوا در برگه) */
+@media print {
+  .modal-backdrop {
+    position: static !important;
+    background: none !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+  .report-card-modal {
+    max-height: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    width: 100% !important;
+  }
+  .report-card-modal .modal-body {
+    overflow: visible !important;
+    padding: 0 !important;
+  }
+  .modal-header,
+  .modal-footer {
+    display: none !important;
+  }
+}
+/* ==========================================================================
+   استایل‌های اختصاصی مودال تحلیل آماری کلاس (Analytics Modal)
+   ========================================================================== */
+
+.analytics-modal {
+  max-width: 950px;
+}
+
+/* کارت‌های KPI بالای مودال */
+.analytics-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.kpi-stat-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.1rem;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.kpi-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.05);
+}
+
+.kpi-stat-card .kpi-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  flex-shrink: 0;
+}
+
+.kpi-stat-card.card-blue .kpi-icon {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.kpi-stat-card.card-green .kpi-icon {
+  background: #ecfdf5;
+  color: #10b981;
+}
+
+.kpi-stat-card.card-purple .kpi-icon {
+  background: #f5f3ff;
+  color: #8b5cf6;
+}
+
+.kpi-stat-card.card-orange .kpi-icon {
+  background: #fff7ed;
+  color: #f97316;
+}
+
+.kpi-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.kpi-label {
+  font-size: 0.8rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.kpi-value {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.kpi-value small {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+/* ساختار دو ستونه داخلی */
+.analytics-row-two-col {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 1.25rem;
+}
+
+.analytics-box {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.analytics-box-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px dashed #e2e8f0;
+}
+
+.analytics-box-title svg {
+  color: #3b82f6;
+  font-size: 1.15rem;
+}
+
+/* میله‌های توزیع نمرات */
+.distribution-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.dist-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.dist-label-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.dist-count {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.dist-count.text-danger {
+  color: #e11d48;
+}
+
+.dist-track {
+  width: 100%;
+  height: 8px;
+  background: #f1f5f9;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.dist-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fill-emerald { background: linear-gradient(90deg, #10b981, #059669); }
+.fill-blue { background: linear-gradient(90deg, #3b82f6, #2563eb); }
+.fill-amber { background: linear-gradient(90deg, #f59e0b, #d97706); }
+.fill-rose { background: linear-gradient(90deg, #f43f5e, #e11d48); }
+
+/* لیست نفرات برتر */
+.top-students-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.top-student-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #700;
+  color: #0f172a;
+}
+
+.dist-count.text-danger {
+  color: #e11d48;
+}
+
+.dist-track {
+  width: 100%;
+  height: 8px;
+  background: #f1f5f9;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.dist-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fill-emerald { background: linear-gradient(90deg, #10b981, #059669); }
+.fill-blue { background: linear-gradient(90deg, #3b82f6, #2563eb); }
+.fill-amber { background: linear-gradient(90deg, #f59e0b, #d97706); }
+.fill-rose { background: linear-gradient(90deg, #f43f5e, #e11d48); }
+
+/* لیست نفرات برتر */
+.top-students-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.top-student-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.top-student-card.rank-1 {
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+
+.top-student-card.rank-2 {
+  background: #f8fafc;
+  border-color: #cbd5e3
+}
+
+/* شبکه نموداری روند جلسات */
+.sessions-trend-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
+  gap: 0.75rem;
+}
+
+.session-trend-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.75rem 0.5rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+}
+
+.session-label {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.session-score {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #2563eb;
+}
+
+.session-mini-bar-track {
+  width: 100%;
+  height: 5px;
+  background: #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.session-mini-bar-fill {
+  height: 100%;
+  background: #3b82f6;
+  border-radius: 4px;
+}
+
+/* ریسپانسیو برای موبایل و تبلت */
+@media (max-width: 768px) {
+  .analytics-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .analytics-row-two-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+
+
+
+

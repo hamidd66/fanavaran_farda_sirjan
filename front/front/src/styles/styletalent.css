@@ -1,0 +1,648 @@
+/* تعریف متغیرها */
+:root {
+  --primary-red: #e61919;
+  --dark-black: #1a1a1a;
+  --bg-gray: #f0f2f5;
+  --white: #ffffff;
+  --transition: all 0.3s ease;
+}
+
+/* کانتینر اصلی استعدادیابی */
+.quiz-container {
+  width: 90%;
+  max-width: 550px;
+  background: var(--white);
+  border-radius: 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  padding: 40px;
+  border-top: 6px solid var(--primary-red);
+  margin: 30px auto;
+  direction: rtl;
+}
+
+/* مدیریت نمایش بخش‌ها */
+.screen {
+  display: none;
+}
+.screen.active {
+  display: block;
+}
+
+/* انیمیشن ورود آرام بخش‌ها */
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* لوگو آکادمی با انیمیشن شناور */
+.logo {
+  display: block;
+  max-width: 150px;
+  height: auto;
+  margin: 0 auto 20px auto;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* برچسب مراحل بالا */
+.step-label {
+  color: var(--primary-red);
+  font-size: 13px;
+  font-weight: bold;
+  margin-bottom: 18px;
+  text-align: right;
+}
+
+/* گروه‌بندی فرم‌ها */
+.form-group {
+  margin-bottom: 16px;
+  text-align: right;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--dark-black);
+}
+
+/* استایل فیلدهای ورودی متنی و تلفن */
+.form-group input[type="text"],
+.form-group input[type="tel"] {
+  font-family: 'Vazirmatn', sans-serif;
+  width: 100%;
+  padding: 13px 15px;
+  border: 2px solid #ddd;
+  border-radius: 12px;
+  font-size: 16px;
+  outline: none;
+  transition: var(--transition);
+  direction: ltr;
+  text-align: right;
+  box-sizing: border-box;
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="tel"]:focus {
+  border-color: var(--primary-red);
+  box-shadow: 0 0 10px rgba(230, 25, 25, 0.2);
+}
+
+/* استایل سطر انتخاب تاریخ تولد */
+.date-row {
+  display: flex;
+  gap: 8px;
+}
+
+.date-row input {
+  text-align: center !important;
+}
+
+.date-row input:first-child {
+  flex: 2; /* سال عرض بیشتری می‌گیرد */
+}
+
+.date-row input:nth-child(2),
+.date-row input:last-child {
+  flex: 1; /* ماه و روز */
+}
+
+.date-hint {
+  font-size: 12px;
+  color: #888;
+  margin-top: 4px;
+  text-align: right;
+}
+
+/* دکمه‌های اصلی */
+.btn {
+  font-family: 'Vazirmatn', sans-serif;
+  background: var(--dark-black);
+  color: white;
+  padding: 15px 40px;
+  border: none;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: var(--transition);
+  width: 100%;
+  margin-top: 20px;
+  box-sizing: border-box;
+}
+
+.btn:hover {
+  background: var(--primary-red);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(230, 25, 25, 0.3);
+}
+
+.btn:disabled {
+  background: #aaa;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* دکمه بازگشت (خاکستری) */
+.btn-back {
+  background: #eee;
+  color: var(--dark-black);
+  flex: 0 0 auto;
+  width: auto;
+  padding: 15px 25px;
+}
+
+.btn-back:hover {
+  background: #ddd;
+  transform: none;
+  box-shadow: none;
+}
+
+/* نوار پیشرفت بالای مراحل */
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #eee;
+  border-radius: 10px;
+  margin-bottom: 25px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-red), #ff4d4d);
+  width: 0%;
+  border-radius: 10px;
+  transition: width 0.4s ease;
+}
+
+/* پلیر ویدیوی آپارات ریسپانسیو */
+.video-wrapper {
+  position: relative;
+  padding-bottom: 56.25%; /* نسبت تصویر 16:9 */
+  height: 0;
+  overflow: hidden;
+  border-radius: 14px;
+  margin: 20px 0;
+}
+
+.video-wrapper iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* نوار دکمه‌های کنترل پایین ویدیو */
+.nav-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.nav-row .btn {
+  margin-top: 0;
+}
+
+/* بهینه‌سازی ریسپانسیو برای موبایل */
+@media (max-width: 600px) {
+  .quiz-container {
+    width: 95%;
+    padding: 25px 20px;
+    margin: 15px auto;
+  }
+  
+  .nav-row {
+    flex-direction: column;
+  }
+  
+  .nav-row .btn, 
+  .btn-back {
+    width: 100%;
+  }
+}
+
+
+
+
+
+/* =========================
+   Talent React - مراحل فرانت‌اند
+   ========================= */
+
+.content-box {
+  background: #f8f8f8;
+  border-radius: 16px;
+  border: 1px solid #eeeeee;
+}
+
+.trio-intro {
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin-bottom: 12px;
+}
+
+.trio-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.trio-card {
+  appearance: none;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  padding: 20px 12px;
+  min-height: 170px;
+  cursor: pointer;
+  text-align: center;
+  font-family: inherit;
+  transition: all 0.3s ease;
+}
+
+.trio-card:hover,
+.trio-card.selected {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+}
+
+.trio-card .icon {
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+
+.trio-card h3 {
+  margin: 5px 0 8px;
+}
+
+.trio-card p {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.8;
+}
+
+.tc-html {
+  background: #fff7ed;
+  border-color: #fed7aa;
+  color: #9a3412;
+}
+
+.tc-css {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1d4ed8;
+}
+
+.tc-js {
+  background: #fefce8;
+  border-color: #fde68a;
+  color: #854d0e;
+}
+
+.trio-hint {
+  text-align: center;
+  color: #64748b;
+  font-size: 0.85rem;
+  margin: 18px 0 10px;
+}
+
+.trio-demo {
+  min-height: 100px;
+  background: #1e1b4b;
+  color: #e0e7ff;
+  border-radius: 12px;
+  padding: 18px;
+  text-align: center;
+  line-height: 1.9;
+  margin-bottom: 16px;
+}
+
+.trio-demo strong {
+  display: block;
+  color: #fbbf24;
+  font-size: 1.2rem;
+}
+
+.trio-demo p {
+  margin: 6px 0;
+}
+
+.trio-demo code {
+  display: inline-block;
+  direction: ltr;
+  background: #312e81;
+  color: #c4b5fd;
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-family: monospace;
+  font-size: 0.8rem;
+}
+
+.trio-empty {
+  color: #94a3b8;
+}
+
+/* تمرین‌های CSS */
+
+.demo-sec {
+  margin: 18px 0;
+  padding: 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+}
+
+.demo-title {
+  color: #1e293b;
+  font-weight: 800;
+  margin-bottom: 10px;
+  text-align: right;
+}
+
+.demo-wrap {
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  color: #334155;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.demo-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.demo-btns button,
+.inline-control button,
+.color-control button,
+.timer-control button,
+.counter-control button {
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  background: #374151;
+  color: #ffffff;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.demo-btns button:hover,
+.inline-control button:hover,
+.color-control button:hover,
+.timer-control button:hover,
+.counter-control button:hover {
+  background: #e61919;
+  transform: translateY(-2px);
+}
+
+.demo-btns .reset-btn {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.flex-demo {
+  min-height: 150px;
+}
+
+.flex-item {
+  background: #4f46e5;
+  color: #ffffff;
+  border-radius: 8px;
+  padding: 8px 18px;
+  min-width: 80px;
+  text-align: center;
+}
+
+.css-warning {
+  min-height: 38px;
+  text-align: center;
+  color: #92400e;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 8px;
+  padding: 8px;
+  margin: 12px 0;
+  font-size: 0.85rem;
+}
+
+/* تمرین JavaScript */
+
+.card-box {
+  background: #111827;
+  color: #ffffff;
+  border-radius: 16px;
+  padding: 22px;
+}
+
+.card-box h2 {
+  margin-top: 0;
+  text-align: center;
+}
+
+.muted-text {
+  color: #aaaaaa;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.ai-card {
+  margin-bottom: 1rem;
+  padding: 16px;
+  background: #1f2937;
+  border: 1px solid #374151;
+  border-radius: 12px;
+}
+
+.ai-card h4 {
+  margin: 0 0 12px;
+  color: #f9fafb;
+}
+
+.inline-control {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.inline-control input,
+.full-input {
+  flex: 1;
+  min-width: 0;
+  padding: 9px 12px;
+  border: 1px solid #4b5563;
+  border-radius: 8px;
+  background: #111111;
+  color: #ffffff;
+  font-family: inherit;
+  direction: ltr;
+  text-align: left;
+}
+
+.full-input {
+  width: 100%;
+  margin-bottom: 8px;
+  box-sizing: border-box;
+}
+
+.js-result {
+  min-height: 22px;
+  margin-top: 7px;
+  color: #d1d5db;
+  font-size: 0.85rem;
+}
+
+.counter-control,
+.color-control,
+.timer-control {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.counter-control span {
+  min-width: 35px;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.counter-control button {
+  font-size: 1.2rem;
+  min-width: 42px;
+}
+
+.search-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.search-list span {
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: #374151;
+  color: #dbeafe;
+  font-size: 0.85rem;
+}
+
+.search-list small {
+  color: #9ca3af;
+}
+
+.random-color-box {
+  width: 60px;
+  height: 40px;
+  border-radius: 8px;
+  transition: background 0.3s ease;
+}
+
+.color-control span {
+  direction: ltr;
+  color: #aaaaaa;
+  font-size: 0.85rem;
+}
+
+.timer-control > span {
+  min-width: 65px;
+  direction: ltr;
+  font-size: 1.4rem;
+  font-weight: bold;
+  font-variant-numeric: tabular-nums;
+}
+
+.timer-control .timer-start {
+  background: #22c55e;
+  color: #000000;
+  font-weight: bold;
+}
+
+.step-progress {
+  margin-top: 1.2rem;
+  color: #aaaaaa;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+/* چیدمان دکمه‌های قبلی و بعدی */
+
+.nav-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.nav-row .btn {
+  margin-top: 0;
+}
+
+.nav-row .btn:not(.btn-back) {
+  flex: 1;
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* واکنش‌گرا */
+
+@media (max-width: 600px) {
+  .trio-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .trio-card {
+    min-height: auto;
+  }
+
+  .inline-control,
+  .color-control,
+  .timer-control {
+    flex-wrap: wrap;
+  }
+
+  .nav-row {
+    flex-direction: column;
+  }
+
+  .nav-row .btn-back {
+    width: 100%;
+  }
+
+  .demo-btns button {
+    flex: 1 1 calc(50% - 8px);
+  }
+}

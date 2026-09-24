@@ -1,0 +1,2477 @@
+.tuition-container {
+  padding: 24px;
+  direction: rtl;
+  color: #1e293b;
+  font-family: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* هدر */
+.tuition-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  padding: 20px 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  border: 1px solid #f1f5f9;
+}
+
+.tuition-header-title {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.tuition-back-btn {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px;
+  cursor: pointer;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.tuition-back-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.tuition-header-title h1 {
+  font-size: 20px;
+  font-weight: 800;
+  margin: 0 0 4px 0;
+  color: #0f172a;
+}
+
+.tuition-header-title p {
+  margin: 0;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.tuition-header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.tuition-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+
+.tuition-btn.primary {
+  background: #6366f1;
+  color: white;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+}
+
+.tuition-btn.primary:hover {
+  background: #4f46e5;
+}
+
+.tuition-btn.secondary {
+  background: #f8fafc;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+/* سکشن آماری */
+.tuition-analytics-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 20px;
+}
+
+.tuition-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.tuition-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.tuition-card-header h3 {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.tuition-card-header .subtitle {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.analytics-tag {
+  background: #ecfdf5;
+  color: #059669;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* لیست وضعیت دوره‌ها */
+.course-progress-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 10px;
+}
+
+.course-stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.course-stat-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.course-stat-info .course-name {
+  font-weight: 600;
+  color: #334155;
+}
+
+.course-stat-info .course-amounts {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.progress-bar-bg {
+  height: 8px;
+  background: #f1f5f9;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.4s ease;
+}
+
+/* فیلترها */
+.tuition-filters-card {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 14px;
+  background: #ffffff;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.filter-input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.filter-icon {
+  position: absolute;
+  right: 14px;
+  color: #94a3b8;
+}
+
+.filter-input-group input,
+.filter-input-group select {
+  width: 100%;
+  padding: 10px 42px 10px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 13px;
+  outline: none;
+  background: #f8fafc;
+  transition: border 0.2s;
+}
+
+.filter-input-group input:focus,
+.filter-input-group select:focus {
+  border-color: #6366f1;
+  background: #ffffff;
+}
+
+.clear-search-btn {
+  position: absolute;
+  left: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #94a3b8;
+}
+
+/* جدول */
+.tuition-table-card {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+.table-top-bar {
+  padding: 16px 20px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.tuition-table-wrapper {
+  overflow-x: auto;
+}
+
+.tuition-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: right;
+  font-size: 13px;
+}
+
+.tuition-table th {
+  background: #f8fafc;
+  padding: 14px 18px;
+  font-weight: 700;
+  color: #475569;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.tuition-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid #f8fafc;
+  vertical-align: middle;
+}
+
+.student-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.student-avatar {
+  width: 36px;
+  height: 36px;
+  background: #e0e7ff;
+  color: #4338ca;
+  font-weight: 700;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.student-name {
+  display: block;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.student-id {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.contact-info small {
+  display: block;
+  color: #64748b;
+  font-size: 11px;
+}
+
+.course-badge {
+  background: #f1f5f9;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #334155;
+}
+
+.amount-cell {
+  font-weight: 700;
+}
+
+.text-success { color: #10b981; }
+.text-danger { color: #ef4444; }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.badge-success { background: #ecfdf5; color: #059669; }
+.badge-warning { background: #fffbeb; color: #d97706; }
+.badge-danger { background: #fef2f2; color: #dc2626; }
+
+.row-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-action {
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-action.pay {
+  background: #e0e7ff;
+  color: #4338ca;
+  font-weight: 600;
+}
+
+.btn-action.print {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+/* مودال */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.modal-content {
+  background: #ffffff;
+  border-radius: 18px;
+  width: 440px;
+  padding: 24px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #94a3b8;
+}
+
+.student-summary-card {
+  background: #f8fafc;
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group {
+  margin-bottom: 14px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btn-submit {
+  background: #6366f1;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-cancel {
+  background: #f1f5f9;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+@media (max-width: 900px) {
+  .tuition-analytics-grid,
+  .tuition-filters-card {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tuition-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.tuition-modal {
+  width: 100%;
+  max-width: 850px;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.2);
+  overflow: hidden;
+  direction: rtl;
+}
+
+.tuition-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.tuition-modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.tuition-modal-close {
+  border: none;
+  background: transparent;
+  font-size: 28px;
+  cursor: pointer;
+  color: #64748b;
+}
+
+.tuition-modal-body {
+  padding: 20px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.tuition-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.tuition-form-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.tuition-input {
+  width: 100%;
+  border: 1px solid #dbe2ea;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 14px;
+  outline: none;
+  transition: 0.2s ease;
+}
+
+.tuition-input:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+}
+
+.tuition-student-search-results {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.tuition-student-item {
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: 0.2s ease;
+  background: #f8fafc;
+}
+
+.tuition-student-item:hover {
+  border-color: #6366f1;
+  background: #eef2ff;
+}
+
+.tuition-student-item.active {
+  border-color: #4f46e5;
+  background: #eef2ff;
+}
+
+.tuition-student-item p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.tuition-debt-badge {
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.tuition-debt-badge.debt {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.tuition-debt-badge.settled {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.tuition-selected-student-box {
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 18px;
+  background: #f8fafc;
+}
+
+.tuition-selected-student-box h4 {
+  margin-top: 0;
+  margin-bottom: 14px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.tuition-selected-student-box p {
+  margin: 8px 0;
+  color: #334155;
+  font-size: 14px;
+}
+
+.tuition-empty-search {
+  text-align: center;
+  color: #94a3b8;
+  padding: 20px 0;
+}
+
+.tuition-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 20px;
+  border-top: 1px solid #e5e7eb;
+  background: #f8fafc;
+}
+.tuition-btn-reset {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background-color: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.tuition-btn-reset:hover {
+  background-color: #fee2e2;
+  border-color: #f87171;
+  color: #b91c1c;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.12);
+  transform: translateY(-1px);
+}
+
+.tuition-btn-reset svg {
+  font-size: 15px;
+  transition: transform 0.3s ease;
+}
+
+.tuition-btn-reset:hover svg {
+  transform: rotate(-90deg);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.tuition-filters-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.tuition-btn-reset-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  background-color: #fef2f2;
+  color: #ef4444;
+  border: 1px solid #fee2e2;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.08);
+  animation: fadeInScale 0.2s ease-out;
+}
+
+.tuition-btn-reset-icon:hover {
+  background-color: #fee2e2;
+  border-color: #fca5a5;
+  color: #dc2626;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.18);
+}
+
+.tuition-btn-reset-icon:hover svg {
+  transform: rotate(-180deg);
+}
+
+.tuition-btn-reset-icon svg {
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+
+/* کانتینر اصلی کارت فیلترها */
+.tuition-filters-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #ffffff;
+  padding: 16px 20px;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  margin-bottom: 24px;
+}
+
+/* اینپوت جستجو: نیمی از فضای ردیف (50%) */
+.tuition-filters-card .search-box {
+  flex: 1 1 50%;
+  min-width: 260px;
+}
+
+/* گروه دوم شامل دو لیست‌باکس و دکمه: نیمی دیگر از فضا (50%) */
+.filter-secondary-group {
+  flex: 1 1 50%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.filter-secondary-group .select-box {
+  flex: 1;
+  min-width: 0;
+}
+
+/* استایل مشترک اینپوت‌ها و سلکت‌ها */
+.filter-input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.filter-input-group input,
+.filter-input-group select {
+  width: 100%;
+  height: 46px;
+  padding: 0 38px 0 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background-color: #f8fafc;
+  color: #1e293b;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.filter-input-group input:focus,
+.filter-input-group select:focus {
+  border-color: #6366f1;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+.filter-icon {
+  position: absolute;
+  right: 12px;
+  color: #94a3b8;
+  font-size: 18px;
+  pointer-events: none;
+}
+
+.clear-search-btn {
+  position: absolute;
+  left: 10px;
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+}
+
+.clear-search-btn:hover {
+  color: #ef4444;
+}
+
+/* دکمه بازنشانی (آیکونی) */
+.tuition-btn-reset-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  min-width: 46px;
+  background-color: #fef2f2;
+  color: #ef4444;
+  border: 1px solid #fee2e2;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  flex-shrink: 0;
+}
+
+.tuition-btn-reset-icon:hover {
+  background-color: #fee2e2;
+  border-color: #fca5a5;
+  color: #dc2626;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.18);
+}
+
+.tuition-btn-reset-icon:hover svg {
+  transform: rotate(-180deg);
+}
+
+.tuition-btn-reset-icon svg {
+  transition: transform 0.35s ease;
+}
+
+/* ================= واکنش‌گرایی (ریسپانسیو) ================= */
+/* در تبلت و موبایل: آیتم‌ها زیر هم قرار می‌گیرند و ۱۰۰٪ عرض می‌شوند */
+@media (max-width: 992px) {
+  .tuition-filters-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .tuition-filters-card .search-box {
+    width: 100%;
+    flex: none;
+  }
+
+  .filter-secondary-group {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .filter-secondary-group .select-box {
+    width: 100%;
+  }
+
+  .tuition-btn-reset-icon {
+    width: 100%;
+    height: 42px;
+  }
+}
+/* استایل دکمه جزئیات در جدول */
+.btn-action.details {
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+}
+
+.btn-action.details:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+/* استایل مودال سوابق مالی هنرجو */
+.history-modal {
+  max-width: 750px !important;
+  width: 95%;
+}
+
+.history-summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.summary-mini-card {
+  background: #f8fafc;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.summary-mini-card span {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.summary-mini-card strong {
+  font-size: 15px;
+}
+
+.history-subtable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.history-subtable th {
+  background: #f1f5f9;
+  padding: 10px 8px;
+}
+
+.history-subtable td {
+  padding: 10px 8px;
+}
+/* ================= استایل بنر هنرجو در مودال پرداخت ================= */
+.pay-modal-card {
+  max-width: 580px;
+  width: 95%;
+}
+
+.student-locked-banner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+  padding: 14px 18px;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 20px;
+}
+
+.banner-avatar {
+  width: 48px;
+  height: 48px;
+  background: #4f46e5;
+  color: #ffffff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.banner-info h4 {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  color: #1e293b;
+}
+
+.banner-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  color: #64748b;
+  flex-wrap: wrap;
+}
+
+.banner-debt-badge {
+  margin-right: auto;
+  text-align: left;
+  background: #fff;
+  padding: 6px 12px;
+  border-radius: 10px;
+  border: 1px solid #fed7aa;
+}
+
+.banner-debt-badge span {
+  display: block;
+  font-size: 11px;
+  color: #f97316;
+}
+
+.banner-debt-badge strong {
+  font-size: 14px;
+  color: #ea580c;
+}
+
+.label-with-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.btn-quick-full {
+  background: #eff6ff;
+  color: #2563eb;
+  border: none;
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.btn-quick-full:hover {
+  background: #dbeafe;
+}
+
+.amount-big-input {
+  font-size: 18px !important;
+  font-weight: bold;
+  letter-spacing: 1px;
+  color: #0f172a;
+}
+
+.payment-methods-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.method-card {
+  border: 1.5px solid #e2e8f0;
+  padding: 12px 8px;
+  border-radius: 10px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+  background: #fafafa;
+}
+
+.method-card input {
+  display: none;
+}
+
+.method-card.active {
+  border-color: #4f46e5;
+  background: #eef2ff;
+  color: #4f46e5;
+}
+
+.btn-submit-pay {
+  background: #10b981;
+  color: #ffffff;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-submit-pay:hover {
+  background: #059669;
+}
+
+/* ================= استایل مدرن مودال جزئیات کل حساب (History) ================= */
+.modern-history-modal {
+  max-width: 800px !important;
+  width: 95%;
+  border-radius: 20px;
+  overflow: hidden;
+  padding: 0 !important;
+}
+
+.history-modal-header {
+  background: linear-gradient(135deg, #1e1b4b, #312e81);
+  padding: 24px 28px;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.history-user-info {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.user-big-avatar {
+  width: 58px;
+  height: 58px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(8px);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.history-user-info h2 {
+  margin: 0 0 6px 0;
+  font-size: 20px;
+}
+
+.user-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.chip {
+  background: rgba(255, 255, 255, 0.12);
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+}
+
+.chip-accent {
+  background: #f59e0b;
+  color: #000;
+  font-weight: 600;
+}
+
+.white-close {
+  background: rgba(255, 255, 255, 0.15) !important;
+  color: white !important;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  border: none;
+}
+
+.modern-body {
+  padding: 24px;
+  background: #f8fafc;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+/* روبان آماری بالا */
+.analytics-ribbon {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.ribbon-card {
+  background: #ffffff;
+  padding: 16px 14px;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+
+.ribbon-title {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.ribbon-value {
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.ribbon-value small {
+  font-size: 11px;
+  margin-right: 4px;
+  font-weight: normal;
+}
+
+.text-emerald {
+  color: #059669 !important;
+}
+
+.text-rose {
+  color: #e11d48 !important;
+}
+
+.section-title {
+  font-size: 15px;
+  color: #334155;
+  margin-bottom: 14px;
+}
+
+/* کارت دوره‌ها */
+.course-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.course-detail-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 18px 20px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.02);
+}
+
+.course-detail-card.settled-border {
+  border-right: 5px solid #10b981;
+}
+
+.course-detail-card.debt-border {
+  border-right: 5px solid #ef4444;
+}
+
+.course-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.course-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.course-index {
+  background: #f1f5f9;
+  color: #64748b;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.course-title-group h4 {
+  margin: 0;
+  font-size: 16px;
+  color: #0f172a;
+}
+
+.status-pill {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.pill-success {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.pill-danger {
+  background: #fff1f2;
+  color: #e11d48;
+}
+
+/* نوار پیشرفت */
+.payment-progress-bar-container {
+  margin-bottom: 14px;
+}
+
+.progress-bar-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 6px;
+}
+
+.progress-track {
+  height: 8px;
+  background: #f1f5f9;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.4s ease;
+}
+
+.fill-green {
+  background: linear-gradient(90deg, #10b981, #34d399);
+}
+
+.fill-blue {
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+}
+
+.course-card-footer {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px dashed #f1f5f9;
+  font-size: 13px;
+}
+
+.footer-item span {
+  color: #64748b;
+  margin-left: 6px;
+}
+
+@media (max-width: 640px) {
+  .analytics-ribbon {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .payment-methods-grid {
+    grid-template-columns: 1fr;
+  }
+}
+/* ================= پس‌زمینه و کارت مودال پرداخت لوکس ================= */
+.pay-backdrop {
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  padding: 16px;
+}
+
+.pay-modal-card-premium {
+  background: #ffffff;
+  width: 100%;
+  max-width: 580px;
+  border-radius: 24px;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  animation: modalScaleIn 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes modalScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* هدر مدرن با گرادیانت ملایم و لوکس */
+.pay-modal-header {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  padding: 22px 26px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #ffffff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.header-title-box {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.header-icon-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  box-shadow: 0 8px 16px rgba(99, 102, 241, 0.3);
+}
+
+.header-title-box h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.header-sub {
+  margin: 4px 0 0 0;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.btn-close-pay-modal {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #cbd5e1;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-close-pay-modal:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+/* بدنه مودال */
+.pay-modal-body {
+  padding: 24px;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-height: 75vh;
+  overflow-y: auto;
+}
+
+/* کادر جستجو هنرجو در صورت نیاز */
+.search-student-box-pro {
+  background: white;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+}
+
+.search-input-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.search-icon-field {
+  position: absolute;
+  right: 14px;
+  color: #6366f1;
+  font-size: 18px;
+}
+
+.search-input-field input {
+  width: 100%;
+  height: 46px;
+  padding: 0 42px 0 14px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 12px;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.search-input-field input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+/* کارت مشخصات شیشه‌ای هنرجو */
+.student-profile-glass-card {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 18px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.glass-card-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.avatar-ring {
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #0ea5e9, #2563eb);
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+}
+
+.student-titles h4 {
+  margin: 0 0 6px 0;
+  font-size: 16px;
+  color: #0f172a;
+}
+
+.meta-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag-item {
+  font-size: 11.5px;
+  color: #64748b;
+  background: #f1f5f9;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.glass-card-debt {
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+  border: 1px solid #fed7aa;
+  padding: 12px 16px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.debt-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.debt-title {
+  font-size: 13px;
+  color: #c2410c;
+  font-weight: 600;
+}
+
+.debt-num {
+  font-size: 17px;
+  font-weight: 800;
+  color: #ea580c;
+}
+
+.debt-num small {
+  font-size: 12px;
+  font-weight: normal;
+}
+
+/* فرم ورود اطلاعات */
+.pay-interactive-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group-pro {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.input-label-pro {
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.btn-pill-action {
+  background: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-pill-action:hover {
+  background: #dcfce7;
+  transform: translateY(-1px);
+}
+
+/* اینپوت مدرن مبلغ */
+.amount-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.amount-input-styled {
+  width: 100%;
+  height: 52px;
+  padding: 0 16px 0 65px;
+  font-size: 22px;
+  font-weight: bold;
+  color: #0f172a;
+  background: #ffffff;
+  border: 2px solid #cbd5e1;
+  border-radius: 14px;
+  outline: none;
+  transition: all 0.2s;
+  letter-spacing: 0.5px;
+}
+
+.amount-input-styled:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
+}
+
+.amount-currency-suffix {
+  position: absolute;
+  left: 16px;
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.amount-in-words-preview {
+  font-size: 12px;
+  color: #059669;
+  font-weight: 600;
+  background: #ecfdf5;
+  padding: 4px 10px;
+  border-radius: 6px;
+  display: inline-block;
+  align-self: flex-start;
+}
+
+/* کارت‌های انتخاب روش پرداخت */
+.payment-options-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.pay-option-card {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  padding: 12px 10px;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.pay-option-card:hover {
+  border-color: #cbd5e1;
+  transform: translateY(-2px);
+}
+
+.pay-option-card.selected {
+  border-color: #6366f1;
+  background: #f5f3ff;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+}
+
+.option-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.pos-icon {
+  background: #e0e7ff;
+  color: #4338ca;
+}
+
+.card-icon {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.cash-icon {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.option-text strong {
+  display: block;
+  font-size: 12.5px;
+  color: #1e293b;
+}
+
+.option-text small {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.selected-check {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  background: #6366f1;
+  color: white;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* اینپوت یادداشت */
+.note-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.note-icon {
+  position: absolute;
+  right: 14px;
+  color: #94a3b8;
+  font-size: 16px;
+}
+
+.note-input-styled {
+  width: 100%;
+  height: 44px;
+  padding: 0 40px 0 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  font-size: 13px;
+  outline: none;
+  background: #ffffff;
+  transition: all 0.2s;
+}
+
+.note-input-styled:focus {
+  border-color: #6366f1;
+}
+
+/* فوتر */
+.pay-modal-footer {
+  padding: 16px 24px;
+  background: #ffffff;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.btn-modern-cancel {
+  background: #f1f5f9;
+  color: #475569;
+  border: none;
+  padding: 11px 20px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-modern-cancel:hover {
+  background: #e2e8f0;
+}
+
+.btn-modern-submit {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  border: none;
+  padding: 11px 26px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 13.5px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+  transition: all 0.2s ease;
+}
+
+.btn-modern-submit:hover {
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+@media (max-width: 540px) {
+  .payment-options-row {
+    grid-template-columns: 1fr;
+  }
+}
+/* ردیف دو ستونه در فرم */
+.form-two-cols {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 14px;
+}
+
+/* فیلد تخفیف */
+.discount-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.discount-icon {
+  position: absolute;
+  right: 14px;
+  color: #f59e0b;
+  font-size: 18px;
+}
+
+.discount-input {
+  border-color: #fcd34d !important;
+  background-color: #fffbeb !important;
+  color: #b45309 !important;
+  padding-right: 40px !important;
+  height: 52px;
+}
+
+.discount-input:focus {
+  border-color: #f59e0b !important;
+  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.15) !important;
+}
+
+.discount-badge-hint {
+  font-size: 11.5px;
+  color: #b45309;
+  background: #fef3c7;
+  padding: 3px 8px;
+  border-radius: 6px;
+  align-self: flex-start;
+  font-weight: 600;
+}
+
+/* استایل ردیف تاریخ و زمان */
+.datetime-picker-row {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 12px;
+}
+
+.datetime-sub-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 0 10px;
+  transition: all 0.2s;
+}
+
+.datetime-sub-field:focus-within {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+.dt-icon {
+  color: #6366f1;
+  font-size: 17px;
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+
+.dt-input {
+  border: none;
+  outline: none;
+  background: transparent;
+  width: 100%;
+  height: 44px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #1e293b;
+  direction: ltr;
+  text-align: right;
+  font-family: inherit;
+}
+
+.time-sub-field .dt-input {
+  text-align: center;
+}
+
+/* دکمه‌های سریع "امروز" و "الان" */
+.btn-now-tag {
+  background: #f1f5f9;
+  border: none;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.btn-now-tag:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+@media (max-width: 540px) {
+  .form-two-cols,
+  .datetime-picker-row {
+    grid-template-columns: 1fr;
+  }
+}
+/* ==========================================================================
+   استایل‌های هدر داشبورد مالی (AdminFinances)
+   ========================================================================== */
+
+.admin-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  padding: 20px 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  border: 1px solid #f1f5f9;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.admin-page-header-icon {
+  width: 52px;
+  height: 52px;
+  background: #eef2ff;
+  color: #6366f1;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-page-title {
+  margin: 0 0 4px 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.admin-page-subtitle {
+  margin: 0;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.admin-page-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* دکمه‌های مالی */
+.admin-btn-secondary,
+.admin-btn-primary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
+  background: #f8fafc;
+  color: #475569;
+}
+
+.admin-btn-secondary:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.admin-btn-secondary.active {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #1e293b;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.admin-btn-primary {
+  background: #6366f1;
+  color: #ffffff;
+  border-color: #6366f1;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+}
+
+.admin-btn-primary:hover {
+  background: #4f46e5;
+}
+
+.admin-btn-primary.active {
+  background: #4338ca;
+  border-color: #4338ca;
+}
+
+/* واکنش‌گرایی برای هدر مالی */
+@media (max-width: 992px) {
+  .admin-page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .admin-page-header-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .admin-btn-secondary,
+  .admin-btn-primary {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
+/* ==========================================================================
+   Top Stat Cards (کارت‌های آماری ۴ گانه)
+   ========================================================================== */
+.courses2-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+}
+
+.courses2-stat-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.35rem;
+  background-color: #ffffff;
+  border-radius: 1rem;
+  border: 1px solid #edf2f7;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.courses2-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.07);
+}
+
+.courses2-stat-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.courses2-stat-content span {
+  font-size: 0.875rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.courses2-stat-content strong {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.courses2-stat-positive {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: #10b981;
+  font-weight: 600;
+}
+
+.courses2-stat-warning {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: #f59e0b;
+  font-weight: 600;
+}
+
+.courses2-stat-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 0.875rem;
+  font-size: 1.5rem;
+}
+
+/* تم‌های رنگی آیکون کارت‌های آمار */
+.courses2-stat-card-blue .courses2-stat-icon {
+  background-color: #eff6ff;
+  color: #2563eb;
+}
+
+.courses2-stat-card-green .courses2-stat-icon {
+  background-color: #ecfdf5;
+  color: #059669;
+}
+
+.courses2-stat-card-orange .courses2-stat-icon {
+  background-color: #fffbeb;
+  color: #d97706;
+}
+
+.courses2-stat-card-purple .courses2-stat-icon {
+  background-color: #f5f3ff;
+  color: #7c3aed;
+}
+
+/* ریسپانسیو کارت‌های آماری */
+@media (max-width: 1250px) {
+  .courses2-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .courses2-stats-grid {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+
+  .courses2-stat-card {
+    padding: 1rem 1.1rem;
+  }
+}
+/* ==========================================================================
+   Course Cards Grid (کارت‌های محتوای دوره)
+   ========================================================================== */
+.courses2-course-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+.courses2-course-card {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.courses2-course-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+  border-color: #cbd5e1;
+}
+
+/* بنر و آیکون بالای کارت */
+.courses2-card-banner {
+  height: 64px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+}
+
+/* گرادینت‌های بنر کارت */
+.courses2-banner-python { background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%); }
+.courses2-banner-react { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); }
+.courses2-banner-ai { background: linear-gradient(135deg, #059669 0%, #047857 100%); }
+.courses2-banner-design { background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); }
+.courses2-banner-algorithm { background: linear-gradient(135deg, #d97706 0%, #b45309 100%); }
+.courses2-banner-kids { background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); }
+
+.courses2-card-icon {
+  width: 44px;
+  height: 44px;
+  background-color: #ffffff;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  color: #1e293b;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+  margin-top: 1.5rem;
+}
+
+.courses2-card-top-tags {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.courses2-card-tag {
+  font-size: 0.675rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: 0.35rem;
+  color: #ffffff;
+}
+
+.courses2-card-tag-popular {
+  background-color: rgba(234, 88, 12, 0.95);
+}
+
+.courses2-card-tag-promo {
+  background-color: rgba(220, 38, 38, 0.95);
+}
+
+.courses2-card-code {
+  font-size: 0.725rem;
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 600;
+  font-family: monospace;
+}
+
+/* بدنه کارت */
+.courses2-card-content {
+  padding: 1.5rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.courses2-card-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.courses2-card-title-row h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.4;
+}
+
+.courses2-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.675rem;
+  font-weight: 600;
+  padding: 0.15rem 0.45rem;
+  border-radius: 0.35rem;
+  white-space: nowrap;
+}
+
+.courses2-status-badge.active {
+  background-color: #ecfdf5;
+  color: #059669;
+}
+
+.courses2-status-badge.inactive {
+  background-color: #fef2f2;
+  color: #dc2626;
+}
+
+.courses2-status-badge i {
+  font-size: 0.45rem;
+}
+
+/* ردیف مدرس */
+.courses2-card-teacher {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: #475569;
+}
+
+.courses2-teacher-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background-color: #e2e8f0;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.courses2-level-badge {
+  margin-right: auto;
+  font-size: 0.7rem;
+  background-color: #f1f5f9;
+  color: #475569;
+  padding: 0.15rem 0.45rem;
+  border-radius: 0.35rem;
+  font-weight: 500;
+}
+
+/* متادیتا (ساعت، جلسات و...) */
+.courses2-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem;
+  padding: 0.5rem 0;
+  border-top: 1px solid #f8fafc;
+  border-bottom: 1px solid #f8fafc;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.courses2-card-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* نوار پیشرفت و ظرفیت دوره */
+.courses2-capacity-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.courses2-capacity-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.725rem;
+  color: #64748b;
+}
+
+.courses2-capacity-label strong {
+  color: #0f172a;
+}
+
+.courses2-capacity-track {
+  height: 6px;
+  background-color: #f1f5f9;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.courses2-capacity-fill {
+  height: 100%;
+  border-radius: 10px;
+  display: block;
+  transition: width 0.3s ease;
+}
+
+.courses2-fill-python { background-color: #4f46e5; }
+.courses2-fill-react { background-color: #0284c7; }
+.courses2-fill-ai { background-color: #059669; }
+.courses2-fill-design { background-color: #06b6d4; }
+.courses2-fill-algorithm { background-color: #d97706; }
+.courses2-fill-kids { background-color: #8b5cf6; }
+
+.courses2-card-start-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.725rem;
+  color: #64748b;
+}
+
+/* فوتر کارت و دکمه‌های عملیات */
+.courses2-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background-color: #f8fafc;
+  border-top: 1px solid #f1f5f9;
+}
+
+.courses2-card-price strong {
+  font-size: 0.875rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.courses2-card-price del {
+  font-size: 0.725rem;
+  color: #94a3b8;
+  margin-right: 0.4rem;
+}
+
+.courses2-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.courses2-card-action {
+  width: 28px;
+  height: 28px;
+  border-radius: 0.5rem;
+  border: 1px solid #e2e8f0;
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  color: #64748b;
+}
+
+.courses2-action-view:hover {
+  background-color: #eff6ff;
+  color: #2563eb;
+  border-color: #bfdbfe;
+}
+
+.courses2-action-edit:hover {
+  background-color: #fefce8;
+  color: #ca8a04;
+  border-color: #fef08a;
+}
+
+.courses2-action-delete:hover {
+  background-color: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+/* ریسپانسیو کارت‌های دوره */
+@media (max-width: 1250px) {
+  .courses2-course-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .courses2-course-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 430px) {
+  .courses2-card-meta {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+
+  .courses2-card-footer {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .courses2-card-actions {
+    width: 100%;
+  }
+
+  .courses2-card-action {
+    flex: 1;
+  }
+}
+

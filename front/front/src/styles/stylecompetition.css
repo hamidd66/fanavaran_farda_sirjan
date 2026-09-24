@@ -1,0 +1,113 @@
+.competition-hero {
+    background: linear-gradient(135deg,#1e1b4b 0%,#312e81 45%,#4f46e5 100%);
+    border-radius:22px; color:#fff; padding:60px 40px;
+    box-shadow:0 20px 45px -15px rgba(79,70,229,.45);
+    
+    
+}
+
+.competition-hero .competition-badge {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(194, 253, 255, 0.15);
+  font-size: 0.9rem;
+  margin-bottom: 18px;
+}
+
+.competition-hero h1 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin-bottom: 16px;
+}
+
+.competition-hero p {
+  max-width: 800px;
+  margin: 0 auto 26px;
+  line-height: 2;
+  font-size: 1rem;
+  opacity: 0.95;
+}
+
+.btn-competition {
+  background: #4f46e5;
+  color: #f6f1f1;
+  font-weight: 700;
+  border-radius: 12px;
+  padding: 12px 26px;
+  border: none;
+  transition: 0.3s ease;
+}
+
+.btn-competition:hover {
+  background: #eef2ff;
+  color: #312e81;
+}
+
+.competition-card {
+  background: #fff;
+  border-radius: 18px;
+  padding: 24px 18px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(79, 70, 229, 0.1);
+  height: 100%;
+  border: 1px solid #e5e7eb;
+}
+
+.competition-card i {
+  font-size: 2rem;
+  color: #4f46e5;
+  margin-bottom: 12px;
+  display: inline-block;
+}
+
+.competition-card h5 {
+  font-size: 1rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+  color: #111827;
+}
+
+.competition-card p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.92rem;
+}
+
+.form-wrap {
+  background: #fff;
+  border-radius: 22px;
+  padding: 32px;
+  box-shadow: 0 14px 40px rgba(15, 23, 42, 0.08);
+  border: 1px solid #e5e7eb;
+}
+
+.form-wrap h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 8px;
+}
+
+.form-wrap p {
+  color: #6b7280;
+  line-height: 2;
+}
+
+.form-wrap .form-label {
+  font-weight: 700;
+  color: #374151;
+}
+
+.form-wrap .form-control,
+.form-wrap .form-select {
+  min-height: 48px;
+  border-radius: 12px;
+  border: 1px solid #d1d5db;
+}
+
+.form-wrap .form-control:focus,
+.form-wrap .form-select:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.15);
+}

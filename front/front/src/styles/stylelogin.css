@@ -1,0 +1,366 @@
+/* Login Page - Fanavaran Farda */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #f8f9fa;
+  font-family: "Vazirmatn", sans-serif;
+  direction: rtl;
+}
+
+.auth-wrapper {
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.brand {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.brand img {
+  height: 56px;
+  width: auto;
+}
+
+.auth-card {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+  padding: 36px 32px;
+}
+
+.card-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.card-subtitle {
+  font-size: 0.95rem;
+  color: #6b7280;
+  text-align: center;
+  margin-bottom: 24px;
+  line-height: 1.8;
+}
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #374151;
+}
+
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+
+
+
+
+/* آیکون قفل سمت راست */
+.input-wrap > .input-icon-right,
+.input-wrap > i:not(.toggle-pass-btn i) {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  font-size: 1.1rem;
+  pointer-events: none; /* تا کلیک را بلاک نکند */
+  z-index: 2;
+}
+
+
+
+
+
+
+
+.input-wrap > i {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+  font-size: 1rem;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.form-control {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
+  border-radius: 10px;
+  padding: 0.85rem 3rem 0.85rem 3rem;
+  font-size: 0.95rem;
+  color: #111827;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+
+/* فیلد اینپوت با فاصله مناسب از چپ و راست */
+.input-wrap .form-control {
+  width: 100%;
+  padding-top: 11px;
+  padding-bottom: 11px;
+  padding-right: 44px !important; /* فضا برای قفل سمت راست */
+  padding-left: 44px !important;  /* فضا برای چشم سمت چپ */
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  color: #1a1a2e;
+  background: #f9fafb;
+  outline: none;
+  transition: all 0.2s ease;
+  position: relative;
+  z-index: 1;
+}
+
+
+
+.form-control:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
+  background: #fff;
+}
+
+
+
+
+
+.input-wrap .form-control:focus {
+  border-color: #6366f1;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
+}
+
+/* دکمه چشم داخل کادر */
+.toggle-pass-btn {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 0;
+  z-index: 10; /* حتما بالاتر از اینپوت باشد تا کلیک دریافت کند */
+  border-radius: 6px;
+  transition: color 0.2s, background-color 0.2s;
+}
+
+.toggle-pass-btn:hover {
+  color: #374151;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.toggle-pass-btn i {
+  font-size: 1.15rem;
+  line-height: 1;
+  pointer-events: none; /* کلیک مستقیما به باتن منتقل شود */
+}
+
+
+
+
+
+
+.toggle-pass {
+position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  z-index: 3;
+  padding: 0;
+}
+
+.toggle-pass i {
+  position: static;
+  transform: none;
+  font-size: 1rem;
+  color: inherit;
+}
+
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin: 10px 0 18px;
+}
+
+.remember-me {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: #374151;
+  cursor: pointer;
+}
+
+.remember-me input {
+  accent-color: #6366f1;
+}
+
+.link-forgot,
+.link-back,
+.link-back-home {
+  background: none;
+  border: none;
+  color: #4f46e5;
+  font-size: 0.9rem;
+  text-decoration: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.link-forgot:hover,
+.link-back:hover,
+.link-back-home:hover {
+  color: #312e81;
+  text-decoration: underline;
+}
+
+.btn-main {
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #fff;
+  background: linear-gradient(135deg, #6366f1 0%, #3b82f6 100%);
+  box-shadow: 0 10px 20px rgba(99, 102, 241, 0.22);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  margin-top: 4px;
+}
+
+.btn-main:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 24px rgba(99, 102, 241, 0.3);
+}
+
+.link-back-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+  margin-top: 14px;
+  width: 100%;
+}
+
+.back-row {
+  margin-top: 14px;
+  text-align: center;
+}
+
+.link-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.panels {
+  position: relative;
+}
+
+.panel {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.panel.hidden {
+  display: none;
+}
+
+.panel.show {
+  display: block;
+}
+
+.success-box {
+  text-align: center;
+  padding: 18px 0 10px;
+}
+
+.success-box i {
+  font-size: 3rem;
+  color: #16a34a;
+  margin-bottom: 12px;
+}
+
+.success-box p {
+  margin: 0 0 8px;
+  font-size: 1rem;
+  color: #111827;
+  font-weight: 700;
+}
+
+.success-box strong {
+  display: block;
+  color: #6b7280;
+  font-size: 0.93rem;
+  line-height: 1.8;
+}
+
+.error-text {
+  display: none;
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: #dc2626;
+}
+
+.error-text.show {
+  display: block;
+}
+
+.form-control.is-invalid {
+  border-color: #dc2626 !important;
+  background: #fef2f2 !important;
+}
+
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 28px 20px;
+  }
+
+  .form-options {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

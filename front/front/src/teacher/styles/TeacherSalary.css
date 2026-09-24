@@ -1,0 +1,788 @@
+/* ==========================================================================
+   Teacher Salary / Finance Page Styles
+   ========================================================================== */
+
+/* Container & Base Layout */
+.teacher-finance-wrapper {
+  direction: rtl;
+  padding: 1.5rem;
+  background-color: #f8fafc;
+  min-height: 100vh;
+  color: #1e293b;
+  font-family: inherit;
+}
+
+/* Page Header */
+.teacher-finance-wrapper .page-header {
+  margin-bottom: 1.5rem;
+}
+
+.teacher-finance-wrapper .header-title-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.teacher-finance-wrapper .header-title-badge h1 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+.teacher-finance-wrapper .header-icon {
+  font-size: 1.6rem;
+  color: #0284c7;
+}
+
+.teacher-finance-wrapper .header-subtitle {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin-top: 0.35rem;
+}
+
+/* ==========================================================================
+   kpi-grid & kpi-card (با نوار عمودی سمت راست)
+   ========================================================================== */
+.teacher-finance-wrapper .kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.teacher-finance-wrapper .kpi-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid #e2e8f0;
+  border-right-width: 5px; /* نوار رنگی عمودی راست */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.teacher-finance-wrapper .kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* نوارهای رنگی کناری بر اساس نوع highlight */
+.teacher-finance-wrapper .kpi-card.highlight-orange {
+  border-right-color: #ea580c;
+}
+.teacher-finance-wrapper .kpi-card.highlight-green {
+  border-right-color: #16a34a;
+}
+.teacher-finance-wrapper .kpi-card.highlight-blue {
+  border-right-color: #0284c7;
+}
+.teacher-finance-wrapper .kpi-card.highlight-purple {
+  border-right-color: #9333ea;
+}
+
+/* آیکون کارت‌ها */
+.teacher-finance-wrapper .kpi-icon-box,
+.teacher-finance-wrapper .kpi-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.teacher-finance-wrapper .highlight-orange .kpi-icon-box,
+.teacher-finance-wrapper .highlight-orange .kpi-icon-wrapper {
+  background-color: #fff7ed;
+  color: #ea580c;
+}
+.teacher-finance-wrapper .highlight-green .kpi-icon-box,
+.teacher-finance-wrapper .highlight-green .kpi-icon-wrapper {
+  background-color: #f0fdf4;
+  color: #16a34a;
+}
+.teacher-finance-wrapper .highlight-blue .kpi-icon-box,
+.teacher-finance-wrapper .highlight-blue .kpi-icon-wrapper {
+  background-color: #f0f9ff;
+  color: #0284c7;
+}
+.teacher-finance-wrapper .highlight-purple .kpi-icon-box,
+.teacher-finance-wrapper .highlight-purple .kpi-icon-wrapper {
+  background-color: #faf5ff;
+  color: #9333ea;
+}
+
+/* جزئیات متن داخل کارت */
+.teacher-finance-wrapper .kpi-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.teacher-finance-wrapper .kpi-label {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin-bottom: 0.25rem;
+}
+
+.teacher-finance-wrapper .kpi-value {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.teacher-finance-wrapper .kpi-subtext {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  margin-top: 0.2rem;
+}
+
+/* کلاس‌های رنگی متن */
+.teacher-finance-wrapper .text-orange { color: #ea580c !important; }
+.teacher-finance-wrapper .text-green { color: #16a34a !important; }
+.teacher-finance-wrapper .text-blue { color: #0284c7 !important; }
+
+/* ==========================================================================
+   Filter & Search Toolbar
+   ========================================================================== */
+.teacher-finance-wrapper .filter-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 1.25rem;
+}
+
+.teacher-finance-wrapper .search-box {
+  position: relative;
+  flex: 1;
+  min-width: 280px;
+}
+
+.teacher-finance-wrapper .search-icon {
+  position: absolute;
+  right: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+}
+
+.teacher-finance-wrapper .search-box input {
+  width: 100%;
+  padding: 0.65rem 2.4rem 0.65rem 2.2rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  outline: none;
+  background: #f8fafc;
+  transition: border-color 0.2s;
+}
+
+.teacher-finance-wrapper .search-box input:focus {
+  border-color: #0284c7;
+  background: #ffffff;
+}
+
+.teacher-finance-wrapper .clear-search-btn {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+}
+
+.teacher-finance-wrapper .filter-select-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.teacher-finance-wrapper .select-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.teacher-finance-wrapper .select-wrapper select {
+  appearance: none;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 0.65rem 2.2rem 0.65rem 1.8rem;
+  font-size: 0.85rem;
+  color: #334155;
+  cursor: pointer;
+  outline: none;
+}
+
+.teacher-finance-wrapper .select-wrapper .select-icon {
+  position: absolute;
+  right: 0.75rem;
+  color: #64748b;
+  pointer-events: none;
+}
+
+.teacher-finance-wrapper .select-wrapper .arrow-icon {
+  position: absolute;
+  left: 0.6rem;
+  color: #94a3b8;
+  pointer-events: none;
+  font-size: 0.85rem;
+}
+
+.teacher-finance-wrapper .btn-reset-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #fee2e2;
+  color: #dc2626;
+  border: none;
+  padding: 0.6rem 0.9rem;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   Table Design
+   ========================================================================== */
+.teacher-finance-wrapper .table-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+.teacher-finance-wrapper .table-responsive {
+  overflow-x: auto;
+}
+
+.teacher-finance-wrapper .finance-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: right;
+  font-size: 0.875rem;
+}
+
+.teacher-finance-wrapper .finance-table thead th {
+  background: #f1f5f9;
+  color: #475569;
+  font-weight: 700;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid #cbd5e1;
+  white-space: nowrap;
+}
+
+.teacher-finance-wrapper .finance-table tbody td {
+  padding: 0.95rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.teacher-finance-wrapper .finance-table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+.teacher-finance-wrapper .col-idx {
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.teacher-finance-wrapper .course-title-cell strong {
+  display: block;
+  font-size: 0.9rem;
+  color: #0f172a;
+  margin-bottom: 0.25rem;
+}
+
+.teacher-finance-wrapper .course-badges {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.teacher-finance-wrapper .code-tag {
+  background: #e0f2fe;
+  color: #0369a1;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+}
+
+.teacher-finance-wrapper .term-tag {
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 0.72rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+}
+
+.teacher-finance-wrapper .rate-text {
+  font-weight: 600;
+  color: #334155;
+}
+
+/* Progress bar inside table */
+.teacher-finance-wrapper .sessions-progress-cell {
+  min-width: 130px;
+}
+
+.teacher-finance-wrapper .sessions-count-text {
+  font-size: 0.8rem;
+  color: #475569;
+  margin-bottom: 0.3rem;
+}
+
+.teacher-finance-wrapper .progress-bar-bg {
+  width: 100%;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.teacher-finance-wrapper .progress-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+}
+
+.teacher-finance-wrapper .fill-green { background-color: #16a34a; }
+.teacher-finance-wrapper .fill-blue { background-color: #0284c7; }
+
+/* Badges */
+.teacher-finance-wrapper .status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.teacher-finance-wrapper .status-badge.finalized {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+.teacher-finance-wrapper .status-badge.in-progress {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.teacher-finance-wrapper .finance-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.teacher-finance-wrapper .finance-badge.settled {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.teacher-finance-wrapper .finance-badge.creditor {
+  background: #ffedd5;
+  color: #c2410c;
+  animation: pulse-border 2s infinite;
+}
+
+.teacher-finance-wrapper .finance-badge.pending-calc {
+  background: #f1f5f9;
+  color: #64748b;
+  font-weight: 500;
+}
+
+@keyframes pulse-border {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(234, 88, 12, 0.2); }
+  50% { box-shadow: 0 0 0 4px rgba(234, 88, 12, 0.15); }
+}
+
+.teacher-finance-wrapper .amount-cell {
+  display: flex;
+  flex-direction: column;
+}
+
+.teacher-finance-wrapper .amount-text {
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.teacher-finance-wrapper .settle-meta {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  margin-top: 0.15rem;
+}
+
+.teacher-finance-wrapper .in-progress-note {
+  font-size: 0.8rem;
+  color: #64748b;
+  font-style: italic;
+}
+
+/* Actions */
+.teacher-finance-wrapper .actions-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.teacher-finance-wrapper .action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.7rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.teacher-finance-wrapper .action-btn.view-logs {
+  background: #f0f9ff;
+  color: #0369a1;
+  border-color: #bae6fd;
+}
+.teacher-finance-wrapper .action-btn.view-logs:hover {
+  background: #e0f2fe;
+}
+
+.teacher-finance-wrapper .action-btn.view-receipt {
+  background: #f0fdf4;
+  color: #15803d;
+  border-color: #bbf7d0;
+}
+.teacher-finance-wrapper .action-btn.view-receipt:hover {
+  background: #dcfce7;
+}
+
+/* Empty State */
+.teacher-finance-wrapper .empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+.teacher-finance-wrapper .empty-icon {
+  font-size: 2.5rem;
+  color: #cbd5e1;
+  margin-bottom: 0.5rem;
+}
+
+/* ==========================================================================
+   Modals
+   ========================================================================== */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  padding: 1rem;
+}
+
+.modal-box {
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal-medium { max-width: 600px; }
+.modal-receipt { max-width: 720px; }
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.modal-header-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.modal-header-title h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #0f172a;
+}
+
+.modal-sub {
+  font-size: 0.78rem;
+  color: #64748b;
+}
+
+.close-modal-btn {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: #94a3b8;
+  cursor: pointer;
+}
+
+.modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+/* Quick info inside modal */
+.course-quick-info {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.85rem;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+
+.logs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.log-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.log-idx {
+  font-weight: 700;
+  color: #0284c7;
+  font-size: 0.85rem;
+  min-width: 60px;
+}
+
+.log-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.log-topic {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 0.85rem;
+}
+
+.log-date {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.log-status.held {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  color: #16a34a;
+  background: #f0fdf4;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+/* Printable Receipt Paper */
+.receipt-paper {
+  border: 2px dashed #cbd5e1;
+  padding: 1.5rem;
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.receipt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.receipt-org h2 {
+  font-size: 1.05rem;
+  margin: 0 0 0.35rem 0;
+  color: #0f172a;
+}
+
+.receipt-org p {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.receipt-badge span {
+  display: block;
+  background: #0284c7;
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  margin-bottom: 0.25rem;
+}
+
+.receipt-divider {
+  border: none;
+  border-top: 1px solid #e2e8f0;
+  margin: 1rem 0;
+}
+
+.receipt-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.85rem;
+}
+
+.receipt-item label {
+  color: #64748b;
+  margin-left: 0.35rem;
+}
+
+.receipt-calc-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+}
+
+.receipt-calc-table th, 
+.receipt-calc-table td {
+  border: 1px solid #e2e8f0;
+  padding: 0.6rem 0.75rem;
+  text-align: center;
+}
+
+.receipt-calc-table th {
+  background: #f8fafc;
+  color: #475569;
+}
+
+.receipt-total-bar {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1rem;
+  color: #15803d;
+  margin-bottom: 2rem;
+}
+
+.receipt-signatures {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.sign-box {
+  text-align: center;
+  flex: 1;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.sign-line {
+  margin-top: 2.5rem;
+  border-top: 1px dotted #94a3b8;
+}
+
+/* Buttons */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #0284c7;
+  color: #ffffff;
+  border: none;
+  padding: 0.6rem 1.1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-secondary,
+.btn-outline {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  padding: 0.6rem 1.1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+/* Print CSS Rules */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .print-area, .print-area * {
+    visibility: visible;
+  }
+  .print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .receipt-paper {
+    border: 1px solid #000;
+  }
+}

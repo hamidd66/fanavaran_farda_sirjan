@@ -1,0 +1,318 @@
+/* ========================================
+   صفحه فرصت‌های شغلی — stylejob.css
+   (بدون Navbar و Footer)
+   ======================================== */
+
+/* ------- Hero ------- */
+.jobs-hero {
+  background: linear-gradient(135deg, #f5f3ff 0%, #eef2ff 50%, #fff7ed 100%);
+  border-bottom: 1px solid #e0e7ff;
+}
+
+.jobs-hero h1 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #1e1b4b;
+  line-height: 1.6;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #4f46e5;
+  color: #fff;
+  padding: 0.5rem 1.2rem;
+  border-radius: 50rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);
+}
+
+/* ------- Job Carousel ------- */
+.job-carousel {
+  position: relative;
+  box-shadow: 0 10px 30px rgba(30, 27, 75, 0.12);
+}
+
+.job-carousel img {
+  display: block;
+  height: 420px;
+  width: 100%;
+  object-fit: cover;
+}
+
+.job-carousel .carousel-control-prev,
+.job-carousel .carousel-control-next {
+  width: 12%;
+}
+
+.carousel-indicators {
+  bottom: 12px;
+}
+
+.carousel-indicators button {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.6);
+  border: none;
+  margin: 0 4px;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.carousel-indicators button.active {
+  background-color: #4f46e5;
+  transform: scale(1.15);
+}
+
+/* ------- Tags ------- */
+.tag {
+  display: inline-block;
+  padding: 0.35rem 0.8rem;
+  border-radius: 50rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.tag-frontend {
+  background: rgba(59, 130, 246, 0.12);
+  color: #1d4ed8;
+}
+
+.tag-backend {
+  background: rgba(16, 185, 129, 0.12);
+  color: #047857;
+}
+
+.tag-ai {
+  background: rgba(139, 92, 246, 0.12);
+  color: #7c3aed;
+}
+
+.tag-remote {
+  background: rgba(245, 158, 11, 0.14);
+  color: #b45309;
+}
+
+.tag-onsite {
+  background: rgba(100, 116, 139, 0.12);
+  color: #475569;
+}
+
+.tag-hybrid {
+  background: rgba(14, 165, 233, 0.12);
+  color: #0369a1;
+}
+
+/* ------- Section Titles ------- */
+.section-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #1e1b4b;
+}
+
+.section-sub {
+  color: #64748b;
+  font-size: 1rem;
+  max-width: 620px;
+  margin-inline: auto;
+}
+
+/* ------- Filter Bar ------- */
+.filter-bar {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.9rem;
+  padding: 0.8rem 1.2rem;
+  box-shadow: 0 4px 12px rgba(30, 27, 75, 0.05);
+  flex-wrap: wrap;
+}
+
+.filter-btn,
+.location-btn {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+  padding: 0.4rem 1rem;
+  border-radius: 50rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.filter-btn:hover,
+.location-btn:hover {
+  background: #e0e7ff;
+  border-color: #c7d2fe;
+  color: #4338ca;
+}
+
+.filter-btn.active {
+  background: #4f46e5;
+  border-color: #4f46e5;
+  color: #fff;
+}
+
+.location-btn.active {
+  background: #0f172a;
+  border-color: #0f172a;
+  color: #fff;
+}
+
+/* ------- Job Card ------- */
+.job-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(30, 27, 75, 0.04);
+  display: flex;
+  flex-direction: column;
+}
+
+.job-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(30, 27, 75, 0.1);
+  border-color: #c7d2fe;
+}
+
+.company-logo {
+  width: 52px;
+  height: 52px;
+  min-width: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.8rem;
+  background: linear-gradient(135deg, #eef2ff, #f5f3ff);
+  color: #4f46e5;
+  font-size: 1.4rem;
+}
+
+.job-card h5 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1e1b4b;
+  margin: 0;
+}
+
+.company-name {
+  color: #64748b;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.job-card .salary {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #4f46e5;
+  margin-bottom: 0.9rem;
+}
+
+.job-location {
+  color: #64748b;
+  font-size: 0.8rem;
+  font-weight: 500;
+  font-weight: 500;
+}
+
+.apply-btn {
+  background: #4f46e5;
+  color: #fff;
+  border: none;
+  padding: 0.45rem 1.1rem;
+  border-radius: 0.6rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.apply-btn:hover {
+  background: #4338ca;
+  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35);
+}
+
+.job-item.hidden {
+  display: none;
+}
+
+/* ------- Empty State ------- */
+#emptyState {
+  background: #f8fafc;
+  border: 2px dashed #cbd5e1;
+  border-radius: 1rem;
+  margin-top: 1.5rem;
+}
+
+#emptyState h5 {
+  font-weight: 700;
+  color: #334155;
+}
+
+/* ------- Caree Paths (3 Cards) ------- */
+.tip-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  padding: 1.8rem 1.5rem;
+  transition: all 0.3s;
+}
+
+.tip-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(30, 27, 75, 0.08);
+}
+
+.tip-icon {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1rem;
+  font-size: 1.6rem;
+  margin-bottom: 1rem;
+}
+
+.tip-card h5 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1e1b4b;
+}
+
+.tip-card p {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin-bottom: 1rem;
+}
+
+/* ------- Responsive ------- */
+@media (max-width: 576px) {
+  .jobs-hero h1 {
+    font-size: 1.6rem;
+  }
+
+  .job-carousel img {
+    height: 240px;
+  }
+
+  .job-card h5 {
+    font-size: 0.95rem;
+  }
+
+  .filter-bar {
+    padding: 0.6rem;
+  }
+
+  .filter-btn,
+  .location-btn {
+    font-size: 0.78rem;
+    padding: 0.35rem 0.8rem;
+  }
+}

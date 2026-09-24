@@ -1,0 +1,747 @@
+/* ==========================================================================
+   Admin Users Page - Stylesheet (Glassmorphic & Modern UI)
+   ========================================================================== */
+
+.admin-users-page {
+  direction: rtl;
+  width: 100%;
+}
+
+/* --------------------------------------------------------------------------
+   1. STATS GRID & MODERN CARDS (مطابق صفحه هنرجویان)
+   -------------------------------------------------------------------------- */
+.admin-users-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.admin-user-stat-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 18px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+  overflow: hidden;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.admin-user-stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.1);
+  border-color: rgba(203, 213, 225, 0.9);
+}
+
+/* نوار رنگی باریک پایین هر کارت */
+.admin-user-stat-card::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  height: 4px;
+  background: currentColor;
+  opacity: 0.85;
+}
+
+/* پالت رنگی کارت‌ها */
+.admin-user-stat-card.purple { color: #7c3aed; }
+.admin-user-stat-card.green  { color: #16a34a; }
+.admin-user-stat-card.orange { color: #f59e0b; }
+.admin-user-stat-card.blue   { color: #2563eb; }
+
+/* محتوای داخلی متنی کارت */
+.admin-user-stat-content,
+.admin-user-stat-card > div:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin-user-stat-card small {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.admin-user-stat-card strong {
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.admin-user-stat-card p {
+  margin: 0;
+  font-size: 0.74rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+/* آیکون دایره‌ای مدرن */
+.admin-user-stat-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+  color: inherit;
+  flex-shrink: 0;
+  transition: transform 0.25s ease;
+}
+
+.admin-user-stat-card:hover .admin-user-stat-icon {
+  transform: scale(1.08);
+}
+
+/* --------------------------------------------------------------------------
+   2. SECURITY NOTICE (پیام امنیتی شیشه‌ای)
+   -------------------------------------------------------------------------- */
+.admin-security-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 24px;
+  padding: 16px 20px;
+  background: rgba(239, 246, 255, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid #bfdbfe;
+  border-radius: 16px;
+}
+
+.admin-security-notice > i {
+  font-size: 1.35rem;
+  color: #2563eb;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.admin-security-notice div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.admin-security-notice strong {
+  font-size: 0.88rem;
+  color: #1e3a8a;
+  font-weight: 700;
+}
+
+.admin-security-notice p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #3b82f6;
+  line-height: 1.6;
+}
+
+/* --------------------------------------------------------------------------
+   3. TABLE CONTAINER & TOOLBAR (ویجت جدول و فیلترها)
+   -------------------------------------------------------------------------- */
+.admin-users-table-widget {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.03);
+  overflow: hidden;
+}
+
+.admin-users-table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  border-bottom: 1px solid #f1f5f9;
+  flex-wrap: wrap;
+}
+
+.admin-users-table-header h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 4px 0;
+}
+
+.admin-users-table-header p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.admin-users-count {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-right: 8px;
+}
+
+.admin-users-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* جستجو */
+.admin-user-search {
+  position: relative;
+  min-width: 250px;
+}
+
+.admin-user-search i {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.admin-user-search input {
+  width: 100%;
+  height: 42px;
+  padding: 0 40px 0 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 0.82rem;
+  color: #1e293b;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.admin-user-search input:focus {
+  background: #ffffff;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+/* سلکت‌های فیلتر */
+.admin-users-filters select {
+  height: 42px;
+  padding: 0 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 0.82rem;
+  color: #334155;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.admin-users-filters select:focus {
+  border-color: #6366f1;
+  background: #ffffff;
+}
+
+/* --------------------------------------------------------------------------
+   4. TABLE & ROWS
+   -------------------------------------------------------------------------- */
+.admin-users-table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.admin-users-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: right;
+}
+
+.admin-users-table th {
+  padding: 14px 20px;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.admin-users-table td {
+  padding: 14px 20px;
+  font-size: 0.83rem;
+  color: #334155;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.admin-users-table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.admin-users-table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+/* پروفایل و آواتار کاربر */
+.admin-user-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #eef2ff;
+  color: #4f46e5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 2px solid #e0e7ff;
+}
+
+.admin-user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.admin-user-info-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.admin-user-name {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.admin-user-username {
+  font-size: 0.74rem;
+  color: #94a3b8;
+  direction: ltr;
+  text-align: right;
+}
+
+/* نشان نقش (Role Badge) */
+.admin-role-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.admin-role-badge.superadmin { background: #fef2f2; color: #dc2626; }
+.admin-role-badge.admin      { background: #ede9fe; color: #6d28d9; }
+.admin-role-badge.teacher    { background: #e0f2fe; color: #0284c7; }
+.admin-role-badge.student    { background: #f0fdf4; color: #16a34a; }
+
+/* متن دسترسی */
+.admin-access-text {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+/* نشان وضعیت */
+.admin-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.admin-status-badge.active {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.admin-status-badge.inactive {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.admin-last-login {
+  font-size: 0.74rem;
+  color: #64748b;
+}
+
+/* اکشن‌های جدول */
+.admin-user-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.admin-table-action {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: #f8fafc;
+  color: #64748b;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.admin-table-action:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.admin-table-action.view:hover { background: #eff6ff; color: #2563eb; }
+.admin-table-action.edit:hover { background: #fef3c7; color: #d97706; }
+.admin-table-action.password:hover { background: #ede9fe; color: #7c3aed; }
+.admin-table-action.delete:hover { background: #fee2e2; color: #dc2626; }
+
+.admin-users-no-result {
+  text-align: center;
+  padding: 48px 20px;
+  color: #94a3b8;
+}
+
+.admin-users-no-result i {
+  font-size: 2.5rem;
+  margin-bottom: 12px;
+  display: block;
+}
+
+/* --------------------------------------------------------------------------
+   5. MODALS & FORMS (پنجره‌های ویرایش، پسورد و جزئیات)
+   -------------------------------------------------------------------------- */
+.admin-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  padding: 16px;
+}
+
+.admin-user-modal {
+  background: #ffffff;
+  width: 100%;
+  max-width: 650px;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  animation: modalframesIn 0.25s ease;
+}
+
+
+
+.admin-page-heading h1 {
+  margin: 0;
+  color: #101828;
+  font-size: 1.35rem;
+  font-weight: 800;
+}
+
+.admin-page-heading p{
+margin: 8px 0 0;
+  color: #667085;
+  font-size: 0.75rem;
+  line-height: 1.9;
+}
+
+
+
+
+
+.admin-breadcrumb{
+font-size: 0.76rem !important;
+}
+
+
+
+
+
+
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.admin-modal-header h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.admin-modal-close {
+  background: none;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.admin-modal-close:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+/* فرم دو ستونه */
+.admin-user-form {
+  padding: 24px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.admin-user-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.admin-user-form .form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.admin-user-form label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.admin-user-form input,
+.admin-user-form select {
+  height: 44px;
+  padding: 0 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  color: #1e293b;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.admin-user-form input:focus,
+.admin-user-form select:focus {
+  border-color: #6366f1;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+/* باکس رمز عبور اختصاصی */
+.admin-password-input {
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 100%;
+}
+
+.admin-password-input input {
+  width: 100%;
+  padding-left: 42px;
+}
+
+.admin-password-toggle {
+  position: absolute;
+  left: 12px;
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+}
+
+.admin-password-toggle:hover {
+  color: #475569;
+}
+
+/* --------------------------------------------------------------------------
+   6. MODAL FOOTER & BUTTONS
+   -------------------------------------------------------------------------- */
+.admin-modal-footer {
+  padding: 16px 24px;
+  background: #f8fafc;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.admin-primary-button {
+  height: 40px;
+  padding: 0 20px;
+  background: #4f46e5;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.83rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.2s;
+}
+
+.admin-primary-button:hover {
+  background: #4338ca;
+}
+
+.admin-secondary-button {
+  height: 40px;
+  padding: 0 16px;
+  background: #ffffff;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 0.83rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.admin-secondary-button:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.admin-danger-button {
+  height: 40px;
+  padding: 0 20px;
+  background: #dc2626;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.83rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.admin-danger-button:hover {
+  background: #b91c1c;
+}
+
+/* --------------------------------------------------------------------------
+   7. DETAILS MODAL GRID
+   -------------------------------------------------------------------------- */
+.admin-user-details-grid {
+  padding: 24px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.admin-user-details-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin-user-details-item span {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.admin-user-details-item strong {
+  font-size: 0.88rem;
+  color: #1e293b;
+}
+
+/* --------------------------------------------------------------------------
+   8. RESPONSIVE QUERIES
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .admin-users-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .admin-users-table-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-users-filters {
+    flex-direction: column;
+  }
+
+  .admin-user-search {
+    width: 100%;
+  }
+
+  .admin-users-filters select {
+    width: 100%;
+  }
+
+  .admin-user-form {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-user-details-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+
+
+@media (max-width: 480px) {
+  .admin-users-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-modal-footer {
+    flex-direction: column;
+  }
+
+  .admin-modal-footer button {
+    width: 100%;
+    justify-content: center;
+  }
+
+}

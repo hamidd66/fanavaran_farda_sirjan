@@ -1,0 +1,312 @@
+    
+    /* ===== Calendar Hero ===== */
+    .cal-hero {
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 45%, #4f46e5 100%);
+      padding: 40px 0 40px;
+      text-align: center;
+    }
+
+    .cal-hero h1 {
+      font-weight: 800;
+      font-size: 2.1rem;
+      color: #f9f9fc;
+    }
+
+    .cal-hero p {
+      color: #666;
+      font-size: 1rem;
+      max-width: 600px;
+      margin: 10px auto 0;
+    }
+
+    /* ===== Section title (same as index.html) ===== */
+    .section-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fcfcfc;
+    }
+
+    .section-sub {
+      color: #666;
+      font-size: .95rem;
+    }
+
+    /* ===== Filter Tabs ===== */
+    .cal-filters {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 40px;
+    }
+
+    .cal-filter-btn {
+      border: 1.5px solid #e5e7eb;
+      background: #fff;
+      color: #444;
+      border-radius: 50px;
+      padding: 8px 20px;
+      font-size: .85rem;
+      font-weight: 600;
+      transition: all .25s ease;
+      cursor: pointer;
+    }
+
+    .cal-filter-btn:hover {
+      border-color: #4f46e5;
+      color: #4f46e5;
+    }
+
+    .cal-filter-btn.active {
+      background: linear-gradient(135deg, #6366f1, #3b82f6);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 6px 16px rgba(79, 70, 229, .3);
+    }
+
+    /* ===== Weekly Calendar Grid ===== */
+    .cal-week {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 16px;
+    }
+
+    .cal-day {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 4px 20px rgba(30, 27, 75, .08);
+      overflow: hidden;
+      transition: transform .3s ease, box-shadow .3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cal-day:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 16px 36px rgba(99, 102, 241, .18);
+    }
+
+    .cal-day-head {
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 45%, #4f46e5 100%);
+      color: #fff;
+      text-align: center;
+      padding: 14px 8px;
+      font-weight: 700;
+      font-size: .95rem;
+    }
+
+    .cal-day-head small {
+      display: block;
+      font-weight: 400;
+      font-size: .72rem;
+      opacity: .8;
+      margin-top: 2px;
+    }
+
+    .cal-day-body {
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .cal-item {
+      background: #ddeeff;
+      border-radius: 12px;
+      padding: 10px 12px;
+      border-right: 4px solid #4f46e5;
+      position: relative;
+      transition: background .2s ease;
+    }
+
+    .cal-item:hover {
+      background: #eef2ff;
+    }
+
+    .cal-item .cal-time {
+      font-size: .72rem;
+      color: #888;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .cal-item .cal-name {
+      font-size: .85rem;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin: 4px 0 2px;
+    }
+
+    .cal-item .cal-teacher {
+      font-size: .72rem;
+      color: #777;
+    }
+
+    .cal-badge {
+      display: inline-block;
+      font-size: .65rem;
+      font-weight: 600;
+      padding: 2px 9px;
+      border-radius: 50px;
+      margin-top: 6px;
+      color: #fff;
+    }
+
+    /* دسته‌بندی رنگ‌ها */
+    .cal-item.frontend {
+      border-color: #3b82f6;
+    }
+
+    .cal-badge.frontend {
+      background: #3b82f6;
+    }
+
+    .cal-item.backend {
+      border-color: #4f46e5;
+    }
+
+    .cal-badge.backend {
+      background: #4f46e5;
+    }
+
+    .cal-item.ai {
+      border-color: #7b2ff7;
+    }
+
+    .cal-badge.ai {
+      background: linear-gradient(135deg, #7b2ff7, #4f46e5);
+    }
+
+    .cal-item.algo {
+      border-color: #16a34a;
+    }
+
+    .cal-badge.algo {
+      background: #16a34a;
+    }
+
+    .cal-item.data {
+      border-color: #f59e0b;
+    }
+
+    .cal-badge.data {
+      background: #f59e0b;
+    }
+
+    .cal-empty {
+      text-align: center;
+      color: #bbb;
+      font-size: .8rem;
+      padding: 20px 0;
+    }
+
+    /* ===== Legend ===== */
+    .cal-legend {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 18px;
+      margin: 40px 0;
+    }
+
+    .cal-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .85rem;
+      color: #444;
+      font-weight: 600;
+    }
+
+    .cal-legend-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot-frontend {
+      background: #3b82f6;
+    }
+
+    .dot-backend {
+      background: #4f46e5;
+    }
+
+    .dot-ai {
+      background: linear-gradient(135deg, #7b2ff7, #4f46e5);
+    }
+
+    .dot-algo {
+      background: #16a34a;
+    }
+
+    .dot-data {
+      background: #f59e0b;
+    }
+
+    /* ===== CTA ثبت‌نام ===== */
+    .cal-cta {
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 45%, #4f46e5 100%);
+      border-radius: 20px;
+      padding: 40px 30px;
+      text-align: center;
+      color: #fff;
+      margin: 50px 0 60px;
+    }
+
+    .cal-cta h3 {
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .cal-cta p {
+      color: #cbd5e1;
+      font-size: .9rem;
+      margin-bottom: 20px;
+    }
+
+    .cal-cta .btn-cta {
+      background: #fff;
+      color: #4f46e5;
+      border-radius: 12px;
+      font-weight: 700;
+      padding: 10px 28px;
+      border: none;
+      transition: all .3s ease;
+    }
+
+    .cal-cta .btn-cta:hover {
+      background: #eef2ff;
+      transform: translateY(-2px);
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 992px) {
+      .cal-week {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 576px) {
+      .cal-week {
+        grid-template-columns: 1fr;
+      }
+    }
+
+
+    .cal-empty {
+  padding: 16px 10px;
+  color: #94a3b8;
+  text-align: center;
+  font-size: 0.85rem;
+  border: 1px dashed #cbd5e1;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+   
+   

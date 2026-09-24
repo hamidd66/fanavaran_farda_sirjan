@@ -1,0 +1,370 @@
+/* ========================================================
+   استایل اختصاصی TeacherSidebar
+   ======================================================== */
+
+:root {
+  --sb-dark-bg: #0f1222;
+  --sb-dark-card: #181d33;
+  --sb-active-gradient: linear-gradient(135deg, #4447e4 0%, #5850ec 100%);
+  --sb-text-muted: #8e9bb3;
+  --sb-border-subtle: rgba(255, 255, 255, 0.08);
+  --sb-sidebar-width: 275px;
+}
+
+/* ساختار کلی سایدبار */
+.dark-main-sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: var(--sb-sidebar-width);
+  background-color: var(--sb-dark-bg);
+  z-index: 950;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -4px 0 25px rgba(0, 0, 0, 0.35);
+  direction: rtl;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* وضعیت باز و بسته در دسکتاپ و موبایل */
+.dark-main-sidebar.is-open {
+  transform: translateX(0);
+}
+
+.dark-main-sidebar.is-closed {
+  transform: translateX(100%);
+}
+
+/* بلور و تیرگی صفحه: در دسکتاپ کلاً غیرفعال است تا مزاحم نباشد */
+@media (min-width: 1024px) {
+  .dark-sidebar-mobile-overlay {
+    display: none !important;
+  }
+}
+
+/* در موبایل، در صورت باز بودن سایدبار صفحه را نرم تیره می‌کند */
+@media (max-width: 1023px) {
+  .dark-sidebar-mobile-overlay {
+     position: fixed;
+    inset: 0;
+    /* تیرگی بسیار ملایم بدون افکت بلور (وضوح کامل محتوای زیرین) */
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    z-index: 920;
+  }
+  .dark-sidebar-close-btn {
+    display: flex !important;
+  }
+}
+
+.dark-sidebar-inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 16px 14px 14px 14px;
+  overflow-y: auto;
+}
+
+.dark-sidebar-inner::-webkit-scrollbar {
+  width: 4px;
+}
+.dark-sidebar-inner::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+}
+
+/* هدر برند سایدبار */
+.dark-sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 6px 16px 6px;
+  position: relative;
+}
+
+.brand-logo-wrap {
+  width: 44px;
+  height: 44px;
+  background: #ffffff;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  flex-shrink: 0;
+}
+
+.brand-logo-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 2px;
+}
+
+.brand-fallback-icon {
+  display: none;
+  font-weight: 800;
+  color: #4338ca;
+  font-size: 1.1rem;
+}
+
+.brand-title-wrap {
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+}
+
+.brand-name {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.brand-name span {
+  color: #818cf8;
+}
+
+.brand-desc {
+  font-size: 0.72rem;
+  color: var(--sb-text-muted);
+  margin-top: 2px;
+}
+
+.dark-sidebar-close-btn {
+  position: absolute;
+  left: 0;
+  top: 10px;
+  background: transparent;
+  border: none;
+  color: var(--sb-text-muted);
+  font-size: 1.3rem;
+  cursor: pointer;
+  display: none;
+}
+
+/* کارت استاد */
+.dark-user-card {
+  background: var(--sb-dark-card);
+  border: 1px solid var(--sb-border-subtle);
+  border-radius: 16px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.user-avatar-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  flex-shrink: 0;
+}
+
+.user-avatar-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.user-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+  overflow: hidden;
+}
+
+.user-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.user-name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.verify-badge-icon {
+  color: #6366f1;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.user-role-text {
+  font-size: 0.72rem;
+  color: var(--sb-text-muted);
+  margin-top: 2px;
+}
+
+.user-logout-quick {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.75;
+  transition: opacity 0.2s ease;
+}
+
+.user-logout-quick:hover {
+  opacity: 1;
+}
+
+.dark-nav-section-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #6b7280;
+  padding: 0 10px 8px 10px;
+  text-align: right;
+}
+
+.dark-nav-container {
+  flex: 1;
+}
+
+.dark-nav-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dark-nav-item {
+  width: 100%;
+}
+
+.dark-link-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 14px;
+  background: transparent;
+  border: none;
+  border-radius: 12px;
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.dark-link-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dark-nav-icon {
+  font-size: 1.2rem;
+  color: #94a3b8;
+  transition: color 0.2s;
+  flex-shrink: 0;
+}
+
+.dark-nav-text {
+  white-space: nowrap;
+}
+
+.dark-chevron-icon {
+  font-size: 0.95rem;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+}
+
+.dark-link-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #f8fafc;
+}
+
+.dark-link-btn:hover .dark-nav-icon {
+  color: #ffffff;
+}
+
+/* وضعیت منوی فعال */
+.dark-link-btn.active {
+  background: var(--sb-active-gradient) !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.35);
+}
+
+.dark-link-btn.active .dark-nav-icon,
+.dark-link-btn.active .dark-chevron-icon {
+  color: #ffffff !important;
+}
+
+/* زیرمنوها */
+.dark-subnav-list {
+  list-style: none;
+  padding: 6px 36px 6px 0;
+  margin: 4px 0 6px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-right: 2px solid rgba(255, 255, 255, 0.08);
+  margin-right: 24px;
+}
+
+.dark-sublink {
+  display: block;
+  padding: 8px 12px;
+  font-size: 0.82rem;
+  color: #818cf8;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  text-align: right;
+}
+
+.dark-sublink:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.dark-sublink.active {
+  color: #ffffff;
+  background: rgba(99, 102, 241, 0.25);
+  font-weight: 700;
+}
+
+/* فوتر */
+.dark-sidebar-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 6px 2px 6px;
+  border-top: 1px solid var(--sb-border-subtle);
+  margin-top: 10px;
+  font-size: 0.74rem;
+  color: #4b5563;
+}
+
+.footer-title {
+  font-weight: 600;
+}
+
+.footer-version {
+  direction: ltr;
+}

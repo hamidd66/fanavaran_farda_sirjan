@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>استعدادیابی فناوران فردا</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styletalent1.css">
+
+</head>
+<body>
+
+
+<div class="quiz-container">
+<a href="/" class="logo-link" aria-label="بازگشت به صفحه اصلی">
+    <img
+        src="/image/logo.png"
+        alt="فناوران فردا"
+        class="logo"
+    >
+</a>
+  <!-- صفحه خوش‌آمدگویی -->
+  <div id="screen-welcome" class="screen active fade-in" style="text-align:center;">
+
+    <h2 style="margin-top:0; font-weight:800;">به بخش استعداد یابی آکادمی فناوران فردا خوش آمدی!</h2>
+    <p>بیا با هم کشف کنیم که توی کدوم بخش برنامه‌نویسی ستاره میشی.</p>
+    <button class="btn" onclick="goTo('info')">شروع استعدادیابی</button>
+  </div>
+
+  <!-- مرحله ۱: اطلاعات شخصی -->
+  <div id="screen-info" class="screen fade-in">
+    <div class="step-label">مرحله اول — اطلاعات شخصی</div>
+    <div class="form-group">
+      <label>نام و نام خانوادگی</label>
+      <input type="text" id="inp-name" placeholder="مثال: علی رضایی">
+    </div>
+    <div class="form-group">
+      <label>شماره تلفن</label>
+      <input type="tel" id="inp-phone" placeholder="09xxxxxxxxx" maxlength="11">
+    </div>
+    <div class="form-group">
+      <label>کد ملی</label>
+      <input type="tel" id="inp-national" placeholder="xxxxxxxxxx" maxlength="10">
+    </div>
+    <div class="form-group">
+      <label>تاریخ تولد (شمسی)</label>
+      <div class="date-row">
+        <input type="tel" id="inp-year" placeholder="سال (مثال: ۱۳۸۵)" maxlength="4">
+        <input type="tel" id="inp-month" placeholder="ماه" maxlength="2">
+        <input type="tel" id="inp-day" placeholder="روز" maxlength="2">
+      </div>
+      <div class="date-hint">سال / ماه / روز</div>
+    </div>
+    <button class="btn" onclick="submitInfo()">مرحله بعد ←</button>
+  </div>
+
+  <!-- مرحله ۲: فیلم آموزشی -->
+  <div id="screen-video" class="screen fade-in">
+    <div class="progress-bar"><div class="progress-fill" style="width:10%"></div></div>
+    <div class="step-label">مرحله دوم — فیلم آموزشی</div>
+    <p style="font-weight:700; font-size:17px;">قبل از شروع آزمون، این ویدیوی کوتاه رو ببین 👇</p>
+    <div class="video-wrapper">
+      <!-- آدرس ویدیو را اینجا جایگزین کنید -->
+      <iframe src="https://www.aparat.com/video/video/embed/videohash/REPLACE_ME/vt/frame"
+              allowfullscreen></iframe>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-back" onclick="goTo('info')">→ برگشت</button>
+      <button class="btn" onclick="goTo('step3')">مرحله بعد ←</button>
+    </div>
+  </div>
+
+
+
+
+
+
+
+  <!-- مرحله 4: placeholder -->
+  <div id="screen-step3" class="screen fade-in">
+    <div class="progress-bar">
+        <div class="progress-fill" style="width:20%"></div>
+    </div>
+
+    <div class="step-label">مرحله سوم - ورود به دنیای فرانت</div>
+
+    <div class="content-box" style="text-align: center; padding: 40px 20px;">
+        <h3>دنیای فرانت‌اِند</h3>
+        <p style="margin: 20px 0; color: #666;">آماده‌ای ببینی چطور وب‌سایت‌ها ساخته می‌شن؟</p>
+        
+        <button class="btn" onclick="goTo('step3b')">
+            بریم ببینیم کار فرانت چیه؟ →
+        </button>
+    </div>
+    
+    <div class="nav-row" style="margin-top: 20px;">
+        <button class="btn btn-back" onclick="goTo('video')">
+            → برگشت
+        </button>
+    </div>
+</div>
+
+<!-- مرحله 5b: HTML / CSS / JS چیست؟ -->
+<div id="screen-step3b" class="screen fade-in">
+  <div class="progress-bar"><div class="progress-fill" style="width:30%"></div></div>
+  <div class="step-label">مرحله چهارم — ساختار کلی فرانت یه سایت</div>
+
+  
+
+  <p style="text-align:center;font-weight:700;font-size:1.05rem;margin-bottom:4px;">
+    فرانت سایت از ۳ لایه ساخته میشه 👇
+  </p>
+
+  <div class="trio-grid">
+    <div class="trio-card tc-html" onclick="showTrioDemo('html')">
+      <div class="icon">🦴</div>
+      <h3>HTML</h3>
+      <p>اسکلت و ساختار — محتوا رو تعریف می‌کنه</p>
+    </div>
+    <div class="trio-card tc-css" onclick="showTrioDemo('css')">
+      <div class="icon">🎨</div>
+      <h3>CSS</h3>
+      <p>پوست و رنگ — ظاهر و استایل می‌ده</p>
+    </div>
+    <div class="trio-card tc-js" onclick="showTrioDemo('js')">
+      <div class="icon">⚡</div>
+      <h3>JavaScript</h3>
+      <p>عضلات و حرکت — رفتار و تعامل می‌سازه</p>
+    </div>
+  </div>
+
+  <div class="trio-hint">روی هر کارت کلیک کن تا ببینی چطور کار می‌کنه 👆</div>
+
+  <div class="trio-demo" id="trio-demo">
+    <span style="color:#94a3b8;">یک کارت بالا رو انتخاب کن...</span>
+  </div>
+
+  <div id="trio-code" style="display:none;background:#1e1b4b;color:#a5b4fc;border-radius:10px;padding:12px 14px;font-family:monospace;font-size:.78rem;line-height:1.8;margin-bottom:14px;direction:ltr;text-align:left;"></div>
+
+  <div class="nav-row">
+    <button class="btn btn-back" onclick="goTo('step3')">→ برگشت</button>
+    <button class="btn" onclick="goTo('step4')">تمرین عملی ←</button>
+  </div>
+</div>
+
+  <!-- مرحله 6: placeholder -->
+  <!-- جایگزین کامل screen-step4 در talent.html -->
+<div id="screen-step4" class="screen fade-in">
+  <div class="progress-bar"><div class="progress-fill" style="width:40%"></div></div>
+  <div class="step-label">مرحله پنجم — تمرین CSS</div>
+
+  
+
+  <!-- ۱. رنگ متن -->
+  <div class="demo-sec">
+    <div class="demo-title">🎨 رنگ متن (color)</div>
+    <div class="demo-wrap"><span id="color-box">این متن رنگ می‌گیرد</span></div>
+    <div class="demo-btns">
+      <button onclick="s('color-box','color','#f59e0b');t(1)">🟡 زرد</button>
+      <button onclick="s('color-box','color','#16a34a');t(1)">🟢 سبز</button>
+      <button onclick="s('color-box','color','#ec4899');t(1)">🩷 صورتی</button>
+      <button onclick="s('color-box','color','#4f46e5');t(1)">🔵 بنفش</button>
+      <button class="r" onclick="s('color-box','color','')">↺ ریست</button>
+    </div>
+  </div>
+
+  <!-- ۲. پس‌زمینه -->
+  <div class="demo-sec">
+    <div class="demo-title">🖌️ پس‌زمینه (background-color)</div>
+    <div class="demo-wrap" id="bg-box">پس‌زمینه تغییر می‌کند</div>
+    <div class="demo-btns">
+      <button onclick="s('bg-box','background','#3b82f6');t(2)">🔵 آبی</button>
+      <button onclick="s('bg-box','background','#f59e0b');t(2)">🟡 زرد</button>
+      <button onclick="s('bg-box','background','#16a34a');t(2)">🟢 سبز</button>
+      <button onclick="s('bg-box','background','linear-gradient(90deg,#6366f1,#ec4899)');t(2)">🌈 گرادیان</button>
+      <button class="r" onclick="s('bg-box','background','');s('bg-box','color','')">↺ ریست</button>
+    </div>
+  </div>
+
+  <!-- ۳. گوشه‌ها -->
+  <div class="demo-sec">
+    <div class="demo-title">🔲 گوشه‌ها (border-radius)</div>
+    <div class="demo-wrap" id="radius-box">شکل گوشه‌ها</div>
+    <div class="demo-btns">
+      <button onclick="s('radius-box','borderRadius','0');t(3)">■ تیز</button>
+      <button onclick="s('radius-box','borderRadius','8px');t(3)">▢ کمی</button>
+      <button onclick="s('radius-box','borderRadius','20px');t(3)">▣ زیاد</button>
+      <button onclick="s('radius-box','borderRadius','999px');t(3)">● دایره</button>
+    </div>
+  </div>
+
+  <!-- ۴. سایه -->
+  <div class="demo-sec">
+    <div class="demo-title">🌑 سایه (box-shadow)</div>
+    <div class="demo-wrap" id="shadow-box">سایه می‌افتد</div>
+    <div class="demo-btns">
+      <button onclick="s('shadow-box','boxShadow','0 4px 16px rgba(0,0,0,.15)');t(4)">سایه ملایم</button>
+      <button onclick="s('shadow-box','boxShadow','0 4px 20px rgba(59,130,246,.5)');t(4)">سایه آبی</button>
+      <button onclick="s('shadow-box','boxShadow','0 4px 20px rgba(245,158,11,.5)');t(4)">سایه زرد</button>
+      <button onclick="s('shadow-box','boxShadow','inset 0 4px 12px rgba(0,0,0,.2)');t(4)">سایه داخلی</button>
+      <button class="r" onclick="s('shadow-box','boxShadow','none')">↺ ریست</button>
+    </div>
+  </div>
+
+  <!-- ۵. padding -->
+  <div class="demo-sec">
+    <div class="demo-title">↙️ فاصله داخلی (padding)</div>
+    <div class="demo-wrap" id="pad-box">فضای داخلی</div>
+    <div class="demo-btns">
+      <button onclick="s('pad-box','padding','4px');t(5)">کم</button>
+      <button onclick="s('pad-box','padding','20px');t(5)">متوسط</button>
+      <button onclick="s('pad-box','padding','48px');t(5)">زیاد</button>
+    </div>
+  </div>
+
+  <!-- ۶. border -->
+  <div class="demo-sec">
+    <div class="demo-title">☰ حاشیه (border)</div>
+    <div class="demo-wrap" id="border-box">حاشیه تغییر می‌کند</div>
+    <div class="demo-btns">
+      <button onclick="s('border-box','border','3px solid #3b82f6');t(6)">آبی solid</button>
+      <button onclick="s('border-box','border','3px dashed #f59e0b');t(6)">زرد dashed</button>
+      <button onclick="s('border-box','border','3px double #16a34a');t(6)">سبز double</button>
+      <button onclick="s('border-box','border','3px solid #ec4899');s('border-box','borderRadius','999px');t(6)">صورتی pill</button>
+      <button class="r" onclick="s('border-box','border','');s('border-box','borderRadius','')">↺ ریست</button>
+    </div>
+  </div>
+
+  <!-- ۷. font -->
+  <div class="demo-sec">
+    <div class="demo-title">Aa تایپوگرافی (font)</div>
+    <div class="demo-wrap" id="font-box">متن نمونه فناوران فردا</div>
+    <div class="demo-btns">
+      <button onclick="s('font-box','fontSize','1.5rem');t(7)">بزرگ</button>
+      <button onclick="s('font-box','letterSpacing','4px');s('font-box','fontSize','1rem');t(7)">نازک + فاصله</button>
+      <button onclick="s('font-box','fontStyle','italic');s('font-box','fontWeight','700');t(7)">ایتالیک + خطدار</button>
+      <button onclick="s('font-box','fontSize','1.3rem');s('font-box','color','#3b82f6');t(7)">بزرگ + آبی</button>
+      <button class="r" onclick="document.getElementById('font-box').removeAttribute('style')">↺ ریست</button>
+    </div>
+  </div>
+
+  <!-- ۸. Flexbox -->
+  <div class="demo-sec">
+    <div class="demo-title">⊞ چیدمان (Flexbox)</div>
+    <div class="demo-wrap" id="flex-box" style="display:flex;flex-direction:column;align-items:center;">
+      <div class="flex-item">آیتم ۱</div>
+      <div class="flex-item">آیتم ۲</div>
+      <div class="flex-item">آیتم ۳</div>
+    </div>
+    <div class="demo-btns">
+      <button onclick="sf('flex-box','row','center','');t(8)">وسط‌چین</button>
+      <button onclick="sf('flex-box','row','space-between','');t(8)">فاصله یکسان</button>
+      <button onclick="sf('flex-box','column','center','');t(8)">ستونی</button>
+      <button onclick="sf('flex-box','row','center','20px');t(8)">فاصله زیاد</button>
+      <button class="r" onclick="sf('flex-box','column','center','')">↺ ریست</button>
+    </div>
+  </div>
+
+  <!-- ۹. HTML خام vs CSS -->
+  <div class="demo-sec">
+    <div class="demo-title">⟨/⟩ HTML خام در مقابل CSS‌دار</div>
+    <div id="raw-demo" style="padding:12px;border-radius:8px;">
+      <strong style="font-size:1.1rem;">آموزشگاه فناوران فردا</strong><br>
+      <span style="font-size:.9rem;color:#64748b;">دوره‌های فرانت‌اند، بک‌اند، هوش مصنوعی</span><br>
+      <button class="card-btn" style="background:#4f46e5;color:#fff;border:none;border-radius:8px;padding:6px 16px;margin-top:8px;font-family:Vazirmatn,sans-serif;cursor:pointer;">ثبت‌نام باز است</button>
+    </div>
+    <div class="demo-btns">
+      <button onclick="applyCardCSS();t(9)">✅ اعمال CSS</button>
+      <button class="r" onclick="removeCardCSS()">❌ حذف CSS</button>
+    </div>
+  </div>
+
+  <!-- ۱۰. کارت با/بدون CSS -->
+  <div class="demo-sec">
+    <div class="demo-title">🖼️ کارت با/بدون CSS</div>
+    <div id="card-demo" class="raw demo-wrap">
+      <div style="font-size:.75rem;color:#94a3b8;text-align:right;">کد</div>
+      <strong>HTML &amp; CSS</strong><br>
+      <span style="font-size:.85rem;color:#64748b;">پروژه‌محور · عملی · کاربردی</span>
+    </div>
+    <div class="demo-btns">
+      <button onclick="toggleCard();t(10)">اعمال مجدد CSS</button>
+    </div>
+  </div>
+
+  <div id="step4-warn" style="display:none;text-align:center;color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:8px;margin-bottom:10px;font-size:.85rem;">
+    ⚠️ لطفاً با حداقل ۵ تمرین تعامل داشته باش
+  </div>
+
+  <div class="nav-row">
+    <button class="btn btn-back" onclick="goTo('step3b')">→ برگشت</button>
+    <button class="btn" id="btn-next-4" onclick="goTo('step4b')">مرحله بعد ←</button>
+  </div>
+</div>
+
+  <!-- مرحله 7: placeholder -->
+
+<div id="screen-step4b" class="screen">
+    <div class="progress-bar"><div class="progress-fill" style="width:50%"></div></div>
+  <div class="step-label">مرحله ششم — تمرین جاوااسکریپت</div>
+  <div class="card-box">
+    <h2>⚡ جاوااسکریپت در عمل</h2>
+    <p style="color:#aaa;margin-bottom:1.5rem">با هر کارت تعامل کن — حداقل ۴ تا لازمه</p>
+
+    <div style="display:flex;flex-direction:column;gap:1rem">
+
+      <!-- ۱. ولیدیشن ایمیل -->
+      <div class="ai-card">
+        <h4>📧 ولیدیشن ایمیل</h4>
+        <div style="display:flex;gap:.5rem">
+          <input id="js-email" placeholder="ایمیل وارد کن" style="flex:1;padding:.5rem .8rem;border-radius:8px;border:1px solid #333;background:#111;color:#fff;font-family:inherit">
+          <button onclick="jsCheck('email')" style="padding:.5rem 1rem;background:#7c3aed;color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:inherit">بررسی</button>
+        </div>
+        <div id="js-email-res" style="margin-top:.4rem;font-size:.85rem;min-height:1rem"></div>
+      </div>
+
+      <!-- ۲. شمارنده -->
+      <div class="ai-card">
+        <h4>🔢 شمارنده</h4>
+        <div style="display:flex;align-items:center;gap:1rem">
+          <button onclick="jsCounter(-1)" style="padding:.4rem .9rem;background:#374151;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:1.2rem">−</button>
+          <span id="js-count" style="font-size:1.5rem;font-weight:bold;min-width:2rem;text-align:center">0</span>
+          <button onclick="jsCounter(1)" style="padding:.4rem .9rem;background:#374151;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:1.2rem">+</button>
+        </div>
+      </div>
+
+      <!-- ۳. نمایش/مخفی رمز -->
+      <div class="ai-card">
+        <h4>👁️ نمایش/مخفی رمز</h4>
+        <div style="display:flex;gap:.5rem">
+          <input id="js-pass" type="password" value="MySecret123" style="flex:1;padding:.5rem .8rem;border-radius:8px;border:1px solid #333;background:#111;color:#fff;font-family:inherit">
+          <button onclick="jsTogglePass()" style="padding:.5rem 1rem;background:#374151;color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:inherit">نمایش</button>
+        </div>
+      </div>
+
+      <!-- ۴. جستجوی زنده -->
+      <div class="ai-card">
+        <h4>🔍 جستجوی زنده</h4>
+        <input id="js-search" oninput="jsSearch()" placeholder="جستجو کن..." style="width:100%;padding:.5rem .8rem;border-radius:8px;border:1px solid #333;background:#111;color:#fff;font-family:inherit;margin-bottom:.5rem">
+        <div id="js-search-list" style="font-size:.9rem"></div>
+      </div>
+
+      <!-- ۵. رنگ تصادفی -->
+      <div class="ai-card">
+        <h4>🎨 رنگ تصادفی</h4>
+        <div style="display:flex;align-items:center;gap:1rem">
+          <div id="js-color-box" style="width:60px;height:40px;border-radius:8px;background:#7c3aed;transition:background .3s"></div>
+          <button onclick="jsRandomColor()" style="padding:.5rem 1rem;background:#374151;color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:inherit">رنگ جدید</button>
+          <span id="js-color-val" style="font-size:.85rem;color:#aaa">#7c3aed</span>
+        </div>
+      </div>
+
+      <!-- ۶. تایمر -->
+      <div class="ai-card">
+        <h4>⏱️ تایمر</h4>
+        <div style="display:flex;align-items:center;gap:1rem">
+          <span id="js-timer" style="font-size:1.4rem;font-weight:bold;font-variant-numeric:tabular-nums">00:00</span>
+          <button onclick="jsTimerToggle()" id="js-timer-btn" style="padding:.5rem 1rem;background:#22c55e;color:#000;border:none;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:bold">شروع</button>
+          <button onclick="jsTimerReset()" style="padding:.5rem 1rem;background:#374151;color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:inherit">ریست</button>
+        </div>
+      </div>
+
+    </div>
+
+    <div id="step5-progress" style="margin-top:1.2rem;color:#aaa;font-size:.9rem">پیشرفت: <span id="step5-count">0</span> از ۴</div>
+    
+  </div>
+
+
+
+
+
+  <div class="nav-row">
+    <button class="btn btn-back" onclick="goTo('step4')">→ برگشت</button>
+    <button class="btn" id="btn-next-4" onclick="goTo('step5')">مرحله بعد ←</button>
+  </div>
+</div>
+
+
+  <!-- مرحله 8: placeholder -->
+  <div id="screen-step5" class="screen fade-in">
+    <div class="progress-bar">
+        <div class="progress-fill" style="width:60%"></div>
+    </div>
+
+    <div class="step-label">مرحله هفتم - ورود به دنیای بک اند</div>
+
+    <div class="content-box" style="text-align: center; padding: 40px 20px;">
+        <h3>دنیای بک اِند</h3>
+        <p style="margin: 20px 0; color: #666;">آماده‌ای ببینی چطور وب‌سایت‌ها اطلاعات ذخیره می کنند و اطلاعات رو بازیابی می کنند؟</p>
+        
+        <button class="btn" onclick="goTo('step6')">
+            بریم ببینیم کار بک اند چیه؟ →
+        </button>
+    </div>
+    
+    <div class="nav-row" style="margin-top: 20px;">
+        <button class="btn btn-back" onclick="goTo('step4b')">
+            → برگشت
+        </button>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div id="screen-step6" class="screen">
+     <div class="progress-bar">
+        <div class="progress-fill" style="width:70%"></div>
+    </div>
+
+    <div class="step-label">مرحله هشتم - کاربرد بک اند</div>
+  <div class="card-box">
+    <h2>🗄️ بک‌اند + پایگاه داده</h2>
+    <p style="color:#aaa;margin-bottom:1.5rem">وقتی فرم پر می‌کنی، اطلاعات به سرور می‌ره و توی دیتابیس ذخیره می‌شه. بعدش می‌تونی با یه کوئری بخوندیش!</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+      <!-- POST -->
+      <div style="background:#1a1a2e;border-radius:12px;padding:1.2rem">
+        <h3 style="color:#7c3aed;margin-bottom:1rem">📤 ذخیره اطلاعات (POST)</h3>
+        <input id="db-name" placeholder="نام" style="width:100%;margin-bottom:.6rem;padding:.5rem .8rem;border-radius:8px;border:1px solid #333;background:#111;color:#fff;font-family:inherit">
+        <input id="db-national" placeholder="کد ملی" style="width:100%;margin-bottom:.6rem;padding:.5rem .8rem;border-radius:8px;border:1px solid #333;background:#111;color:#fff;font-family:inherit">
+        <input id="db-age" placeholder="سن" type="number" style="width:100%;margin-bottom:.6rem;padding:.5rem .8rem;border-radius:8px;border:1px solid #333;background:#111;color:#fff;font-family:inherit">
+        <input id="db-father" placeholder="نام پدر" style="width:100%;margin-bottom:.8rem;padding:.5rem .8rem;border-radius:8px;border:1px solid #333;background:#111;color:#fff;font-family:inherit">
+        <button onclick="dbPost()" style="width:100%;padding:.6rem;background:#7c3aed;color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:inherit">💾 ذخیره</button>
+        <div id="post-msg" style="margin-top:.6rem;font-size:.85rem;min-height:1.2rem"></div>
+      </div>
+
+      <!-- GET -->
+      <div style="background:#1a1a2e;border-radius:12px;padding:1.2rem">
+        <h3 style="color:#06b6d4;margin-bottom:1rem">📥 جستجو با کد ملی (GET)</h3>
+        <input id="search-national" placeholder="کد ملی را وارد کن" style="width:100%;margin-bottom:.8rem;padding:.5rem .8rem;border-radius:8px;border:1px solid #333;background:#111;color:#fff;font-family:inherit">
+        <button onclick="dbGet()" style="width:100%;padding:.6rem;background:#06b6d4;color:#000;border:none;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:bold">🔍 جستجو</button>
+        <div id="get-result" style="margin-top:.8rem;font-size:.9rem;min-height:2rem"></div>
+      </div>
+    </div>
+
+    <!-- نمایش جدول دیتابیس -->
+    <div style="margin-top:1.2rem;background:#1a1a2e;border-radius:12px;padding:1rem">
+      <h4 style="color:#aaa;margin-bottom:.6rem">🗃️ دیتابیس (حافظه مرورگر)</h4>
+      <div id="db-table" style="font-size:.82rem;color:#ccc">خالی</div>
+    </div>
+
+  
+  </div>
+
+
+
+ <div class="nav-row">
+      <button class="btn btn-back" onclick="goTo('step5')">→ برگشت</button>
+      <button class="btn" onclick="goTo('step7')">مرحله بعد ←</button>
+    </div>
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+  <!-- مرحله 5: placeholder -->
+  <div id="screen-step7" class="screen fade-in">
+    <div class="progress-bar">
+        <div class="progress-fill" style="width:80%"></div>
+    </div>
+
+    <div class="step-label">مرحله نهم - ورود به دنیای هوش مصنوعی</div>
+
+    <div class="content-box" style="text-align: center; padding: 40px 20px;">
+        <h3>دنیای هوش مصنوعی</h3>
+        <p style="margin: 20px 0; color: #666;">هوش مصنوعی یعنی استفاده از فناوری برای یادگیری، تحلیل و انجام هوشمندانه کارها سریع‌تر و دقیق‌تر از قبل.
+
+</p>
+        
+        <button class="btn" onclick="goTo('step8')">
+            بریم ببینیم هوش مصنوعی چکار می کنه؟ →
+        </button>
+    </div>
+    
+    <div class="nav-row" style="margin-top: 20px;">
+        <button class="btn btn-back" onclick="goTo('step6')">
+            → برگشت
+        </button>
+    </div>
+</div>
+
+<div id="screen-step8" class="screen">
+     <div class="progress-bar">
+        <div class="progress-fill" style="width:90%"></div>
+    </div>
+
+    <div class="step-label">مرحله دهم - چند نمونه کاربرد هوش مصنوعی</div>
+  <div class="card-box">
+    <h2>🤖 هوش مصنوعی در عمل</h2>
+    <p style="color:#aaa;margin-bottom:1.5rem">کاربردهای واقعی AI رو امتحان کن</p>
+
+    <div style="display:flex;flex-direction:column;gap:1rem">
+
+      <!-- ۱. تشخیص احساس متن -->
+      <div class="ai-card">
+        <h4>😊 تشخیص احساس متن</h4>
+        <p style="color:#888;font-size:.85rem;margin-bottom:.6rem">AI متن رو تحلیل می‌کنه و احساس مثبت/منفی/خنثی رو تشخیص می‌ده</p>
+        <textarea id="ai-sentiment-input" placeholder="یه جمله فارسی یا انگلیسی بنویس..." rows="2"
+          style="width:100%;padding:.6rem .8rem;border-radius:8px;border:1px solid #333;background:#111;color:#fff;font-family:inherit;resize:none"></textarea>
+        <button onclick="aiSentiment()" style="margin-top:.5rem;padding:.5rem 1.2rem;background:#7c3aed;color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:inherit">تحلیل</button>
+        <div id="ai-sentiment-res" style="margin-top:.6rem;font-size:.95rem;min-height:1.2rem"></div>
+      </div>
+
+      <!-- ۲. خلاصه‌ساز متن -->
+      <div class="ai-card">
+        <h4>📝 خلاصه‌ساز هوشمند</h4>
+        <p style="color:#888;font-size:.85rem;margin-bottom:.6rem">AI متن طولانی رو به چند کلمه کلیدی خلاصه می‌کنه</p>
+        <textarea id="ai-summary-input" placeholder="یه پاراگراف بنویس..." rows="3"
+          style="width:100%;padding:.6rem .8rem;border-radius:8px;border:1px solid #333;background:#111;color:#fff;font-family:inherit;resize:none"></textarea>
+        <button onclick="aiSummary()" style="margin-top:.5rem;padding:.5rem 1.2rem;background:#06b6d4;color:#000;border:none;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:bold">خلاصه کن</button>
+        <div id="ai-summary-res" style="margin-top:.6rem;font-size:.9rem;min-height:1.2rem"></div>
+      </div>
+
+      <!-- ۳. تشخیص زبان -->
+      <div class="ai-card">
+        <h4>🌐 تشخیص زبان</h4>
+        <p style="color:#888;font-size:.85rem;margin-bottom:.6rem">AI تشخیص می‌ده متن به چه زبانیه</p>
+        <div style="display:flex;gap:.5rem">
+          <input id="ai-lang-input" placeholder="هر متنی بنویس..." style="flex:1;padding:.5rem .8rem;border-radius:8px;border:1px solid #333;background:#111;color:#fff;font-family:inherit">
+          <button onclick="aiDetectLang()" style="padding:.5rem 1rem;background:#f59e0b;color:#000;border:none;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:bold">تشخیص</button>
+        </div>
+        <div id="ai-lang-res" style="margin-top:.5rem;font-size:.9rem;min-height:1rem"></div>
+      </div>
+
+      <!-- ۴. مولد ایده -->
+      <div class="ai-card">
+        <h4>💡 مولد ایده پروژه</h4>
+        <p style="color:#888;font-size:.85rem;margin-bottom:.6rem">موضوع بده، AI ایده پروژه پیشنهاد می‌ده</p>
+        <div style="display:flex;gap:.5rem">
+          <input id="ai-idea-input" placeholder="مثلاً: آموزش، سلامت، محیط زیست..." style="flex:1;padding:.5rem .8rem;border-radius:8px;border:1px solid #333;background:#111;color:#fff;font-family:inherit">
+          <button onclick="aiIdea()" style="padding:.5rem 1rem;background:#22c55e;color:#000;border:none;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:bold">ایده بده</button>
+        </div>
+        <div id="ai-idea-res" style="margin-top:.5rem;font-size:.9rem;min-height:1rem"></div>
+      </div>
+
+      <!-- ۵. تشخیص اسپم -->
+      <div class="ai-card">
+        <h4>🚫 تشخیص اسپم</h4>
+        <p style="color:#888;font-size:.85rem;margin-bottom:.6rem">AI تشخیص می‌ده پیام اسپمه یا نه</p>
+        <div style="display:flex;gap:.5rem">
+          <input id="ai-spam-input" placeholder="یه پیام وارد کن..." style="flex:1;padding:.5rem .8rem;border-radius:8px;border:1px solid #333;background:#111;color:#fff;font-family:inherit">
+          <button onclick="aiSpam()" style="padding:.5rem 1rem;background:#ef4444;color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:inherit">بررسی</button>
+        </div>
+        <div id="ai-spam-res" style="margin-top:.5rem;font-size:.9rem;min-height:1rem"></div>
+      </div>
+
+      <!-- ۶. پیشنهاد دهنده -->
+      <div class="ai-card">
+        <h4>🎯 سیستم پیشنهاد (Recommendation)</h4>
+        <p style="color:#888;font-size:.85rem;margin-bottom:.6rem">علاقه‌ات رو بگو، AI دوره پیشنهاد می‌ده</p>
+        <div style="display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.6rem">
+          <button onclick="aiRecommend('طراحی')" class="tag-btn">🎨 طراحی</button>
+          <button onclick="aiRecommend('داده')" class="tag-btn">📊 داده</button>
+          <button onclick="aiRecommend('بازی')" class="tag-btn">🎮 بازی</button>
+          <button onclick="aiRecommend('موبایل')" class="tag-btn">📱 موبایل</button>
+          <button onclick="aiRecommend('امنیت')" class="tag-btn">🔒 امنیت</button>
+        </div>
+        <div id="ai-recommend-res" style="font-size:.9rem;min-height:1rem"></div>
+      </div>
+
+    </div>
+
+    <div id="step6-progress" style="margin-top:1.2rem;color:#aaa;font-size:.9rem">پیشرفت: <span id="step6-count">0</span> از ۴</div>
+    
+  </div>
+  
+
+
+
+
+    <div class="nav-row">
+    <button class="btn btn-back" onclick="goTo('step7')">→ برگشت</button>
+    <button class="btn" id="btn-next-4" onclick="goTo('path')">مرحله بعد ←</button>
+  </div>
+</div>
+
+<!-- بعد از screen-video و قبل از screen-step3 اضافه کنید -->
+<div id="screen-path" class="screen fade-in">
+  <div class="card">
+    <h2 style="text-align:center; margin-bottom:1.5rem;">مسیر یادگیری خود را انتخاب کن</h2>
+    <p style="text-align:center; color:#888; margin-bottom:2rem;">بر اساس علاقه‌ات و آنچه در مراحل قبل دیدی، یک مسیر انتخاب کن:</p>
+    <div style="display:flex; gap:1rem; flex-wrap:wrap; justify-content:center;">
+      
+      <button class="path-btn" onclick="selectPath('front')">
+        <div style="font-size:2rem;">🎨</div>
+        <strong>فرانت اند</strong>
+        <small>طراحی رابط کاربری، HTML، CSS، JavaScript، React</small>
+      </button>
+
+      <button class="path-btn" onclick="selectPath('back')">
+        <div style="font-size:2rem;">⚙️</div>
+        <strong>بک‌اند</strong>
+        <small>سرور، دیتابیس، Python، C#، API</small>
+      </button>
+
+      <button class="path-btn" onclick="selectPath('ai')">
+        <div style="font-size:2rem;">🤖</div>
+        <strong>هوش مصنوعی</strong>
+        <small>Machine Learning، Data Science، الگوریتم‌ها</small>
+      </button>
+
+    </div>
+    
+
+   
+    <div class="nav-row">
+    <button class="btn btn-back" onclick="goTo('step8')">→ برگشت</button>
+  </div>
+
+
+  </div>
+</div>
+
+<div id="screen-quiz" class="screen fade-in">
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; margin-bottom:1rem;">
+      <span id="q-number">سؤال ۱ از ۲۰</span>
+    </div>
+    <div style="background:#eee; border-radius:10px; height:8px; margin-bottom:1.5rem;">
+      <div id="progress-fill" style="background:#6c63ff; height:100%; border-radius:10px; width:5%; transition:width .3s;"></div>
+    </div>
+    <h3 id="q-text" style="margin-bottom:1.5rem;"></h3>
+    <div id="options-container" style="display:flex; flex-direction:column; gap:0.75rem;"></div>
+  </div>
+</div>
+
+
+  <!-- صفحه نتیجه -->
+  <div id="screen-result" class="screen fade-in" style="text-align:center;">
+    <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
+    <h2 style="font-weight:400;">نتیجه مشخص شد!</h2>
+    <div style="margin-top:1.5rem; text-align:center;">
+  <p style="font-weight:500;">علاقه انتخابی تو: <strong id="result-selected-path"></strong></p>
+  <p style="font-weight:500;">نتیجه آزمون: <strong id="result-quiz-path"></strong></p>
+  <p id="result-match-box" style="font-weight:bold; margin-top:1rem;"></p>
+</div>
+
+    <div class="result-card">
+      <div id="result-name" style="font-size:1.2rem; opacity:0.9;"></div>
+      <div class="winner-title">منتظر تماس ما باش</div>
+      <p style="line-height:2; font-size:15px;">
+        اطلاعات تو ثبت شد. کارشناسان فناوران فردا به زودی با تو تماس می‌گیرن و مسیر آموزشیت رو باهم طراحی می‌کنیم.
+      </p>
+    </div>
+    <button class="btn" onclick="location.reload()">شروع مجدد</button>
+  </div>
+
+
+
+
+  
+</div>
+
+
+
+
+
+
+
+
+<script>
+const screens = ['welcome','info','video','step3','step3b','step4','step4b','step5','step6','step7','step8','path','quiz','result'];
+
+function goTo(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById('screen-' + name);
+  el.classList.add('active');
+  el.classList.remove('fade-in');
+  void el.offsetWidth;
+  el.classList.add('fade-in');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function submitInfo() {
+  const name = document.getElementById('inp-name').value.trim();
+  const phone = document.getElementById('inp-phone').value.trim();
+  const national = document.getElementById('inp-national').value.trim();
+  const year = document.getElementById('inp-year').value.trim();
+  const month = document.getElementById('inp-month').value.trim();
+  const day = document.getElementById('inp-day').value.trim();
+
+  if (!name) { alert('لطفاً نام و نام خانوادگی را وارد کنید.'); return; }
+  if (!/^09\d{9}$/.test(phone)) { alert('شماره تلفن معتبر نیست.'); return; }
+  if (!/^\d{10}$/.test(national)) { alert('کد ملی باید ۱۰ رقم باشد.'); return; }
+  if (!year || !month || !day) { alert('لطفاً تاریخ تولد را کامل وارد کنید.'); return; }
+
+  document.getElementById('result-name').innerText = name + ' عزیز،';
+  goTo('video');
+}
+
+
+
+
+
+
+
+
+
+
+function showTrioDemo(type) {
+  var demo = document.getElementById('trio-demo');
+  var code = document.getElementById('trio-code');
+  var data = {
+    html: {
+      html: '<div style="font-family:sans-serif;padding:8px"><h2>آموزشگاه فناوران فردا</h2><p>دوره‌های برنامه‌نویسی</p><button>ثبت‌نام</button></div>',
+      code: '&lt;h2&gt;آموزشگاه فناوران فردا&lt;/h2&gt;\n&lt;p&gt;دوره‌های برنامه‌نویسی&lt;/p&gt;\n&lt;button&gt;ثبت‌نام&lt;/button&gt;',
+      label: '🦴 HTML — فقط ساختار، بدون استایل'
+    },
+    css: {
+      html: '<div style="font-family:Vazirmatn,sans-serif;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;border-radius:14px;padding:16px;text-align:center"><h2 style="margin:0 0 6px">آموزشگاه فناوران فردا</h2><p style="margin:0 0 10px;opacity:.85">دوره‌های برنامه‌نویسی</p><button style="background:#fff;color:#4f46e5;border:none;border-radius:8px;padding:7px 18px;font-weight:700;cursor:pointer">ثبت‌نام</button></div>',
+      code: 'background: linear-gradient(...);\nborder-radius: 14px;\ncolor: white;\npadding: 16px;',
+      label: '🎨 CSS — همان ساختار، با استایل'
+    },
+    js: {
+      html: '<div style="font-family:Vazirmatn,sans-serif;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;border-radius:14px;padding:16px;text-align:center"><h2 style="margin:0 0 6px">آموزشگاه فناوران فردا</h2><p id="jsdemo-count" style="margin:0 0 10px;opacity:.85">۰ نفر ثبت‌نام کردن</p><button onclick="var c=document.getElementById(\'jsdemo-count\');var n=(parseInt(c.innerText)||0)+1;c.innerText=n+\' نفر ثبت‌نام کردن\'" style="background:#fff;color:#4f46e5;border:none;border-radius:8px;padding:7px 18px;font-weight:700;cursor:pointer">ثبت‌نام ←</button></div>',
+      code: 'button.onclick = function() {\n  count++;\n  display.innerText = count;\n}',
+      label: '⚡ JavaScript — دکمه رو بزن!'
+    }
+  };
+  var d = data[type];
+  demo.innerHTML = '<div style="font-size:.78rem;color:#64748b;margin-bottom:8px">' + d.label + '</div>' + d.html;
+  code.innerHTML = d.code;
+  code.style.display = 'block';
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// step4 helpers
+var _done = new Set();
+function t(id){ _done.add(id); }
+function s(id,prop,val){ document.getElementById(id).style[prop]=val; }
+function sf(id,dir,justify,gap){
+  var el=document.getElementById(id);
+  el.style.flexDirection=dir;
+  el.style.justifyContent=justify;
+  el.style.gap=gap;
+}
+function applyCardCSS(){
+  var el=document.getElementById('raw-demo');
+  el.style.background='#eef2ff';
+  el.style.border='2px solid #4f46e5';
+  el.style.borderRadius='12px';
+  el.style.boxShadow='0 4px 20px rgba(79,70,229,.15)';
+}
+function removeCardCSS(){
+  var el=document.getElementById('raw-demo');
+  el.removeAttribute('style');
+  el.style.padding='12px';
+  el.style.borderRadius='8px';
+}
+function toggleCard(){
+  var el=document.getElementById('card-demo');
+  el.className = el.className.includes('styled') ? 'raw demo-wrap' : 'styled demo-wrap';
+}
+function tryFinish(){
+  if(_done.size<5){
+    document.getElementById('step4-warn').style.display='block';
+    return;
+  }
+  goTo('result');
+}
+
+
+
+
+
+
+
+// --- step5: DB simulation ---
+const fakeDB = [];
+
+function renderTable() {
+  const t = document.getElementById('db-table');
+  if (!fakeDB.length) { t.textContent = 'خالی'; return; }
+  t.innerHTML = '<table style="width:100%;border-collapse:collapse">' +
+    '<tr style="color:#7c3aed"><th>نام</th><th>کد ملی</th><th>سن</th><th>نام پدر</th></tr>' +
+    fakeDB.map(r => `<tr><td>${r.name}</td><td>${r.national}</td><td>${r.age}</td><td>${r.father}</td></tr>`).join('') +
+    '</table>';
+}
+
+function dbPost() {
+  const name = document.getElementById('db-name').value.trim();
+  const national = document.getElementById('db-national').value.trim();
+  const age = document.getElementById('db-age').value.trim();
+  const father = document.getElementById('db-father').value.trim();
+  const msg = document.getElementById('post-msg');
+  if (!name || !national || !age || !father) { msg.style.color='#f87171'; msg.textContent='⚠️ همه فیلدها را پر کن'; return; }
+  if (fakeDB.find(r => r.national === national)) { msg.style.color='#f87171'; msg.textContent='⚠️ این کد ملی قبلاً ثبت شده'; return; }
+  fakeDB.push({ name, national, age, father });
+  msg.style.color='#4ade80'; msg.textContent='✅ با موفقیت ذخیره شد';
+  ['db-name','db-national','db-age','db-father'].forEach(id => document.getElementById(id).value='');
+  renderTable();
+}
+
+function dbGet() {
+  const national = document.getElementById('search-national').value.trim();
+  const res = document.getElementById('get-result');
+  if (!national) { res.style.color='#f87171'; res.textContent='⚠️ کد ملی را وارد کن'; return; }
+  const r = fakeDB.find(r => r.national === national);
+  if (!r) { res.style.color='#f87171'; res.textContent='❌ کاربری با این کد ملی یافت نشد'; return; }
+  res.style.color='#4ade80';
+  res.innerHTML = `✅ <b>${r.name}</b> | سن: ${r.age} | نام پدر: ${r.father}`;
+}
+
+
+
+
+
+
+
+
+
+
+
+// ===== step5: JS تعاملی =====
+const step5Done = new Set();
+let counterVal = 0, timerSec = 0, timerInterval = null;
+
+function step5Track(id) {
+  step5Done.add(id);
+  document.getElementById('step5-count').textContent = step5Done.size;
+  if (step5Done.size >= 4) {
+    const btn = document.getElementById('btn-step5-next');
+    btn.disabled = false;
+    btn.style.background = '#7c3aed';
+    btn.style.color = '#fff';
+    btn.style.cursor = 'pointer';
+  }
+}
+
+function jsCheck(type) {
+  if (type === 'email') {
+    const v = document.getElementById('js-email').value;
+    const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+    const el = document.getElementById('js-email-res');
+    el.style.color = ok ? '#4ade80' : '#f87171';
+    el.textContent = ok ? '✅ ایمیل معتبر است' : '❌ ایمیل نامعتبر است';
+    step5Track('email');
+  }
+}
+
+function jsCounter(d) {
+  counterVal += d;
+  document.getElementById('js-count').textContent = counterVal;
+  step5Track('counter');
+}
+
+function jsTogglePass() {
+  const inp = document.getElementById('js-pass');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  step5Track('pass');
+}
+
+const searchItems = ['HTML', 'CSS', 'JavaScript', 'Python', 'React', 'Django', 'Bootstrap', 'Node.js'];
+function jsSearch() {
+  const q = document.getElementById('js-search').value.toLowerCase();
+  const res = searchItems.filter(i => i.toLowerCase().includes(q));
+  document.getElementById('js-search-list').innerHTML = res.map(i =>
+    `<span style="display:inline-block;margin:.2rem;padding:.2rem .6rem;background:#2d2d4e;border-radius:6px">${i}</span>`
+  ).join('');
+  step5Track('search');
+}
+
+function jsRandomColor() {
+  const c = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6,'0');
+  document.getElementById('js-color-box').style.background = c;
+  document.getElementById('js-color-val').textContent = c;
+  step5Track('color');
+}
+
+function jsTimerToggle() {
+  const btn = document.getElementById('js-timer-btn');
+  if (timerInterval) {
+    clearInterval(timerInterval); timerInterval = null; btn.textContent = 'ادامه';
+  } else {
+    timerInterval = setInterval(() => {
+      timerSec++;
+      const m = String(Math.floor(timerSec/60)).padStart(2,'0');
+      const s = String(timerSec%60).padStart(2,'0');
+      document.getElementById('js-timer').textContent = `${m}:${s}`;
+    }, 1000);
+    btn.textContent = 'توقف';
+  }
+  step5Track('timer');
+}
+
+function jsTimerReset() {
+  clearInterval(timerInterval); timerInterval = null;
+  timerSec = 0;
+  document.getElementById('js-timer').textContent = '00:00';
+  document.getElementById('js-timer-btn').textContent = 'شروع';
+}
+
+// ===== step6: AI تعاملی =====
+const step6Done = new Set();
+
+function step6Track(id) {
+  step6Done.add(id);
+  document.getElementById('step6-count').textContent = step6Done.size;
+  if (step6Done.size >= 4) {
+    const btn = document.getElementById('btn-step6-next');
+    btn.disabled = false;
+    btn.style.background = '#22c55e';
+    btn.style.color = '#000';
+    btn.style.cursor = 'pointer';
+  }
+}
+
+function aiSentiment() {
+  const text = document.getElementById('ai-sentiment-input').value.trim();
+  if (!text) return;
+  const pos = ['خوب','عالی','زیبا','دوست','خوشحال','great','good','love','happy','wonderful','amazing'];
+  const neg = ['بد','ناراحت','مشکل','نفرت','ترس','bad','hate','sad','terrible','awful','problem'];
+  const posScore = pos.filter(w => text.includes(w)).length;
+  const negScore = neg.filter(w => text.includes(w)).length;
+  let result, color;
+  if (posScore > negScore) { result = '😊 احساس مثبت'; color = '#4ade80'; }
+  else if (negScore > posScore) { result = '😞 احساس منفی'; color = '#f87171'; }
+  else { result = '😐 احساس خنثی'; color = '#94a3b8'; }
+  const el = document.getElementById('ai-sentiment-res');
+  el.style.color = color; el.textContent = result;
+  step6Track('sentiment');
+}
+
+function aiSummary() {
+  const text = document.getElementById('ai-summary-input').value.trim();
+  if (!text) return;
+  const words = text.split(/\s+/).filter(w => w.length > 3);
+  const freq = {};
+  words.forEach(w => freq[w] = (freq[w]||0) + 1);
+  const keywords = Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,5).map(e=>e[0]);
+  const el = document.getElementById('ai-summary-res');
+  el.style.color = '#06b6d4';
+  el.innerHTML = '🔑 کلمات کلیدی: ' + keywords.map(k=>`<b>${k}</b>`).join('، ');
+  step6Track('summary');
+}
+
+function aiDetectLang() {
+  const text = document.getElementById('ai-lang-input').value.trim();
+  if (!text) return;
+  const persianChars = (text.match(/[\u0600-\u06FF]/g)||[]).length;
+  const arabicPattern = /[\u0600-\u06FF]/;
+  const latinPattern = /[a-zA-Z]/;
+  let lang;
+  if (persianChars > text.length * 0.3) lang = '🇮🇷 فارسی / عربی';
+  else if (latinPattern.test(text)) lang = '🇬🇧 انگلیسی / لاتین';
+  else lang = '❓ ناشناخته';
+  const el = document.getElementById('ai-lang-res');
+  el.style.color = '#f59e0b'; el.textContent = 'زبان تشخیص داده شده: ' + lang;
+  step6Track('lang');
+}
+
+const ideaDB = {
+  'طراحی': ['پلتفرم نمونه‌کار آنلاین', 'ابزار ساخت لوگو با AI', 'سیستم انتخاب رنگ هوشمند'],
+  'داده': ['داشبورد تحلیل فروش', 'ابزار پیش‌بینی قیمت', 'سیستم گزارش‌گیری خودکار'],
+  'بازی': ['بازی آموزش کدنویسی', 'پازل هوشمند با AI', 'بازی تشخیص الگو'],
+  'موبایل': ['اپ مدیریت وظایف', 'اپ یادگیری زبان', 'اپ سلامت و ورزش'],
+  'امنیت': ['ابزار بررسی قدرت رمز', 'سیستم تشخیص نفوذ', 'مدیریت دسترسی هوشمند'],
+};
+
+function aiIdea() {
+  const topic = document.getElementById('ai-idea-input').value.trim();
+  const key = Object.keys(ideaDB).find(k => topic.includes(k));
+  const ideas = key ? ideaDB[key] : ['اپ مدیریت هوشمند', 'پلتفرم یادگیری آنلاین', 'سیستم تحلیل داده'];
+  const pick = ideas[Math.floor(Math.random()*ideas.length)];
+  const el = document.getElementById('ai-idea-res');
+  el.style.color = '#22c55e'; el.textContent = '💡 پیشنهاد: ' + pick;
+  step6Track('idea');
+}
+
+const spamWords = ['برنده','جایزه','رایگان','کلیک کن','فوری','تبریک','میلیون','free','winner','click now','urgent','prize','congratulations'];
+function aiSpam() {
+  const text = document.getElementById('ai-spam-input').value.toLowerCase();
+  if (!text) return;
+  const hits = spamWords.filter(w => text.includes(w));
+  const el = document.getElementById('ai-spam-res');
+  if (hits.length >= 2) { el.style.color='#f87171'; el.textContent='🚫 احتمالاً اسپم است! (کلمات مشکوک: '+hits.slice(0,3).join('، ')+')'; }
+  else if (hits.length === 1) { el.style.color='#f59e0b'; el.textContent='⚠️ مشکوک — یک کلمه هشداردهنده یافت شد'; }
+  else { el.style.color='#4ade80'; el.textContent='✅ پیام معمولی به نظر می‌رسد'; }
+  step6Track('spam');
+}
+
+const recommendDB = {
+  'طراحی': 'دوره فرانت‌اند (HTML, CSS, Bootstrap, React)',
+  'داده': 'دوره Data Science و Machine Learning',
+  'بازی': 'دوره JavaScript پیشرفته + Canvas',
+  'موبایل': 'دوره React Native یا Flutter',
+  'امنیت': 'دوره بک‌اند (Python/Django) + امنیت وب',
+};
+
+function aiRecommend(topic) {
+  const rec = recommendDB[topic] || 'دوره برنامه‌نویسی پایه';
+  const el = document.getElementById('ai-recommend-res');
+  el.style.color = '#7c3aed';
+  el.innerHTML = `🎯 پیشنهاد برای <b>${topic}</b>: ${rec}`;
+  step6Track('recommend');
+}
+
+
+
+
+
+
+
+
+
+
+
+
+// این متغیر و تابع را به بخش <script> اضافه کنید
+let selectedPath = '';
+
+function selectPath(path) {
+  selectedPath = path;
+  document.querySelectorAll('.path-btn').forEach(b => b.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  // کمی تأخیر برای نمایش انتخاب، سپس رفتن به آزمون
+setTimeout(() => {
+    goTo('quiz');
+    initQuiz();
+  }, 400);}
+
+
+
+
+
+
+
+  const questions = [
+   { q: "وقتی یک بازی جدید نصب می‌کنی، چی بیشتر برات جذابه؟", options: ["ظاهر منوها و رنگ‌بندی", "سرعت اجرای بازی", "هوش مصنوعی حریف"], types: ["front", "back", "ai"] },
+        { q: "دوست داری خروجی کارت چه شکلی باشه؟", options: ["یه صفحه زیبا که دکمه‌هاش حرکت میکنن", "یه سیستم امن که اطلاعات رو ذخیره میکنه", "یه برنامه که مثل آدم حرف میزنه و میفهمه"], types: ["front", "back", "ai"] },
+        { q: "توی ساخت سایت فیلم، کدوم بخش رو ترجیح میدی؟", options: ["طراحی چیدمان پوسترها", "ساخت بخش خرید اشتراک", "پیشنهاد فیلم بر اساس سلیقه کاربر"], types: ["front", "back", "ai"] },
+        { q: "توی کامپیوتر کدوم کار برات هیجان‌انگیزتره؟", options: ["طراحی و نقاشی دیجیتال", "حل کردن معماهای سخت کدی", "بازی با داده‌ها و پیش‌بینی نتایج"], types: ["front", "back", "ai"] },
+        { q: "کدوم بازی رو بیشتر دوست داری؟", options: ["ماینکرفت (ساخت و ساز)", "شطرنج یا روبیک (فکری)", "بازی‌های حدس کلمه و الگو"], types: ["front", "back", "ai"] },
+        { q: "رابطه‌ات با ریاضی چطوره؟", options: ["شکل‌ها و هندسه رو ترجیح میدم", "معادله و ایکس و ایگرگ رو دوست دارم", "آمار و احتمال برام جالبه"], types: ["front", "back", "ai"] },
+        { q: "وقتی برنامه خراب میشه، چی رو چک میکنی؟", options: ["اینکه دکمه‌ها جابه‌جا نشدن؟", "اینکه رمز عبور درست کار میکنه؟", "اینکه چرا سیستم اشتباه حدس زد؟"], types: ["front", "back", "ai"] },
+        { q: "توی یوتیوب چی میبینی؟", options: ["ترفندهای طراحی سایت خفن", "معماری سرورهای بزرگ", "ویدیوهای ربات‌های هوشمند"], types: ["front", "back", "ai"] },
+        { q: "دوست داری با کد نویسی چیکار کنی؟", options: ["کاری کنم دکمه‌ها بچرخن و رنگ عوض کنن", "محاسبات ریاضی خیلی سریع انجام بدم", "به کامپیوتر یاد بدم صدام رو بشناسه"], types: ["front", "back", "ai"] },
+        { q: "کدوم ابزار برات جذاب‌تره؟", options: ["کدهایی که ظاهر رو میسازن (HTML)", "کدهایی که منطق رو میسازن (Python)", "کدهایی که یادگیری میدن (AI Tools)"], types: ["front", "back", "ai"] },
+        { q: "داده‌ها یعنی چی؟", options: ["عکس‌ها و متن‌های روی صفحه", "رمزهای عبور در گاوصندوق", "نقشه‌ای برای پیش‌بینی آینده"], types: ["front", "back", "ai"] },
+        { q: "سبک کار کردنت چطوریه؟", options: ["سریع نتیجه رو ببینم و قشنگش کنم", "طبق قانون و نقشه محکم پیش برم", "اونقدر آزمایش کنم تا بهترین راه رو پیدا کنم"], types: ["front", "back", "ai"] },
+        { q: "دوست داری بقیه درباره کارت چی بگن؟", options: ["چقدر خوشگل و راحته!", "چقدر امن و سریعه!", "چقدر باهوش و عجیبه!"], types: ["front", "back", "ai"] },
+        { q: "اگر نقاشی بکسی چیکارش میکنی؟", options: ["به دیوار میزنم همه ببینن", "توی فایل امن نگهش میدارم", "میدم به کامپیوتر تا یاد بگیره شبیهش بکشه"], types: ["front", "back", "ai"] },
+        { q: "شبیه کدوم هستی؟", options: ["یه معمار هنرمند", "یه مهندس عمران دقیق", "یه دانشمند کاوشگر"], types: ["front", "back", "ai"] },
+        { q: "ربات تلگرامت چطوری باشه؟", options: ["دکمه‌های رنگی و زیبا داشته باشه", "پیام‌ها رو خیلی سریع جابه‌جا کنه", "حرف کاربر رو بفهمه و جواب منطقی بده"], types: ["front", "back", "ai"] },
+        { q: "توی ساخت اسنپ، کدوم بخش مال تو باشه؟", options: ["نقشه متحرک و ظاهر اپلیکیشن", "سیستم محاسبه قیمت و پرداخت", "پیش‌بینی ترافیک خیابان‌ها"], types: ["front", "back", "ai"] },
+        { q: "توی ساخت بازی، تمرکزت کجاست؟", options: ["طراحی لباس و نور محیط", "جدول امتیازات و ذخیره بازی", "ساخت غول آخرِ خیلی باهوش"], types: ["front", "back", "ai"] },
+        { q: "چی تو رو بیشتر کلافه میکنه؟", options: ["به‌هم‌ریختگی فونت و ظاهر صفحه", "کند شدن برنامه یا خطای سرور", "خنگ بازی درآوردن سیستم هوشمند"], types: ["front", "back", "ai"] },
+        { q: "کار ایده‌آلت چیه؟", options: ["زنده کردن طرح‌ها با کد", "ساخت موتورهای قدرتمند مخفی", "یاد دادن تفکر به کامپیوتر"], types: ["front", "back", "ai"] }
+  
+];
+
+let currentStep = 0;
+let scores = { front: 0, back: 0, ai: 0 };
+
+function initQuiz() {
+  currentStep = 0;
+  scores = { front: 0, back: 0, ai: 0 };
+  showQuestion();
+}
+
+function showQuestion() {
+  const q = questions[currentStep];
+  document.getElementById('q-number').innerText = `سؤال ${currentStep + 1} از ${questions.length}`;
+  document.getElementById('q-text').innerText = q.q;
+  document.getElementById('progress-fill').style.width = ((currentStep + 1) / questions.length * 100) + '%';
+
+  const container = document.getElementById('options-container');
+  container.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-option-btn';
+    btn.innerText = opt;
+    btn.onclick = () => selectOption(q.types[i]);
+    container.appendChild(btn);
+  });
+}
+
+function selectOption(type) {
+  scores[type]++;
+  currentStep++;
+  if (currentStep < questions.length) {
+    showQuestion();
+  } else {
+    showQuizResult();
+  }
+}
+
+function showQuizResult() {
+  const quizWinner = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
+
+  const pathNames = { front: 'فرانت‌اند', back: 'بک‌اند', ai: 'هوش مصنوعی' };
+  const match = (quizWinner === selectedPath);
+
+  document.getElementById('result-selected-path').innerText = pathNames[selectedPath];
+  document.getElementById('result-quiz-path').innerText = pathNames[quizWinner];
+
+  const matchBox = document.getElementById('result-match-box');
+  if (match) {
+    matchBox.style.color = '#2ecc71';
+    matchBox.innerText = '✅ انتخاب تو با نتیجه آزمونت مطابقت داره!';
+  } else {
+    matchBox.style.color = '#e74c3c';
+    matchBox.innerText = '⚠️ انتخاب تو با نتیجه آزمونت متفاوته!';
+  }
+
+  goTo('result');
+}
+
+
+
+
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>

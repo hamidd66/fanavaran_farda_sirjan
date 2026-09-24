@@ -1,0 +1,451 @@
+/* ========================================================
+   استایل‌های کاملاً اختصاصی داشبورد هنرجو (بدون تکرار)
+======================================================== */
+
+.std-dashboard-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+/* بنر تیره بالا */
+.std-top-hero-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 20px;
+}
+
+.std-welcome-card {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border-radius: 20px;
+  padding: 30px;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.std-welcome-card::after {
+  content: "";
+  position: absolute;
+  top: -40px;
+  left: -40px;
+  width: 180px;
+  height: 180px;
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.35) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.welcome-greeting {
+  font-size: 0.88rem;
+  color: #93c5fd;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.welcome-text h2 {
+  font-size: 1.45rem;
+  font-weight: 800;
+  margin: 0 0 10px 0;
+  color: #f8fafc;
+  line-height: 1.4;
+}
+
+.welcome-text p {
+  font-size: 0.92rem;
+  color: #94a3b8;
+  line-height: 1.6;
+  margin: 0 0 20px 0;
+  max-width: 90%;
+}
+
+.welcome-tags {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.w-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 6px 14px;
+  border-radius: 30px;
+  font-size: 0.82rem;
+  color: #e2e8f0;
+}
+
+/* اختصاصی کلاس بعدی و تایمر */
+.next-class-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.next-class-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #ef4444;
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 7px rgba(239, 68, 68, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+.next-class-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 6px 0;
+}
+
+.next-class-meta {
+  font-size: 0.84rem;
+  color: #64748b;
+  margin: 0 0 16px 0;
+}
+
+.countdown-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  padding: 12px;
+  border-radius: 14px;
+  margin-bottom: 16px;
+}
+
+.countdown-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.countdown-unit .num {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #1e293b;
+  font-family: monospace;
+}
+
+.countdown-unit .lbl {
+  font-size: 0.68rem;
+  color: #94a3b8;
+}
+
+.countdown-box .colon {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #94a3b8;
+  margin-bottom: 10px;
+}
+
+.next-class-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* اختصاصی بخش گیمیفیکیشن */
+.std-gamification-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.std-game-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
+}
+
+.game-icon-box {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  flex-shrink: 0;
+}
+
+.game-icon-box.rank-box { background: #fef3c7; color: #d97706; }
+.game-icon-box.xp-box { background: #f3e8ff; color: #9333ea; }
+.game-icon-box.attendance-box { background: #dcfce7; color: #16a34a; }
+.game-icon-box.quiz-box { background: #eff6ff; color: #2563eb; }
+
+.game-label {
+  font-size: 0.78rem;
+  color: #64748b;
+  margin-bottom: 2px;
+}
+
+.game-value {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.game-sub {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #94a3b8;
+  margin-right: 4px;
+}
+
+.game-card-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+}
+
+/* چیدمان ۲ ستونه */
+.std-two-col-grid,
+.std-analytics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* لیست پیشرفت دوره‌ها */
+.std-courses-progress-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.std-course-prog-item {
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid #f1f5f9;
+}
+
+.prog-item-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.prog-item-top h4 {
+  font-size: 0.94rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 4px 0;
+}
+
+.prog-inst {
+  font-size: 0.78rem;
+  color: #94a3b8;
+}
+
+.prog-percent {
+  font-size: 1.1rem;
+  font-weight: 800;
+  display: block;
+}
+
+.prog-sessions {
+  font-size: 0.72rem;
+  color: #94a3b8;
+}
+
+/* اعلان‌ها */
+.std-notifs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.std-notif-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 14px;
+  background: #f8fafc;
+  border-radius: 14px;
+  position: relative;
+  gap: 12px;
+  border: 1px solid #f1f5f9;
+}
+
+.notif-indicator {
+  width: 6px;
+  height: 38px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.std-notif-item.urgent .notif-indicator { background: #ef4444; }
+.std-notif-item.info .notif-indicator { background: #3b82f6; }
+.std-notif-item.message .notif-indicator { background: #10b981; }
+
+.notif-content {
+  flex: 1;
+}
+
+.notif-content h5 {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 3px 0;
+}
+
+.notif-content p {
+  font-size: 0.78rem;
+  color: #64748b;
+  margin: 0 0 4px 0;
+}
+
+.notif-date {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* چارت روند نمرات */
+.chart-legend {
+  display: flex;
+  align-items: center;
+  font-size: 0.78rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-left: 6px;
+}
+
+.std-chart-container {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.std-line-chart-svg {
+  width: 100%;
+  height: 180px;
+  overflow: visible;
+}
+
+.std-chart-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: #94a3b8;
+  padding: 8px 10px 0;
+  border-top: 1px solid #f1f5f9;
+}
+
+/* نوارهای مقایسه‌ای نمرات با میانگین کلاس */
+.comparison-bars-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.comp-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.84rem;
+  margin-bottom: 6px;
+}
+
+.comp-title {
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.comp-values {
+  display: flex;
+  gap: 10px;
+  font-size: 0.78rem;
+}
+
+.my-val {
+  color: #2563eb;
+  font-weight: 800;
+}
+
+.avg-val {
+  color: #94a3b8;
+}
+
+.comp-double-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bar-wrapper {
+  width: 100%;
+  height: 7px;
+  background: #f1f5f9;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.bar-fill.my-bar {
+  height: 100%;
+  background: #2563eb;
+  border-radius: 8px;
+}
+
+.bar-fill.avg-bar {
+  height: 100%;
+  background: #cbd5e1;
+  border-radius: 8px;
+}
+
+/* ریسپانسیو اختصاصی */
+@media (max-width: 1024px) {
+  .std-top-hero-grid,
+  .std-two-col-grid,
+  .std-analytics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .std-gamification-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .std-gamification-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .next-class-actions {
+    flex-direction: column;
+  }
+}
