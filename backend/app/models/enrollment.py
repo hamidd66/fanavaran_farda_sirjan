@@ -9,7 +9,7 @@ class Enrollment(Base):
     id = Column(Integer, primary_key=True, index=True)
 
     # ۱. آیدی هنرجو (کلید خارجی به جدول students)
-    student_id = Column(Integer, ForeignKey("student.id", ondelete="RESTRICT"), nullable=False)
+    student_id = Column(Integer, ForeignKey("students.id", ondelete="RESTRICT"), nullable=False)
 
     # ۲. آیدی دوره (کلید خارجی به جدول courses)
     course_id = Column(Integer, ForeignKey("courses.id", ondelete="RESTRICT"), nullable=False)

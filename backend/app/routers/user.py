@@ -3,8 +3,18 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.models.user import User
 from app.schemas.user import UserOut
+from app.services.tokens import create_access_token, create_refresh_token, verify_token
+from app.schemas.user import RegisterUser, LoginUser
+from app.middleware.exception_handler import response_handler
+from app.utils.hashing import hash_password, verify_password
+from app.services.jwt_bearer import get_payload
 
-router = APIRouter(prefix="/api/users", tags=["مدیریت کاربران"])
+
+
+# router = APIRouter(prefix="/api/users", tags=["مدیریت کاربران"])
+
+router = APIRouter(prefix="/user", tags=["Users"])
+
 
 @router.get("", response_model=list[UserOut])
 def get_all_users(db: Session = Depends(get_db)):

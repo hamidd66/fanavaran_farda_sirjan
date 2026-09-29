@@ -1,3 +1,52 @@
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
+
+class StudentCreate(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    national_code: str = Field(..., pattern=r"^\d{10}$")
+    password: str = Field(..., min_length=8, max_length=128)
+
+    full_name: str = Field(..., min_length=3, max_length=100)
+    father_name: str = Field(..., min_length=3, max_length=50)
+
+    phone: str = Field(..., pattern=r"^09\d{9}$")
+    parent_phone: str = Field(..., pattern=r"^09\d{9}$")
+    email: EmailStr
+
+    birth_date: str = Field(..., pattern=r"^\d{4}[/-]\d{2}[/-]\d{2}$")
+    education: str = Field(..., max_length=50)
+    address: str = Field(..., min_length=3)
+
+    description: str | None = Field(None)
+    avatar: str | None = Field(None, pattern=r"^/media/uploads/profile/[A-Za-z0-9_\-./]+\.(jpg|jpeg|png|webp)$")
+
+
+class StudentOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    national_code: str
+
+    full_name: str
+    father_name: str
+    
+    phone: str
+    parent_phone: str
+    email: EmailStr
+    
+    birth_date: str
+    education: str
+    address: str
+    
+    description: str | None
+    avatar: str | None
+
+
+
+
+
+
+# --------------------------------------
+
 # app/schemas/student.py
 from pydantic import BaseModel, EmailStr, field_validator
 from typing import Optional
@@ -113,9 +162,9 @@ class StudentBase(BaseModel):
         return v
 
 
-# فرم ساخت هنرجوی جدید
-class StudentCreate(StudentBase):
-    pass
+# # فرم ساخت هنرجوی جدید
+# class StudentCreate(StudentBase):
+#     pass
 
 
 # فرم ویرایش اطلاعات

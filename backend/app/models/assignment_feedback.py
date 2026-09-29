@@ -10,7 +10,7 @@ class AssignmentFeedback(Base):
     # کلیدهای خارجی
     assignment_id = Column(Integer, ForeignKey("assignments.id"), nullable=False)
     course_id = Column(Integer, ForeignKey("classrooms.id"), nullable=False) # فرض: جدول کلاس‌ها
-    student_id = Column(Integer, ForeignKey("student.id"), nullable=False)
+    student_id = Column(Integer, ForeignKey("students.id"), nullable=False)
     staff_id = Column(Integer, ForeignKey("staff.id"), nullable=False) # فرض: جدول کادر/استاد
     
     # اطلاعات تکلیف و بازخورد

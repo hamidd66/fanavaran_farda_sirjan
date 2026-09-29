@@ -14,7 +14,7 @@ class Attendance(Base):
     classroom_id = Column(Integer, ForeignKey("classrooms.id", ondelete="CASCADE"), nullable=False)
 
     # ۲) آیدی هنرجو
-    student_id = Column(Integer, ForeignKey("student.id", ondelete="CASCADE"), nullable=False)
+    student_id = Column(Integer, ForeignKey("students.id", ondelete="CASCADE"), nullable=False)
 
     # ۳) شماره جلسه
     session_number = Column(Integer, nullable=False)

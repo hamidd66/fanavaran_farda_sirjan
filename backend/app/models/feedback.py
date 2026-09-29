@@ -12,7 +12,7 @@ class Feedback(Base):
     classroom_id = Column(Integer, ForeignKey("classrooms.id", ondelete="CASCADE"), nullable=False)
 
     # ۲. آیدی هنرجو (کلید خارجی به جدول students)
-    student_id = Column(Integer, ForeignKey("student.id", ondelete="CASCADE"), nullable=False)
+    student_id = Column(Integer, ForeignKey("students.id", ondelete="CASCADE"), nullable=False)
 
     # ۳. امتیاز امکانات (۱ تا ۵)
     facilities_rating = Column(Integer, nullable=False)

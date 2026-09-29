@@ -15,7 +15,7 @@ class TeacherEvaluation(Base):
     teacher_id = Column(Integer, ForeignKey("staff.id", ondelete="CASCADE"), nullable=False)
 
     # ۳. آیدی هنرجو (کلید خارجی به students)
-    student_id = Column(Integer, ForeignKey("student.id", ondelete="CASCADE"), nullable=False)
+    student_id = Column(Integer, ForeignKey("students.id", ondelete="CASCADE"), nullable=False)
 
     # ۴. امتیاز تسلط استاد بر سرفصل‌ها (۱ تا ۵)
     mastery_rating = Column(Integer, nullable=False)

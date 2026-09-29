@@ -12,7 +12,7 @@ class Tuition(Base):
 
     # ۱) آیدی کلاس و هنرجو (کلیدهای خارجی)
     classroom_id = Column(Integer, ForeignKey("classrooms.id", ondelete="CASCADE"), nullable=False)
-    student_id = Column(Integer, ForeignKey("student.id", ondelete="CASCADE"), nullable=False)
+    student_id = Column(Integer, ForeignKey("students.id", ondelete="CASCADE"), nullable=False)
 
     # ۲) اطلاعات پرداخت
     payment_type = Column(String(50), nullable=False)          # نقدی، کارتخوان، کارت به کارت و ...

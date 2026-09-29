@@ -7,7 +7,7 @@ class TermGrade(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     classroom_id = Column(Integer, ForeignKey("classrooms.id"), nullable=False)
-    student_id = Column(Integer, ForeignKey("student.id"), nullable=False)
+    student_id = Column(Integer, ForeignKey("students.id"), nullable=False)
     grade_title = Column(String(50), nullable=False)  # "میانترم" یا "پایان ترم"
     grade = Column(Float, nullable=False)  # نمره
     is_finalized = Column(Boolean, default=False, nullable=False) # فیلد جدید

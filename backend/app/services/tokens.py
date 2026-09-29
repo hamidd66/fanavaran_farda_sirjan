@@ -26,7 +26,8 @@ def create_refresh_token(data: dict):
 
     to_encode = {
         "sub": str(data["sub"]),
-        "token_version": data["token_version"],
+        "role": data["role"],
+        # "token_version": data["token_version"],
         "type": "refresh",
         "exp": expire,
     }

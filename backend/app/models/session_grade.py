@@ -8,7 +8,7 @@ class SessionGrade(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     classroom_id = Column(Integer, ForeignKey("classrooms.id"), nullable=False)
-    student_id = Column(Integer, ForeignKey("student.id"), nullable=False)
+    student_id = Column(Integer, ForeignKey("students.id"), nullable=False)
     session_number = Column(Integer, nullable=False)
     grade = Column(Float, nullable=False)  # نمره بین 1 تا 20
     description = Column(Text, nullable=True)  # اختیاری

@@ -92,12 +92,12 @@ Base.metadata.create_all(bind=engine)
 from app.routers import student, staff, user, category ,course ,classroom ,enrollment ,course_content ,assignment ,course_faq ,course_topic ,feedback ,teacher_evaluation ,attendance ,tuition ,payroll ,expense ,project_income ,project_expense ,suggestion ,poll_question ,poll_response ,session_grade ,term_grade ,competition ,competition_registration ,competition_result ,student_assignment_upload ,assignment_feedback ,dashboard
 
 # ۴. ساخت نمونه FastAPI (این خط حتماً باید قبل از include_router باشد)
-app = FastAPI(title="سیستم مدیریت آموزشگاه")
+app = FastAPI(title="Fanavaran farda")
 
 # ۵. اضافه کردن روترها به app
+app.include_router(user.router)
 app.include_router(student.router)
 app.include_router(staff.router)
-app.include_router(user.router)
 app.include_router(category.router) 
 app.include_router(course.router)
 app.include_router(classroom.router)

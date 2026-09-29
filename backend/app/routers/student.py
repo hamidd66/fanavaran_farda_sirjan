@@ -1,14 +1,64 @@
-# app/routers/students.py
-from fastapi import APIRouter, Depends, HTTPException, Query,status
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
 
 from app.db.session import get_db
-from app.models.student import Student
-from app.schemas.student import StudentCreate, StudentUpdate, StudentResponse
-from app.core.user_service import create_user_for_entity
+from app.middleware.exception_handler import response_handler
 
-router = APIRouter(prefix="/api/students", tags=["هنرجویان"])
+from app.models.student import Student
+from app.schemas.student import StudentCreate, StudentOut, StudentUpdate, StudentResponse
+from app.repositories.user_repo import create_user
+from app.enums.user import UserRole
+
+
+router = APIRouter(prefix="/students", tags=["ُStudents"])
+
+
+@router.post("/")
+def create_student(data: StudentCreate, db: Session = Depends(get_db)):
+    try:
+        new_user = create_user(data, db, role=UserRole.user)
+
+        student_data = data.model_dump(
+            exclude_none=True,
+            exclude={
+                "password",
+            }
+        )
+
+        new_student = Student(**student_data)
+        new_student.user_id = new_user["user"].id
+        new_student.is_active = True
+
+        db.add(new_student)
+        db.commit()
+        db.refresh(new_student)
+
+        return response_handler(
+            status=True,
+            message="student created successfully",
+            data={
+                "student": StudentOut.model_validate(new_student).model_dump(),
+                "access_token": new_user["access_token"],
+                "refresh_token": new_user["refresh_token"]
+            },
+            status_code=201
+        )
+    except HTTPException as http_error:
+        db.rollback()
+        raise http_error
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Student create failed")
+
+
+
+
+
+
+
+
+
 
 # ۱. دریافت لیست هنرجویان با جستجو و فیلتر وضعیت
 @router.get("", response_model=List[StudentResponse])
@@ -36,30 +86,6 @@ def get_student_by_id(student_id: int, db: Session = Depends(get_db)):
     if not student:
         raise HTTPException(status_code=404, detail="هنرجویی با این شناسه یافت نشد")
     return student
-
-
-# ۳. ثبت هنرجوی جدید (همه فیلدها به جز توضیحات بررسی و اجباری می‌شوند)
-# خط مربوط به post را به شکل استاندارد زیر تغییر دهید:
-@router.post("", response_model=StudentResponse, status_code=status.HTTP_201_CREATED)
-def create_student(payload: StudentCreate, db: Session = Depends(get_db)):
-    # ۱. ساخت شیء هنرجو
-    student = Student(**payload.model_dump())
-    db.add(student)
-
-    # ۲. ساخت خودکار کاربر متناظر
-    create_user_for_entity(
-        db=db,
-        national_code=student.national_code,
-        full_name=student.full_name,
-        role="هنرجو",
-        access_level="student"
-    )
-
-    # ۳. ثبت نهایی در دیتابیس
-    db.commit()
-    db.refresh(student)
-    return student
-    
 
 
 # ۴. ویرایش هنرجو
