@@ -1,10 +1,10 @@
-from pydantic import BaseModel, EmailStr, Field, ConfigDict
+from datetime import datetime
+from typing import Optional, Union
+from pydantic import BaseModel, EmailStr, Field, ConfigDict, computed_field
+from app.schemas.user import UserOut
 
 class StudentCreate(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
-
-    national_code: str = Field(..., pattern=r"^\d{10}$")
-    password: str = Field(..., min_length=8, max_length=128)
 
     full_name: str = Field(..., min_length=3, max_length=100)
     father_name: str = Field(..., min_length=3, max_length=50)
@@ -14,8 +14,8 @@ class StudentCreate(BaseModel):
     email: EmailStr
 
     birth_date: str = Field(..., pattern=r"^\d{4}[/-]\d{2}[/-]\d{2}$")
-    education: str = Field(..., max_length=50)
-    address: str = Field(..., min_length=3)
+    education: str = Field(..., min_length=3, max_length=50)
+    address: str = Field(..., min_length=5)
 
     description: str | None = Field(None)
     avatar: str | None = Field(None, pattern=r"^/media/uploads/profile/[A-Za-z0-9_\-./]+\.(jpg|jpeg|png|webp)$")
@@ -24,7 +24,7 @@ class StudentCreate(BaseModel):
 class StudentOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    national_code: str
+    id: str
 
     full_name: str
     father_name: str
@@ -37,9 +37,30 @@ class StudentOut(BaseModel):
     education: str
     address: str
     
-    description: str | None
-    avatar: str | None
+    description: str | None = None
+    avatar: str | None = None
 
+    created_at: datetime
+
+    user: UserOut
+
+
+class StudentUpdate(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    full_name: Optional[str] = Field(None, min_length=3, max_length=100)
+    father_name: Optional[str] = Field(None, min_length=3, max_length=50)
+    
+    phone: Optional[str] = Field(None, pattern=r"^09\d{9}$")
+    parent_phone: Optional[str] = Field(None, pattern=r"^09\d{9}$")
+    email: Optional[EmailStr] = None
+    
+    birth_date: Optional[str] = Field(None, pattern=r"^\d{4}[/-]\d{2}[/-]\d{2}$")
+    education: Optional[str] = Field(None, max_length=50)
+    address: Optional[str] = Field(None, min_length=3)
+    
+    description: Optional[str] = None
+    avatar: Optional[str] = Field(None, pattern=r"^/media/uploads/profile/[A-Za-z0-9_\-./]+\.(jpg|jpeg|png|webp)$")
 
 
 
@@ -167,34 +188,34 @@ class StudentBase(BaseModel):
 #     pass
 
 
-# فرم ویرایش اطلاعات
-class StudentUpdate(BaseModel):
-    full_name: Optional[str] = None
-    father_name: Optional[str] = None
-    birth_date: Optional[str] = None
-    phone: Optional[str] = None
-    parent_phone: Optional[str] = None
-    education: Optional[str] = None
-    email: Optional[EmailStr] = None
-    address: Optional[str] = None
-    description: Optional[str] = None
-    avatar: Optional[str] = None
-    registered_by: Optional[str] = None
-    is_active: Optional[bool] = None
+# # فرم ویرایش اطلاعات
+# class StudentUpdate(BaseModel):
+#     full_name: Optional[str] = None
+#     father_name: Optional[str] = None
+#     birth_date: Optional[str] = None
+#     phone: Optional[str] = None
+#     parent_phone: Optional[str] = None
+#     education: Optional[str] = None
+#     email: Optional[EmailStr] = None
+#     address: Optional[str] = None
+#     description: Optional[str] = None
+#     avatar: Optional[str] = None
+#     registered_by: Optional[str] = None
+#     is_active: Optional[bool] = None
 
-    @field_validator("phone", "parent_phone")
-    def validate_optional_phones(cls, v):
-        if v is not None:
-            clean = v.strip()
-            if not re.match(r"^09\d{9}$", clean):
-                raise ValueError("شماره تماس باید ۱۱ رقم و با 09 شروع شود")
-            return clean
-        return v
+#     @field_validator("phone", "parent_phone")
+#     def validate_optional_phones(cls, v):
+#         if v is not None:
+#             clean = v.strip()
+#             if not re.match(r"^09\d{9}$", clean):
+#                 raise ValueError("شماره تماس باید ۱۱ رقم و با 09 شروع شود")
+#             return clean
+#         return v
 
 
 # خروجی نهایی API
 class StudentResponse(StudentBase):
-    id: int
+    id: Union[str, int]
     is_active: bool
     created_at: datetime
 

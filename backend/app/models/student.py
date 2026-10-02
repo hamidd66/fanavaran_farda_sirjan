@@ -1,10 +1,8 @@
-# app/models/student.py
-from sqlalchemy import Column, String, Boolean, DateTime, Text, ForeignKey
+from sqlalchemy import Column, String, DateTime, Text, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.db.base import Base
 import uuid
-
 
 class Student(Base):
     __tablename__ = "students"
@@ -12,7 +10,6 @@ class Student(Base):
     id = Column(String, primary_key=True, index=True, default=lambda: uuid.uuid4().hex)
 
     user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, unique=True)
-    national_code = Column(String(10), unique=True, index=True, nullable=False)
 
     full_name = Column(String(100), nullable=False, index=True)
     father_name = Column(String(50), nullable=False)
@@ -27,8 +24,6 @@ class Student(Base):
     
     description = Column(Text, nullable=True)
     avatar = Column(String(255), nullable=True)
-    
-    is_active = Column(Boolean, default=True, nullable=False)
     
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     

@@ -1,39 +1,36 @@
-from sqlalchemy import Column, Integer, String, Boolean, Date, DateTime, Text
+from sqlalchemy import Column, String, DateTime, Text, ForeignKey
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.db.base import Base
-
+import uuid
 
 class Staff(Base):
     __tablename__ = "staff"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(String, primary_key=True, index=True, default=lambda: uuid.uuid4().hex)
 
-    full_name = Column(String(120), nullable=False)
-    father_name = Column(String(80), nullable=False)
+    user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, unique=True)
 
-    national_code = Column(String(10), unique=True, index=True, nullable=False)
-
-    birth_date = Column(Date, nullable=False)
+    full_name = Column(String(100), nullable=False, index=True)
+    father_name = Column(String(50), nullable=False)
 
     phone = Column(String(11), unique=True, index=True, nullable=False)
+    email = Column(String(100), nullable=False, unique=True)
 
-    education_degree = Column(String(80), nullable=False)
+    education = Column(String(50), nullable=False)
     job_title = Column(String(120), nullable=False)
+    specialties = Column(String(255), nullable=False)
 
-    specialties = Column(String(255), nullable=False)  # می‌تواند CSV باشد: "React, Python, ..."
     card_number = Column(String(16), unique=True, index=True, nullable=False)
-    sheba_number = Column(String(24), unique=True, index=True, nullable=False)  # طبق درخواست شما 24 رقم
+    sheba_number = Column(String(24), unique=True, index=True, nullable=False)
 
-    address = Column(String(300), nullable=False)
+    birth_date = Column(String(10), nullable=False)
+    address = Column(Text, nullable=False)
 
-    description = Column(Text, nullable=True)  # تنها فیلد اختیاری
-
-    photo = Column(String(500), nullable=False)  # مسیر/URL عکس
-
-    is_active = Column(Boolean, nullable=False, default=True)
+    description = Column(Text, nullable=True)
+    avatar = Column(String(255), nullable=True)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-    created_by = Column(String(120), nullable=False)
 
-    is_deleted = Column(Boolean, nullable=False, default=False, index=True)
-    deleted_at = Column(DateTime(timezone=True), nullable=True)
+    user = relationship("User", back_populates="staff")
+

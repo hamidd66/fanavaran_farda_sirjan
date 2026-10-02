@@ -27,7 +27,7 @@ def create_refresh_token(data: dict):
     to_encode = {
         "sub": str(data["sub"]),
         "role": data["role"],
-        # "token_version": data["token_version"],
+        "token_version": data["token_version"],
         "type": "refresh",
         "exp": expire,
     }
@@ -44,3 +44,18 @@ def verify_token(token: str):
         return jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])
     except JWTError:
         return None
+
+
+def generate_access_token(user):
+    return create_access_token({
+        "sub": user.id,
+        "role": user.role.value,
+        "token_version": user.token_version,
+    })
+
+def generate_refresh_token(user):
+    return create_refresh_token({
+        "sub": user.id,
+        "role": user.role.value,
+        "token_version": user.token_version,
+    })

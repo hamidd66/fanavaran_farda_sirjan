@@ -12,15 +12,15 @@ class User(Base):
     id = Column(String, primary_key=True, index=True, default=lambda: uuid.uuid4().hex)
 
     national_code = Column(String(10), unique=True, index=True, nullable=False)
-    full_name = Column(String(120), nullable=False)
 
     role = Column(Enum(UserRole), nullable=False)
 
     password = Column(String(255), nullable=False)
     token_version = Column(Integer, nullable=False)
-    is_active = Column(Boolean, default=True, nullable=False)
+    is_active = Column(Boolean, nullable=False)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     last_login = Column(DateTime(timezone=True), nullable=True)
 
-    student = relationship("Student", back_populates="user", uselist=False)
+    student = relationship("Student", back_populates="user", cascade="all, delete-orphan", uselist=False)
+    staff = relationship("Staff", back_populates="user", cascade="all, delete-orphan", uselist=False)

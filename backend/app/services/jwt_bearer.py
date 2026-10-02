@@ -42,24 +42,19 @@ def get_optional_payload(payload: dict | None = Depends(JWTBearer(auto_error=Fal
 def _validate_user(payload: dict | None, db: Session) -> bool:
     if payload is None: return False
 
-    # دریافت User ID از JWT
     user_id = payload.get("sub")
     if user_id is None: return False
 
-    # دریافت Token Version از JWT
     token_version = payload.get("token_version")
     if token_version is None: return False
 
-    # پیدا کردن User
     user = db.query(User).filter(
         User.id == user_id
     ).first()
     if user is None: return False
 
-    # بررسی فعال بودن حساب
     if not user.is_active: return False
 
-    # بررسی معتبر بودن نسخه Token
     if user.token_version != token_version: return False
 
     return True

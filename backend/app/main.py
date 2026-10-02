@@ -7,7 +7,7 @@
 
 
 from fastapi import FastAPI, HTTPException
-# from fastapi.exceptions import RequestValidationError
+from fastapi.exceptions import RequestValidationError
 # from fastapi.staticfiles import StaticFiles
 # from contextlib import asynccontextmanager
 # import asyncio
@@ -17,7 +17,7 @@ from .db.database import engine
 from .db.base import Base
 # from .db.session import SessionLocal
 # from .config.settings import settings
-# from .middleware.exception_handler import http_exception_handler, general_exception_handler, validation_exception_handler
+from .middleware.exception_handler import http_exception_handler, general_exception_handler, validation_exception_handler
 # from .middleware.cors import setup_cors
 # from .utils.get_site_info import get_settings
 # from .config import logging_config
@@ -89,15 +89,15 @@ from app.models import assignment_feedback
 Base.metadata.create_all(bind=engine)
 
 # ۳. ایمپورت روترها
-from app.routers import student, staff, user, category ,course ,classroom ,enrollment ,course_content ,assignment ,course_faq ,course_topic ,feedback ,teacher_evaluation ,attendance ,tuition ,payroll ,expense ,project_income ,project_expense ,suggestion ,poll_question ,poll_response ,session_grade ,term_grade ,competition ,competition_registration ,competition_result ,student_assignment_upload ,assignment_feedback ,dashboard
+from app.routers import user, category ,course ,classroom ,enrollment ,course_content ,assignment ,course_faq ,course_topic ,feedback ,teacher_evaluation ,attendance ,tuition ,payroll ,expense ,project_income ,project_expense ,suggestion ,poll_question ,poll_response ,session_grade ,term_grade ,competition ,competition_registration ,competition_result ,student_assignment_upload ,assignment_feedback ,dashboard
 
 # ۴. ساخت نمونه FastAPI (این خط حتماً باید قبل از include_router باشد)
 app = FastAPI(title="Fanavaran farda")
 
 # ۵. اضافه کردن روترها به app
 app.include_router(user.router)
-app.include_router(student.router)
-app.include_router(staff.router)
+# app.include_router(student.router)
+# app.include_router(staff.router)
 app.include_router(category.router) 
 app.include_router(course.router)
 app.include_router(classroom.router)
@@ -134,6 +134,9 @@ app.include_router(dashboard.router)
 
 
 
+app.add_exception_handler(HTTPException, http_exception_handler)
+app.add_exception_handler(Exception, general_exception_handler)
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
 
 @app.get("/")
 def root():
