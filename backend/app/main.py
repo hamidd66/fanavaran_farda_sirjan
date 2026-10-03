@@ -47,7 +47,7 @@ from .middleware.exception_handler import http_exception_handler, general_except
 from app.models.student import Student
 from app.models.staff import Staff
 from app.models.user import User
-from app.models.category import CourseCategory
+from app.models.course_category import CourseCategory
 from app.models.course import Course
 from app.models.classroom import ClassRoom
 from app.models.enrollment import Enrollment
@@ -89,7 +89,7 @@ from app.models import assignment_feedback
 Base.metadata.create_all(bind=engine)
 
 # ۳. ایمپورت روترها
-from app.routers import user, category ,course ,classroom ,enrollment ,course_content ,assignment ,course_faq ,course_topic ,feedback ,teacher_evaluation ,attendance ,tuition ,payroll ,expense ,project_income ,project_expense ,suggestion ,poll_question ,poll_response ,session_grade ,term_grade ,competition ,competition_registration ,competition_result ,student_assignment_upload ,assignment_feedback ,dashboard
+from app.routers import course_category, user, course ,classroom ,enrollment ,course_content ,assignment ,course_faq ,course_topic ,feedback ,teacher_evaluation ,attendance ,tuition ,payroll ,expense ,project_income ,project_expense ,suggestion ,poll_question ,poll_response ,session_grade ,term_grade ,competition ,competition_registration ,competition_result ,student_assignment_upload ,assignment_feedback ,dashboard
 
 # ۴. ساخت نمونه FastAPI (این خط حتماً باید قبل از include_router باشد)
 app = FastAPI(title="Fanavaran farda")
@@ -98,7 +98,7 @@ app = FastAPI(title="Fanavaran farda")
 app.include_router(user.router)
 # app.include_router(student.router)
 # app.include_router(staff.router)
-app.include_router(category.router) 
+app.include_router(course_category.router) 
 app.include_router(course.router)
 app.include_router(classroom.router)
 app.include_router(enrollment.router)

@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import datetime
-from app.schemas.category import CourseCategoryResponse
+from app.schemas.course_category import CourseCategoryResponse
 
 # فیلدهای پایه و اجباری
 class CourseBase(BaseModel):

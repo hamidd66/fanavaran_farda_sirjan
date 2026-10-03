@@ -5,7 +5,7 @@ from typing import List, Optional
 
 from app.db.session import get_db
 from app.models.course import Course
-from app.models.category import CourseCategory
+from app.models.course_category import CourseCategory
 from app.schemas.course import (
     CourseCreate,
     CourseUpdate,
