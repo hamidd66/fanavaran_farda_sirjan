@@ -1,8 +1,9 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Enum
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.db.base import Base
 import uuid
+from app.enums.course import ContentType
 
 
 class CourseContent(Base):
@@ -18,7 +19,7 @@ class CourseContent(Base):
 
     session_number = Column(Integer, nullable=False)
     
-    content_type = Column(String(50), nullable=False)
+    content_type = Column(Enum(ContentType), nullable=False)
     file = Column(String(500), nullable=False)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)

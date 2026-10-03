@@ -9,13 +9,13 @@ from app.db.session import get_db
 from app.services.jwt_bearer import get_payload
 from app.middleware.exception_handler import response_handler
 from app.utils.delete_file import delete_file
+from app.repositories.user_repo import get_user_data
 
 from app.models.course import Course
 from app.models.course_category import CourseCategory
 from app.models.user import User
 from app.schemas.course import CourseCreate, CourseUpdate, CourseOut
 from app.enums.user import UserRole
-from app.repositories.user_repo import get_user_data
 from app.enums.course import CourseSort
 
 

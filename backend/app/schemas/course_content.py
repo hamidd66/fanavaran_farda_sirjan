@@ -1,8 +1,64 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
 from datetime import datetime
+from app.enums.course import ContentType
 
 from app.schemas.course import CourseResponse
+
+
+
+class CourseContentCreate(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    title: str = Field(..., min_length=3, max_length=200)
+    description: Optional[str] = Field(None, max_length=5000)
+
+    session_number: int = Field(..., ge=1)
+
+    content_type: ContentType
+    file: str = Field(..., max_length=500, pattern=r"^/media/uploads/courses/contents/[A-Za-z0-9_\-./]+\.(mp4|pdf|docx|zip|mp3|txt|jpg|jpeg|png|webp)$")
+
+
+class CourseContentUpdate(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    title: Optional[str] = Field(None, min_length=3, max_length=200)
+    description: Optional[str] = Field(None, max_length=5000)
+
+    session_number: Optional[int] = Field(None, ge=1)
+
+    content_type: Optional[ContentType] = None
+    file: Optional[str] = Field(None, max_length=500, pattern=r"^/media/uploads/courses/contents/[A-Za-z0-9_\-./]+\.(mp4|pdf|docx|zip|mp3|txt|jpg|jpeg|png|webp)$")
+
+
+class StaffBrief(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: str
+    full_name: str
+
+
+class CourseContentOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    title: str
+    description: Optional[str] = None
+    session_number: int
+    content_type: str
+    file: str
+    created_at: datetime
+
+    by_staff: Optional[StaffBrief] = Field(None)
+
+
+
+
+
+
+
+
+
+# -----------
 
 
 class CourseContentBase(BaseModel):
@@ -15,14 +71,14 @@ class CourseContentBase(BaseModel):
     created_by: str = Field(..., min_length=2, max_length=100, description="نام یا کدملی ثبت‌کننده")
 
 
-# اسکیمای ساخت محتوای جدید
-class CourseContentCreate(CourseContentBase):
-    pass
+# # اسکیمای ساخت محتوای جدید
+# class CourseContentCreate(CourseContentBase):
+#     pass
 
 
-# اسکیمای ویرایش کامل (PUT)
-class CourseContentUpdate(CourseContentBase):
-    pass
+# # اسکیمای ویرایش کامل (PUT)
+# class CourseContentUpdate(CourseContentBase):
+#     pass
 
 
 # اسکیمای ویرایش جزئی (PATCH)

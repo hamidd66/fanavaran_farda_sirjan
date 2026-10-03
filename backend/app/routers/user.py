@@ -13,6 +13,7 @@ from app.services.tokens import verify_token, generate_access_token, generate_re
 from app.middleware.exception_handler import response_handler
 from app.utils.hashing import hash_password, verify_password
 from app.utils.delete_file import delete_file
+from app.repositories.user_repo import get_user_data
 
 from app.models.user import User
 from app.models.staff import Staff
@@ -21,7 +22,6 @@ from app.schemas.user import UserCreate, UserLogin, UserUpdate, ToggleActiveStat
 from app.schemas.staff import StaffOut, StaffUpdate, StaffCreate
 from app.schemas.student import StudentOut, StudentUpdate, StudentCreate
 from app.enums.user import UserRole, UserSort
-from app.repositories.user_repo import get_user_data
 
 
 router = APIRouter(prefix="/user", tags=["Users"])

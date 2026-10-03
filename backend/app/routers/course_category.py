@@ -17,7 +17,7 @@ from app.enums.user import UserRole
 from app.enums.course import CategorySort
 
 
-router = APIRouter(prefix="/categories", tags=["Course Categories"])
+router = APIRouter(prefix="/course-categories", tags=["Course Categories"])
 
 
 @router.post("/")
