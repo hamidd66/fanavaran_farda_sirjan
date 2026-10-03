@@ -1,36 +1,27 @@
 from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
-from datetime import datetime, timezone
+from sqlalchemy.sql import func
 from app.db.base import Base
+import uuid
+
 
 class CourseContent(Base):
     __tablename__ = "course_contents"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(String, primary_key=True, index=True, unique=True, default=lambda: uuid.uuid4().hex)
 
-    # ۱. آیدی دوره (کلید خارجی به جدول courses)
-    course_id = Column(Integer, ForeignKey("courses.id", ondelete="CASCADE"), nullable=False)
+    course_id = Column(String, ForeignKey("courses.id", ondelete="CASCADE"), nullable=False, index=True)
+    created_by = Column(String, ForeignKey("staff.id", ondelete="SET NULL"), nullable=True)
 
-    # ۲. شماره جلسه (مثلاً ۱، ۲، ۳ ...)
-    session_number = Column(Integer, nullable=False)
-
-    # ۳. نوع محتوا (مثلاً: ویدئو، جزوه، سورس کد، تمرین، آزمون)
-    content_type = Column(String(50), nullable=False)
-
-    # ۴. عنوان محتوا
     title = Column(String(200), nullable=False)
-
-    # ۵. فایل/لینک محتوا (مسیر فایل یا URL دانلود)
-    file_path = Column(String(500), nullable=False)
-
-    # ۶. توضیحات (تنها فیلد اختیاری)
     description = Column(Text, nullable=True)
 
-    # ۷. شخص ثبت‌کننده (کاربری که فایل/محتوا را آپلود کرده)
-    created_by = Column(String(100), nullable=False)
+    session_number = Column(Integer, nullable=False)
+    
+    content_type = Column(String(50), nullable=False)
+    file = Column(String(500), nullable=False)
 
-    # ۸. تاریخ و زمان ثبت رکورد (خودکار)
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
-    # رابطه با جدول دوره
-    course = relationship("Course")
+    course = relationship("Course", back_populates="contents")
+    staff = relationship("Staff", back_populates="courses_contents")

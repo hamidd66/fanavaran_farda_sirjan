@@ -9,7 +9,7 @@ import uuid
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(String, primary_key=True, index=True, default=lambda: uuid.uuid4().hex)
+    id = Column(String, primary_key=True, index=True, unique=True, default=lambda: uuid.uuid4().hex)
 
     national_code = Column(String(10), unique=True, index=True, nullable=False)
 
@@ -24,3 +24,5 @@ class User(Base):
 
     student = relationship("Student", back_populates="user", cascade="all, delete-orphan", uselist=False)
     staff = relationship("Staff", back_populates="user", cascade="all, delete-orphan", uselist=False)
+    course_faqs = relationship("CourseFAQ", back_populates="user")
+    

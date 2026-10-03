@@ -1,30 +1,24 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
+from sqlalchemy import Column, String, Text, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
-from datetime import datetime, timezone
+from sqlalchemy.sql import func
 from app.db.base import Base
+import uuid
+
 
 class CourseFAQ(Base):
     __tablename__ = "course_faqs"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(String, primary_key=True, index=True, unique=True, default=lambda: uuid.uuid4().hex)
 
-    # ۱. آیدی دوره (کلید خارجی به جدول courses)
-    course_id = Column(Integer, ForeignKey("courses.id", ondelete="CASCADE"), nullable=False)
+    course_id = Column(String, ForeignKey("courses.id", ondelete="CASCADE"), nullable=False, index=True)
+    sender_id = Column(String, ForeignKey("users.id", ondelete="SET NULL"), nullable=False)
+    parent_id = Column(String, ForeignKey("course_faqs.id", ondelete="CASCADE"), nullable=True)
 
-    # ۲. متن پرسش
-    question = Column(Text, nullable=False)
+    message = Column(Text, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
-    # ۳. متن پاسخ
-    answer = Column(Text, nullable=False)
+    course = relationship("Course", back_populates="faqs")
+    user = relationship("User", back_populates="course_faqs")
 
-    # ۴. تاریخ ثبت شمسی (فرمت 14xx/xx/xx)
-    submission_date = Column(String(10), nullable=False)
-
-    # ۵. شخص ثبت‌کننده
-    created_by = Column(String(100), nullable=False)
-
-    # ۶. زمان سیستمی ثبت رکورد
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
-
-    # رابطه با جدول دوره
-    course = relationship("Course")
+    parent = relationship("CourseFAQ", remote_side="CourseFAQ.id", back_populates="replies")
+    replies = relationship("CourseFAQ", back_populates="parent", cascade="all, delete-orphan")

@@ -1,51 +1,37 @@
-from sqlalchemy import Column, Integer, String, Text, Boolean, BigInteger, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Text, Boolean, BigInteger, DateTime, ForeignKey, JSON
+from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.orm import relationship
-from datetime import datetime, timezone
+from sqlalchemy.sql import func
 from app.db.base import Base
+import uuid
+
 
 class Course(Base):
     __tablename__ = "courses"
 
-    id = Column(Integer, primary_key=True, index=True)
-    
-    # ۱. آیدی دسته‌بندی دوره (کلید خارجی متصل به جدول course_categories)
-    category_id = Column(Integer, ForeignKey("course_categories.id", ondelete="RESTRICT"), nullable=False)
-    
-    # ۲. عنوان دوره
-    title = Column(String(200), nullable=False, index=True)
-    
-    # ۳. پیش‌نیازهای دوره
-    prerequisites = Column(String(300), nullable=False)
-    
-    # ۴. توضیح کوتاه
-    short_description = Column(String(500), nullable=False)
-    
-    # ۵. توضیح بلند
-    long_description = Column(Text, nullable=False)
-    
-    # ۶. شهریه به تومان (عددی - BigInteger برای مبالغ بزرگ)
-    tuition = Column(BigInteger, nullable=False)
-    
-    # ۷. تعداد جلسات (عددی)
-    sessions_count = Column(Integer, nullable=False)
-    
-    # ۸. ساعت دوره (مجموع ساعات آموزشی دوره - عددی)
-    total_hours = Column(Integer, nullable=False)
-    
-    # ۹. عکس دوره (آدرس تصویر)
-    image_url = Column(String(500), nullable=False)
-    
-    # ۱۰. محتوای آموزشی (دارد / ندارد)
-    has_learning_content = Column(Boolean, nullable=False, default=False)
-    
-    # ۱۱. گواهینامه (دارد / ندارد)
-    has_certificate = Column(Boolean, nullable=False, default=False)
-    
-    # ۱۲. توضیح کامل
-    full_description = Column(Text, nullable=False)
-    
-    # ۱۳. تاریخ ثبت دوره (خودکار بر اساس تاریخ و زمان جاری)
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    id = Column(String, primary_key=True, index=True, unique=True, default=lambda: uuid.uuid4().hex)
 
-    # ارتباط با دسته‌بندی برای واکشی اطلاعات دسته‌بندی به همراه دوره
-    category = relationship("CourseCategory")
+    category_id = Column(String, ForeignKey("course_categories.id", ondelete="RESTRICT"), nullable=False, index=True)
+    created_by = Column(String, ForeignKey("staff.id", ondelete="SET NULL"), nullable=True)
+
+    title = Column(String(200), nullable=False, index=True)
+    prerequisites = Column(String(300), nullable=False)
+
+    short_description = Column(String(500), nullable=False)
+    long_description = Column(Text, nullable=False)
+
+    tuition = Column(BigInteger, nullable=False)
+    has_certificate = Column(Boolean, default=False, nullable=False)
+
+    sessions_count = Column(Integer, nullable=False)
+    total_hours = Column(Integer, nullable=False)
+
+    image = Column(String(500), nullable=False)
+    outline = Column(MutableDict.as_mutable(JSON), nullable=False)
+
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    category = relationship("CourseCategory", back_populates="courses")
+    contents = relationship("CourseContent", back_populates="course", cascade="all, delete-orphan")
+    faqs = relationship("CourseFAQ", back_populates="course", cascade="all, delete-orphan")
+    staff = relationship("Staff", back_populates="courses")

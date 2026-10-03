@@ -7,7 +7,7 @@ import uuid
 class Student(Base):
     __tablename__ = "students"
 
-    id = Column(String, primary_key=True, index=True, default=lambda: uuid.uuid4().hex)
+    id = Column(String, primary_key=True, index=True, unique=True, default=lambda: uuid.uuid4().hex)
 
     user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, unique=True)
 

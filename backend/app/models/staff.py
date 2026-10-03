@@ -7,7 +7,7 @@ import uuid
 class Staff(Base):
     __tablename__ = "staff"
 
-    id = Column(String, primary_key=True, index=True, default=lambda: uuid.uuid4().hex)
+    id = Column(String, primary_key=True, index=True, unique=True, default=lambda: uuid.uuid4().hex)
 
     user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, unique=True)
 
@@ -33,4 +33,5 @@ class Staff(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     user = relationship("User", back_populates="staff")
-
+    courses = relationship("Course", back_populates="staff")
+    courses_contents = relationship("CourseContent", back_populates="staff")
