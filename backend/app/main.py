@@ -54,7 +54,6 @@ from app.models.enrollment import Enrollment
 from app.models.course_content import CourseContent
 from app.models.assignment import Assignment
 from app.models.course_faq import CourseFAQ
-from app.models.course_topic import CourseTopic
 from app.models.feedback import Feedback
 from app.models.teacher_evaluation import TeacherEvaluation
 from app.models.attendance import Attendance
@@ -89,7 +88,7 @@ from app.models import assignment_feedback
 Base.metadata.create_all(bind=engine)
 
 # ۳. ایمپورت روترها
-from app.routers import course_category, user, course ,classroom ,enrollment ,course_content ,assignment ,course_faq ,course_topic ,feedback ,teacher_evaluation ,attendance ,tuition ,payroll ,expense ,project_income ,project_expense ,suggestion ,poll_question ,poll_response ,session_grade ,term_grade ,competition ,competition_registration ,competition_result ,student_assignment_upload ,assignment_feedback ,dashboard
+from app.routers import course_category, user, course, classroom, enrollment, course_content, assignment, course_faq, feedback, teacher_evaluation, attendance, tuition, payroll, expense, project_income, project_expense, suggestion, poll_question, poll_response, session_grade, term_grade, competition, competition_registration, competition_result, student_assignment_upload, assignment_feedback, dashboard
 
 # ۴. ساخت نمونه FastAPI (این خط حتماً باید قبل از include_router باشد)
 app = FastAPI(title="Fanavaran farda")
@@ -102,7 +101,6 @@ app.include_router(course_category.router)
 app.include_router(course.router)
 app.include_router(course_content.router)
 app.include_router(course_faq.router)
-app.include_router(course_topic.router)
 app.include_router(classroom.router)
 app.include_router(enrollment.router)
 app.include_router(assignment.router)
