@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Text, DateTime, ForeignKey
+from sqlalchemy import Boolean, Column, String, Text, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.db.base import Base
@@ -15,6 +15,8 @@ class CourseFAQ(Base):
     parent_id = Column(String, ForeignKey("course_faqs.id", ondelete="CASCADE"), nullable=True)
 
     message = Column(Text, nullable=False)
+    is_approved = Column(Boolean, nullable=False, default=False)
+
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     course = relationship("Course", back_populates="faqs")
@@ -22,3 +24,13 @@ class CourseFAQ(Base):
 
     parent = relationship("CourseFAQ", remote_side="CourseFAQ.id", back_populates="replies")
     replies = relationship("CourseFAQ", back_populates="parent", cascade="all, delete-orphan")
+
+    @property
+    def sender(self):
+        profile = self.user.student or self.user.staff
+        return {
+            "id": profile.id,
+            "full_name": profile.full_name,
+            "avatar": getattr(profile, "avatar", None),
+            "role": self.user.role.value
+        }

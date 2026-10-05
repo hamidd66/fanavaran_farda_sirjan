@@ -1,9 +1,61 @@
-from pydantic import BaseModel, Field, field_validator
-from typing import Optional
+from pydantic import BaseModel, Field, ConfigDict, field_validator
+from typing import Optional, List
 from datetime import datetime
-import re
 
+import re
 from app.schemas.course import CourseResponse
+
+
+
+class CourseFAQCreate(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    message: str = Field(..., min_length=3, max_length=5000)
+    parent_id: Optional[str] = Field(None)
+
+
+class CourseFAQUpdate(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    message: str = Field(..., min_length=3, max_length=5000)
+
+
+class CourseFAQApprovalUpdate(BaseModel):
+    is_approved: bool
+
+
+class SenderOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    full_name: str
+    role: str
+    avatar: Optional[str] = None
+
+
+class CourseFAQOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    
+    id: str
+    course_id: str
+    parent_id: Optional[str] = None
+    message: str
+    is_approved: bool
+    sender: SenderOut
+    replies: List["CourseFAQOut"] = []
+    created_at: datetime
+
+
+# برای پشتیبانی از self-reference
+CourseFAQOut.model_rebuild()
+
+
+
+
+
+
+
+# -------------------------------
 
 # اعتبارسنجی تاریخ شمسی (1400/01/01 تا 1499/12/29)
 SHAMSI_DATE_REGEX = r"^14\d{2}/(0[1-9]|1[0-2])/(0[1-9]|[12]\d|3[01])$"
@@ -24,14 +76,14 @@ class CourseFAQBase(BaseModel):
         return v
 
 
-# اسکیمای ایجاد سوال متداول
-class CourseFAQCreate(CourseFAQBase):
-    pass
+# # اسکیمای ایجاد سوال متداول
+# class CourseFAQCreate(CourseFAQBase):
+#     pass
 
 
-# اسکیمای ویرایش کامل (PUT)
-class CourseFAQUpdate(CourseFAQBase):
-    pass
+# # اسکیمای ویرایش کامل (PUT)
+# class CourseFAQUpdate(CourseFAQBase):
+#     pass
 
 
 # اسکیمای ویرایش جزئی (PATCH)

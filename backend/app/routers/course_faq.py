@@ -1,122 +1,274 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
-from typing import List, Optional
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session, joinedload
+from typing import Optional
+import math
 
 from app.db.session import get_db
+from app.services.jwt_bearer import get_payload, get_optional_payload
+from app.middleware.exception_handler import response_handler
+
 from app.models.course_faq import CourseFAQ
 from app.models.course import Course
-from app.schemas.course_faq import (
-    CourseFAQCreate,
-    CourseFAQUpdate,
-    CourseFAQPatch,
-    CourseFAQResponse,
-)
-
-router = APIRouter(
-    prefix="/course-faqs",
-    tags=["Course FAQs"]
-)
+from app.models.user import User
+from app.schemas.course_faq import CourseFAQCreate, CourseFAQUpdate, CourseFAQOut, CourseFAQApprovalUpdate
+from app.enums.user import UserRole
+from app.enums.course import FaqSort
 
 
-# ۱. لیست سوالات متداول با قابلیت فیلتر براساس دوره
-@router.get("", response_model=List[CourseFAQResponse])
-def get_faqs(
-    course_id: Optional[int] = None,
+router = APIRouter(prefix="/course-faqs", tags=["Course FAQs"])
+
+
+@router.post("/{course_id}")
+def create_course_faq(
+    course_id: str,
+    data: CourseFAQCreate,
+    payload = Depends(get_payload),
     db: Session = Depends(get_db)
 ):
-    query = db.query(CourseFAQ)
-    if course_id:
-        query = query.filter(CourseFAQ.course_id == course_id)
+    try:
+        db_course = db.query(Course).filter(Course.id == course_id).first()
+        if not db_course:
+            raise HTTPException(status_code=404, detail="Course not found")
 
-    return query.order_by(CourseFAQ.id.asc()).all()
+        is_staff = payload.get("role") in {UserRole.admin.value, UserRole.teacher.value}
+        parent_id = data.parent_id or None
 
+        db_parent = None
+        if parent_id:
+            db_parent = db.query(CourseFAQ).filter(
+                CourseFAQ.id == parent_id,
+                CourseFAQ.course_id == course_id,
+            ).first()
+            if not db_parent:
+                raise HTTPException(status_code=404, detail="Parent FAQ not found in this course.")
 
-# ۲. دریافت یک سوال متداول با ID
-@router.get("/{faq_id}", response_model=CourseFAQResponse)
-def get_faq(faq_id: int, db: Session = Depends(get_db)):
-    faq = db.query(CourseFAQ).filter(CourseFAQ.id == faq_id).first()
-    if not faq:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="سوال متداول مورد نظر یافت نشد"
-        )
-    return faq
+            if not is_staff:
+                raise HTTPException(status_code=403, detail="Only staff can reply to FAQs.")
 
+            if db_parent.parent_id is not None:
+                raise HTTPException(status_code=400, detail="Cannot reply to a reply.")
 
-# ۳. ثبت سوال متداول جدید
-@router.post("", response_model=CourseFAQResponse, status_code=status.HTTP_201_CREATED)
-def create_faq(payload: CourseFAQCreate, db: Session = Depends(get_db)):
-    # بررسی وجود دوره
-    course = db.query(Course).filter(Course.id == payload.course_id).first()
-    if not course:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="دوره انتخاب‌شده وجود ندارد"
-        )
+            if db_parent.user.role != UserRole.user:
+                raise HTTPException(status_code=400, detail="Only student questions can receive replies.")
 
-    new_faq = CourseFAQ(**payload.model_dump())
-    db.add(new_faq)
-    db.commit()
-    db.refresh(new_faq)
-    return new_faq
+            if not db_parent.is_approved:
+                raise HTTPException(status_code=400, detail="Only approved questions can receive replies.")
 
+            if db_parent.replies:
+                raise HTTPException(status_code=409, detail="This question already has a reply.")
 
-# ۴. ویرایش کامل سوال متداول (PUT)
-@router.put("/{faq_id}", response_model=CourseFAQResponse)
-def update_faq(faq_id: int, payload: CourseFAQUpdate, db: Session = Depends(get_db)):
-    faq = db.query(CourseFAQ).filter(CourseFAQ.id == faq_id).first()
-    if not faq:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="سوال متداول مورد نظر یافت نشد"
+            if db_parent.sender_id == payload.get("sub"):
+                raise HTTPException(status_code=400, detail="You cannot reply to your own question.")
+            
+        db_faq = CourseFAQ(
+            message=data.message,
+            parent_id=parent_id,
+            course_id=course_id,
+            sender_id=payload.get("sub"),
+            is_approved=is_staff,
         )
 
-    if payload.course_id != faq.course_id:
-        if not db.query(Course).filter(Course.id == payload.course_id).first():
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="دوره انتخاب‌شده وجود ندارد")
+        db.add(db_faq)
+        db.commit()
+        db.refresh(db_faq)
 
-    for key, value in payload.model_dump().items():
-        setattr(faq, key, value)
+        return response_handler(
+            status=True,
+            message="FAQ created successfully",
+            data=CourseFAQOut.model_validate(db_faq).model_dump(),
+            status_code=201
+        )
+    except HTTPException as http_error:
+        db.rollback()
+        raise http_error
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=409, detail="FAQ data conflicts with existing records")
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to create FAQ")
 
-    db.commit()
-    db.refresh(faq)
-    return faq
 
+@router.get("/{course_id}")
+def get_course_faqs(
+    course_id: str,
+    db: Session = Depends(get_db),
+    payload = Depends(get_optional_payload),
+    page: int = Query(1, ge=1),
+    limit: int = Query(20, ge=1, le=100),
+    is_approved: Optional[bool] = Query(None),
+    sort: Optional[FaqSort] = Query(None),
+):
+    try:
+        db_course = db.query(Course).filter(Course.id == course_id).first()
+        if not db_course:
+            raise HTTPException(status_code=404, detail="Course not found")
 
-# ۵. ویرایش جزئی سوال متداول (PATCH)
-@router.patch("/{faq_id}", response_model=CourseFAQResponse)
-def patch_faq(faq_id: int, payload: CourseFAQPatch, db: Session = Depends(get_db)):
-    faq = db.query(CourseFAQ).filter(CourseFAQ.id == faq_id).first()
-    if not faq:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="سوال متداول مورد نظر یافت نشد"
+        user_role = payload.get("role") if payload else None
+        is_staff = user_role in {UserRole.admin.value, UserRole.teacher.value}
+
+        query = db.query(CourseFAQ).options(
+            joinedload(CourseFAQ.user).joinedload(User.student),
+            joinedload(CourseFAQ.user).joinedload(User.staff),
+            joinedload(CourseFAQ.replies).joinedload(CourseFAQ.user).joinedload(User.student),
+            joinedload(CourseFAQ.replies).joinedload(CourseFAQ.user).joinedload(User.staff),
+        ).filter(
+            CourseFAQ.course_id == course_id,
+            CourseFAQ.parent_id == None
         )
 
-    update_data = payload.model_dump(exclude_unset=True)
+        if is_approved is not None:
+            query = query.filter(CourseFAQ.is_approved == is_approved)
 
-    if "course_id" in update_data and update_data["course_id"] != faq.course_id:
-        if not db.query(Course).filter(Course.id == update_data["course_id"]).first():
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="دوره انتخاب‌شده وجود ندارد")
+        if not is_staff:
+            query = query.filter(CourseFAQ.is_approved == True)
 
-    for key, value in update_data.items():
-        setattr(faq, key, value)
+        if sort == FaqSort.oldest:
+            query = query.order_by(CourseFAQ.created_at.asc())
+        elif sort == FaqSort.newest:
+            query = query.order_by(CourseFAQ.created_at.desc())
 
-    db.commit()
-    db.refresh(faq)
-    return faq
+        total_count = query.count()
+        db_faqs = query.offset((page - 1) * limit).limit(limit).all()
 
+        faqs_data = []
+        for faq in db_faqs:
+            faq_obj = CourseFAQOut.model_validate(faq)
+            if not is_staff:
+                faq_obj.replies = [r for r in faq_obj.replies if r.is_approved]
+            faqs_data.append(faq_obj.model_dump())
 
-# ۶. حذف سوال متداول (DELETE)
-@router.delete("/{faq_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_faq(faq_id: int, db: Session = Depends(get_db)):
-    faq = db.query(CourseFAQ).filter(CourseFAQ.id == faq_id).first()
-    if not faq:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="سوال متداول مورد نظر یافت نشد"
+        return response_handler(
+            status=True,
+            message="Course FAQs retrieved successfully",
+            data={
+                "faqs": faqs_data,
+                "page": page,
+                "limit": limit,
+                "total": total_count,
+                "pages": math.ceil(total_count / limit)
+            },
+            status_code=200
         )
+    except HTTPException as http_error:
+        raise http_error
+    except Exception:
+        raise HTTPException(status_code=500, detail="Failed to fetch course FAQs")
 
-    db.delete(faq)
-    db.commit()
-    return None
+
+@router.patch("/{faq_id}")
+def update_course_faq_message(
+    faq_id: str,
+    data: CourseFAQUpdate,
+    payload = Depends(get_payload),
+    db: Session = Depends(get_db)
+):
+    try:
+        db_faq = db.query(CourseFAQ).filter(CourseFAQ.id == faq_id).first()
+        
+        if not db_faq:
+            raise HTTPException(status_code=404, detail="FAQ not found in this course.")
+
+        if db_faq.sender_id != payload.get("sub"):
+            raise HTTPException(status_code=403, detail="You can only edit your own FAQs.")
+
+        if db_faq.replies and len(db_faq.replies) > 0:
+            raise HTTPException(status_code=400, detail="Cannot edit FAQ that has received replies.")
+
+        db_faq.message = data.message
+
+        is_staff = payload.get("role") in {UserRole.admin.value, UserRole.teacher.value}
+        if not is_staff:
+            db_faq.is_approved = False
+
+        db.commit()
+        db.refresh(db_faq)
+
+        return response_handler(
+            status=True,
+            message="FAQ message updated successfully",
+            data=CourseFAQOut.model_validate(db_faq).model_dump(),
+            status_code=200
+        )
+    except HTTPException as http_error:
+        db.rollback()
+        raise http_error
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to update FAQ message")
+
+
+@router.patch("/approve/{faq_id}")
+def approve_course_faq(
+    faq_id: str,
+    data: CourseFAQApprovalUpdate,
+    payload = Depends(get_payload),
+    db: Session = Depends(get_db)
+):
+    try:
+        if payload.get("role") not in {UserRole.admin.value, UserRole.teacher.value}:
+            raise HTTPException(status_code=403, detail="Access denied")
+
+        db_faq = db.query(CourseFAQ).filter(CourseFAQ.id == faq_id).first()
+
+        if not db_faq:
+            raise HTTPException(status_code=404, detail="FAQ not found in this course")
+
+        if db_faq.is_approved == data.is_approved:
+            raise HTTPException(status_code=409, detail=f"FAQ is already {'approved' if data.is_approved else 'unapproved'}")
+
+        db_faq.is_approved = data.is_approved
+
+        db.commit()
+        db.refresh(db_faq)
+
+        return response_handler(
+            status=True,
+            message=f"FAQ {'approved' if data.is_approved else 'unapproved'} successfully",
+            data=CourseFAQOut.model_validate(db_faq).model_dump(),
+            status_code=200
+        )
+    except HTTPException as http_error:
+        db.rollback()
+        raise http_error
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to update FAQ approval status")
+
+
+@router.delete("/{faq_id}")
+def delete_course_faq(
+    faq_id: str,
+    payload = Depends(get_payload),
+    db: Session = Depends(get_db)
+):
+    try:
+        if payload.get("role") != UserRole.admin.value:
+            raise HTTPException(status_code=403, detail="Access denied")
+        
+        db_faq = db.query(CourseFAQ).filter(CourseFAQ.id == faq_id).first()
+
+        if not db_faq:
+            raise HTTPException(status_code=404, detail="FAQ not found in this course")
+
+        replies_count = len(db_faq.replies) if db_faq.replies else 0
+
+        db.delete(db_faq)
+        db.commit()
+
+        return response_handler(
+            status=True,
+            message="FAQ deleted successfully",
+            data={
+                "id": faq_id,
+                "replies_deleted": replies_count
+            },
+            status_code=200
+        )
+    except HTTPException as http_error:
+        db.rollback()
+        raise http_error
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to delete FAQ")

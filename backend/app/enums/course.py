@@ -31,3 +31,7 @@ class ContentSort(enum.Enum):
     session_desc = "session_desc"
     newest = "newest"
     oldest = "oldest"
+
+class FaqSort(enum.Enum):
+    newest = "newest"
+    oldest = "oldest"
