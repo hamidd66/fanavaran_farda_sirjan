@@ -39,6 +39,6 @@ class TeacherEvaluation(Base):
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
 
     # روابط دیتابیسی
-    classroom = relationship("ClassRoom")
+    classroom = relationship("Classroom")
     teacher = relationship("Staff")
     student = relationship("Student")

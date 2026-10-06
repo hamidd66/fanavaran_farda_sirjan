@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from app.db.session import get_db
 from app.models.session_grade import SessionGrade
-from app.models.classroom import ClassRoom
+from app.models.classroom import Classroom
 from app.models.student import Student
 from app.schemas.session_grade import (
     SessionGradeCreate,
@@ -58,7 +58,7 @@ def create_session_grade(
     db: Session = Depends(get_db)
 ):
     # اعتبارسنجی وجود کلاس
-    if not db.query(ClassRoom).filter(ClassRoom.id == payload.classroom_id).first():
+    if not db.query(Classroom).filter(Classroom.id == payload.classroom_id).first():
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="کلاس مورد نظر یافت نشد")
 
     # اعتبارسنجی وجود هنرجو
@@ -83,7 +83,7 @@ def update_session_grade(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="نمره جلسه یافت نشد")
 
     if payload.classroom_id != record.classroom_id:
-        if not db.query(ClassRoom).filter(ClassRoom.id == payload.classroom_id).first():
+        if not db.query(Classroom).filter(Classroom.id == payload.classroom_id).first():
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="کلاس مورد نظر یافت نشد")
 
     if payload.student_id != record.student_id:
@@ -111,7 +111,7 @@ def patch_session_grade(
     data = payload.model_dump(exclude_unset=True)
 
     if "classroom_id" in data and data["classroom_id"] != record.classroom_id:
-        if not db.query(ClassRoom).filter(ClassRoom.id == data["classroom_id"]).first():
+        if not db.query(Classroom).filter(Classroom.id == data["classroom_id"]).first():
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="کلاس مورد نظر یافت نشد")
 
     if "student_id" in data and data["student_id"] != record.student_id:

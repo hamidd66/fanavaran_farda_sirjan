@@ -41,5 +41,5 @@ class Tuition(Base):
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
 
     # روابط (Relationships)
-    classroom = relationship("ClassRoom")
+    classroom = relationship("Classroom")
     student = relationship("Student")

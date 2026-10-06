@@ -1,10 +1,114 @@
-from pydantic import BaseModel, Field, field_validator
-from typing import Optional, Literal
-from datetime import datetime
+from pydantic import BaseModel, Field, ConfigDict, field_validator
+from typing import Optional, List, Literal
+from datetime import datetime, date, time
 import re
 
 from app.schemas.course import CourseResponse
 from app.schemas.staff import StaffOut
+from app.enums.classroom import HoldingType
+
+
+class ScheduleItem(BaseModel):
+    day: str = Field(..., min_length=1, max_length=20)
+    start_time: time
+    end_time: time
+
+
+class ClassroomCreate(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    teacher_id: str
+    
+    title: str = Field(..., min_length=3, max_length=200)
+    description: Optional[str] = Field(None, max_length=5000)
+    holding_type: HoldingType
+    class_link: str = Field(..., max_length=500)
+
+    capacity: int = Field(..., ge=1, le=1000)
+
+    schedule: List[ScheduleItem] = Field(..., min_length=1)
+
+    start_date: date
+    end_date: date
+
+
+class ClassroomUpdate(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    teacher_id: Optional[str] = None
+    course_id: Optional[str] = None
+
+    title: Optional[str] = Field(None, min_length=3, max_length=200)
+    description: Optional[str] = Field(None, max_length=5000)
+    holding_type: Optional[HoldingType] = None
+    class_link: Optional[str] = Field(None, max_length=500)
+    
+    capacity: Optional[int] = Field(None, ge=1, le=1000)
+
+    schedule: Optional[List[ScheduleItem]] = Field(None, min_length=1)
+    
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
+
+
+class CourseBrief(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    title: str
+    image: str
+
+
+class TeacherBrief(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    full_name: str
+    job_title: Optional[str] = None
+    avatar: Optional[str] = None
+
+
+class ClassroomOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    course_id: str
+    teacher_id: str
+
+    title: str
+    description: Optional[str] = None
+    holding_type: HoldingType
+    class_link: str
+
+    capacity: int
+    tuition: int
+    sessions_count: int
+    duration_hours: int
+
+    schedule: List[ScheduleItem]
+
+    start_date: date
+    end_date: date
+    created_at: datetime
+
+    course: Optional[CourseBrief] = None
+    teacher: Optional[TeacherBrief] = None
+    enrolled_count: int = 0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# ---------------------------------------------------------
 
 # الگوی اعتبارسنجی تاریخ شمسی: 1400/01/01 تا 1499/12/29
 SHAMSI_DATE_REGEX = r"^14\d{2}/(0[1-9]|1[0-2])/(0[1-9]|[12]\d|3[01])$"
@@ -13,11 +117,11 @@ SHAMSI_DATE_REGEX = r"^14\d{2}/(0[1-9]|1[0-2])/(0[1-9]|[12]\d|3[01])$"
 TIME_REGEX = r"^([01]\d|2[0-3]):([0-5]\d)$"
 
 
-class ClassRoomBase(BaseModel):
+class ClassroomBase(BaseModel):
     title: str = Field(..., min_length=3, max_length=200, description="عنوان کلاس")
     course_id: int = Field(..., gt=0, description="شناسه دوره")
     teacher_id: int = Field(..., gt=0, description="شناسه دبیر")
-    holding_type: Literal["حضوری", "آنلاین", "آفلاین"] = Field(..., description="نوع برگزاری")
+    holding_type: HoldingType = Field(..., description="نوع برگزاری")
     class_link: str = Field(..., min_length=3, max_length=500, description="لینک کلاس یا آدرس سامانه")
     description: Optional[str] = Field(None, description="توضیحات کلاس (اختیاری)")
     start_date: str = Field(..., description="تاریخ شروع شمسی با فرمت 1403/07/01")
@@ -64,18 +168,18 @@ class ClassRoomBase(BaseModel):
         return v
 
 
-# اسکیمای ثبت کلاس جدید
-class ClassRoomCreate(ClassRoomBase):
-    pass
+# # اسکیمای ثبت کلاس جدید
+# class ClassroomCreate(ClassroomBase):
+#     pass
 
 
-# اسکیمای ویرایش کامل (PUT)
-class ClassRoomUpdate(ClassRoomBase):
-    pass
+# # اسکیمای ویرایش کامل (PUT)
+# class ClassroomUpdate(ClassroomBase):
+#     pass
 
 
 # اسکیمای ویرایش جزئی (PATCH)
-class ClassRoomPatch(BaseModel):
+class ClassroomPatch(BaseModel):
     title: Optional[str] = Field(None, min_length=3, max_length=200)
     course_id: Optional[int] = Field(None, gt=0)
     teacher_id: Optional[int] = Field(None, gt=0)
@@ -123,7 +227,7 @@ class ClassRoomPatch(BaseModel):
 
 
 # اسکیمای خروجی با جزئیات کامل دوره و دبیر
-class ClassRoomResponse(ClassRoomBase):
+class ClassroomResponse(ClassroomBase):
     id: int
     created_at: datetime
     course: Optional[CourseResponse] = None

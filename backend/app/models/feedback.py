@@ -39,5 +39,5 @@ class Feedback(Base):
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
 
     # روابط با جدول‌های مرتبط
-    classroom = relationship("ClassRoom")
+    classroom = relationship("Classroom")
     student = relationship("Student")

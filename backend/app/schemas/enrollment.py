@@ -5,7 +5,7 @@ import re
 
 from app.schemas.student import StudentResponse
 from app.schemas.course import CourseResponse
-from app.schemas.classroom import ClassRoomResponse
+from app.schemas.classroom import ClassroomResponse
 from app.schemas.staff import StaffOut
 
 # الگوی Regex تاریخ شمسی (1400/01/01 تا 1499/12/29)
@@ -88,7 +88,7 @@ class EnrollmentResponse(EnrollmentBase):
     created_at: datetime
     student: Optional[StudentResponse] = None
     course: Optional[CourseResponse] = None
-    classroom: Optional[ClassRoomResponse] = None
+    Classroom: Optional[ClassroomResponse] = None
     staff: Optional[StaffOut] = None
 
     class Config:

@@ -4,6 +4,7 @@ from pydantic import BaseModel, EmailStr, Field, ConfigDict, field_validator
 import re
 from app.schemas.user import UserOut
 
+from app.enums.user import ReferralSources
 from app.enums.user import UserRole
 from app.core.validators import (
     validate_iran_national_code,
@@ -34,6 +35,8 @@ class StaffCreate(BaseModel):
     description: str | None = Field(None)
     avatar: str | None = Field(None, pattern=r"^/media/uploads/profile/[A-Za-z0-9_\-./]+\.(jpg|jpeg|png|webp)$")
 
+    referral_source: ReferralSources
+
 
 
 class StaffOut(BaseModel):
@@ -59,6 +62,8 @@ class StaffOut(BaseModel):
     
     description: str | None = None
     avatar: str | None = None
+
+    referral_source: ReferralSources
 
     created_at: datetime
 
@@ -87,6 +92,7 @@ class StaffUpdate(BaseModel):
     description: Optional[str] = None
     avatar: Optional[str] = Field(None, pattern=r"^/media/uploads/profile/[A-Za-z0-9_\-./]+\.(jpg|jpeg|png|webp)$")
 
+    referral_source: Optional[ReferralSources] = None
 
 
 

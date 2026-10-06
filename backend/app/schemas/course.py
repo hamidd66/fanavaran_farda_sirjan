@@ -25,7 +25,7 @@ class CourseCreate(BaseModel):
     has_certificate: bool = Field(False)
 
     sessions_count: int = Field(..., ge=1)
-    total_hours: int = Field(..., ge=1)
+    duration_hours: int = Field(..., ge=1)
 
     image: str = Field(..., max_length=500, pattern=r"^/media/uploads/courses/[A-Za-z0-9_\-./]+\.(jpg|jpeg|png|webp)$")
     outline: List[OutlineItem] = Field(..., min_length=1)
@@ -46,7 +46,7 @@ class CourseUpdate(BaseModel):
     has_certificate: Optional[bool] = None
 
     sessions_count: Optional[int] = Field(None, ge=1)
-    total_hours: Optional[int] = Field(None, ge=1)
+    duration_hours: Optional[int] = Field(None, ge=1)
 
     image: Optional[str] = Field(None, max_length=500, pattern=r"^/media/uploads/courses/[A-Za-z0-9_\-./]+\.(jpg|jpeg|png|webp)$")
     outline: Optional[List[OutlineItem]] = Field(None, min_length=1)
@@ -76,7 +76,7 @@ class CourseOut(BaseModel):
     tuition: int
     has_certificate: bool
     sessions_count: int
-    total_hours: int
+    duration_hours: int
     image: str
     outline: list
     created_at: datetime
@@ -107,7 +107,7 @@ class CourseBase(BaseModel):
     long_description: str = Field(..., min_length=10, description="توضیح بلند")
     tuition: int = Field(..., ge=0, description="شهریه به تومان (عدد نامنفی)")
     sessions_count: int = Field(..., gt=0, description="تعداد جلسات (حداقل ۱ جلسه)")
-    total_hours: int = Field(..., gt=0, description="مجموع ساعت دوره (حداقل ۱ ساعت)")
+    duration_hours: int = Field(..., gt=0, description="مجموع ساعت دوره (حداقل ۱ ساعت)")
     image_url: str = Field(..., min_length=3, max_length=500, description="آدرس تصویر دوره")
     has_learning_content: bool = Field(..., description="محتوای آموزشی دارد / ندارد")
     has_certificate: bool = Field(..., description="گواهینامه دارد / ندارد")
@@ -133,7 +133,7 @@ class CoursePatch(BaseModel):
     long_description: Optional[str] = Field(None, min_length=10)
     tuition: Optional[int] = Field(None, ge=0)
     sessions_count: Optional[int] = Field(None, gt=0)
-    total_hours: Optional[int] = Field(None, gt=0)
+    duration_hours: Optional[int] = Field(None, gt=0)
     image_url: Optional[str] = Field(None, min_length=3, max_length=500)
     has_learning_content: Optional[bool] = None
     has_certificate: Optional[bool] = None

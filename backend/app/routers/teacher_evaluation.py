@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from app.db.session import get_db
 from app.models.teacher_evaluation import TeacherEvaluation
-from app.models.classroom import ClassRoom
+from app.models.classroom import Classroom
 from app.models.staff import Staff
 from app.models.student import Student
 from app.schemas.teacher_evaluation import (
@@ -58,7 +58,7 @@ def create_teacher_evaluation(payload: TeacherEvaluationCreate, db: Session = De
 
 
     # ۱. اعتبارسنجی وجود کلاس
-    if not db.query(ClassRoom).filter(ClassRoom.id == payload.classroom_id).first():
+    if not db.query(Classroom).filter(Classroom.id == payload.classroom_id).first():
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="کلاس انتخاب‌شده وجود ندارد")
 
     # ۲. اعتبارسنجی وجود استاد
@@ -88,7 +88,7 @@ def update_teacher_evaluation(evaluation_id: int, payload: TeacherEvaluationUpda
 
     # بررسی صحت شناسه‌ها در صورت تغییر
     if payload.classroom_id != eval_record.classroom_id:
-        if not db.query(ClassRoom).filter(ClassRoom.id == payload.classroom_id).first():
+        if not db.query(Classroom).filter(Classroom.id == payload.classroom_id).first():
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="کلاس انتخاب‌شده وجود ندارد")
 
     if payload.teacher_id != eval_record.teacher_id:
@@ -120,7 +120,7 @@ def patch_teacher_evaluation(evaluation_id: int, payload: TeacherEvaluationPatch
     update_data = payload.model_dump(exclude_unset=True)
 
     if "classroom_id" in update_data and update_data["classroom_id"] != eval_record.classroom_id:
-        if not db.query(ClassRoom).filter(ClassRoom.id == update_data["classroom_id"]).first():
+        if not db.query(Classroom).filter(Classroom.id == update_data["classroom_id"]).first():
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="کلاس انتخاب‌شده وجود ندارد")
 
     if "teacher_id" in update_data and update_data["teacher_id"] != eval_record.teacher_id:

@@ -16,5 +16,5 @@ class TermGrade(Base):
     recorded_by = Column(String(100), nullable=False)  # ثبت کننده
 
     # روابط (Relationships)
-    classroom = relationship("ClassRoom", backref="term_grades")
+    classroom = relationship("Classroom", backref="term_grades")
     student = relationship("Student", backref="term_grades")

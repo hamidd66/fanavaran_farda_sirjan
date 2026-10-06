@@ -3,7 +3,7 @@ from typing import Optional
 from datetime import datetime
 import re
 
-from app.schemas.classroom import ClassRoomResponse
+from app.schemas.classroom import ClassroomResponse
 from app.schemas.student import StudentResponse
 
 SHAMSI_DATE_REGEX = r"^14\d{2}/(0[1-9]|1[0-2])/(0[1-9]|[12]\d|3[01])$"
@@ -86,7 +86,7 @@ class TuitionPatch(BaseModel):
 class TuitionResponse(TuitionBase):
     id: int
     created_at: datetime
-    classroom: Optional[ClassRoomResponse] = None
+    Classroom: Optional[ClassroomResponse] = None
     student: Optional[StudentResponse] = None
 
     class Config:

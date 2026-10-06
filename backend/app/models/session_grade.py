@@ -16,5 +16,5 @@ class SessionGrade(Base):
     recorded_by = Column(String(100), nullable=False)
 
     # روابط
-    classroom = relationship("ClassRoom", backref="session_grades")
+    classroom = relationship("Classroom", backref="session_grades")
     student = relationship("Student", backref="session_grades")

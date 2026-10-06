@@ -3,7 +3,7 @@ from typing import Optional, Literal
 from datetime import datetime
 import re
 
-from app.schemas.classroom import ClassRoomResponse
+from app.schemas.classroom import ClassroomResponse
 from app.schemas.student import StudentResponse
 
 
@@ -79,7 +79,7 @@ class AttendancePatch(BaseModel):
 class AttendanceResponse(AttendanceBase):
     id: int
     created_at: datetime
-    classroom: Optional[ClassRoomResponse] = None
+    Classroom: Optional[ClassroomResponse] = None
     student: Optional[StudentResponse] = None
 
     class Config:

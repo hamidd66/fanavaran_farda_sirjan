@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from app.db.session import get_db
 from app.models.attendance import Attendance
-from app.models.classroom import ClassRoom
+from app.models.classroom import Classroom
 from app.models.student import Student
 from app.schemas.attendance import (
     AttendanceCreate,
@@ -58,7 +58,7 @@ def create_attendance(
     db: Session = Depends(get_db)
 ):
     # اعتبارسنجی وجود کلاس و هنرجو
-    if not db.query(ClassRoom).filter(ClassRoom.id == payload.classroom_id).first():
+    if not db.query(Classroom).filter(Classroom.id == payload.classroom_id).first():
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="کلاس انتخاب‌شده وجود ندارد")
 
     if not db.query(Student).filter(Student.id == payload.student_id).first():
@@ -95,7 +95,7 @@ def update_attendance(
 
     # اعتبارسنجی وجود کلاس و هنرجو در صورت تغییر
     if payload.classroom_id != rec.classroom_id:
-        if not db.query(ClassRoom).filter(ClassRoom.id == payload.classroom_id).first():
+        if not db.query(Classroom).filter(Classroom.id == payload.classroom_id).first():
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="کلاس انتخاب‌شده وجود ندارد")
 
     if payload.student_id != rec.student_id:
@@ -136,7 +136,7 @@ def patch_attendance(
     data = payload.model_dump(exclude_unset=True)
 
     if "classroom_id" in data and data["classroom_id"] != rec.classroom_id:
-        if not db.query(ClassRoom).filter(ClassRoom.id == data["classroom_id"]).first():
+        if not db.query(Classroom).filter(Classroom.id == data["classroom_id"]).first():
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="کلاس انتخاب‌شده وجود ندارد")
 
     if "student_id" in data and data["student_id"] != rec.student_id:

@@ -6,7 +6,7 @@ from app.db.session import get_db
 from app.models.enrollment import Enrollment
 from app.models.student import Student
 from app.models.course import Course
-from app.models.classroom import ClassRoom
+from app.models.classroom import Classroom
 from app.models.staff import Staff
 from app.schemas.enrollment import (
     EnrollmentCreate,
@@ -28,12 +28,12 @@ def validate_foreign_keys(db: Session, student_id: int, course_id: int, classroo
     if not db.query(Course).filter(Course.id == course_id).first():
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="دوره انتخاب‌شده یافت نشد")
 
-    classroom = db.query(ClassRoom).filter(ClassRoom.id == classroom_id).first()
-    if not classroom:
+    Classroom = db.query(Classroom).filter(Classroom.id == classroom_id).first()
+    if not Classroom:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="کلاس انتخاب‌شده یافت نشد")
     
     # بررسی اینکه آیا این کلاس واقعاً متعلق به همین دوره است؟
-    if classroom.course_id != course_id:
+    if Classroom.course_id != course_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, 
             detail="کلاس انتخاب‌شده متعلق به این دوره نیست"

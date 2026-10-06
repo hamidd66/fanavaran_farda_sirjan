@@ -5,7 +5,7 @@ from typing import List
 
 from app.db.session import get_db
 from app.models.student import Student
-from app.models.classroom import ClassRoom
+from app.models.classroom import Classroom
 from app.models.course import Course
 from app.models.enrollment import Enrollment
 from app.models.attendance import Attendance
@@ -91,20 +91,20 @@ def get_ongoing_classes(db: Session = Depends(get_db)):
     """
     
     # ۱. شرط: حداقل یک حضور و غیاب داشته باشد
-    has_attendance = exists().where(Attendance.classroom_id == ClassRoom.id)
+    has_attendance = exists().where(Attendance.classroom_id == Classroom.id)
     
     # ۲. شرط: نمره نهایی نشده باشد (نباید هیچ رکوردی با is_finalized=True داشته باشد)
     is_finalized = exists().where(
         and_(
-            TermGrade.classroom_id == ClassRoom.id,
+            TermGrade.classroom_id == Classroom.id,
             TermGrade.is_finalized == True
         )
     )
 
     # کوئری اصلی
     ongoing_classes = (
-        db.query(ClassRoom, Course.name.label("course_name"))
-        .join(Course, ClassRoom.course_id == Course.id)
+        db.query(Classroom, Course.name.label("course_name"))
+        .join(Course, Classroom.course_id == Course.id)
         .filter(has_attendance)          # کلاس شروع شده باشد
         .filter(not_(is_finalized))      # نمره نهایی نداشته باشد
         .all()
@@ -112,9 +112,9 @@ def get_ongoing_classes(db: Session = Depends(get_db)):
 
     items = [
         OngoingClassItem(
-            classroom_id=c.ClassRoom.id,
+            classroom_id=c.classroom.id,
             course_name=course_name,
-            class_code=getattr(c.ClassRoom, "name", "بدون نام") # اگر مدل کلاس فیلد name دارد
+            class_code=getattr(c.classroom, "name", "بدون نام") # اگر مدل کلاس فیلد name دارد
         )
         for c, course_name in ongoing_classes
     ]

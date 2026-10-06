@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel, Field, ConfigDict, field_validator, EmailStr
-from app.enums.user import UserRole
+from app.enums.user import ReferralSources, UserRole
 from app.core.validators import validate_iran_national_code
 
 
@@ -35,6 +35,8 @@ class UserCreate(BaseModel):
 
     description: Optional[str] = None
     avatar: Optional[str] = Field(None, pattern=r"^/media/uploads/profile/[A-Za-z0-9_\-./]+\.(jpg|jpeg|png|webp)$")
+
+    referral_source: Optional[ReferralSources] = Field(None)
     
     parent_phone: Optional[str] = Field(None, pattern=r"^09\d{9}$")
     
@@ -62,6 +64,8 @@ class UserUpdate(BaseModel):
 
     description: Optional[str] = None
     avatar: Optional[str] = Field(None, pattern=r"^/media/uploads/profile/[A-Za-z0-9_\-./]+\.(jpg|jpeg|png|webp)$")
+
+    referral_source: Optional[ReferralSources] = Field(None)
     
     parent_phone: Optional[str] = Field(None, pattern=r"^09\d{9}$")
     

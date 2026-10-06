@@ -49,7 +49,7 @@ from app.models.staff import Staff
 from app.models.user import User
 from app.models.course_category import CourseCategory
 from app.models.course import Course
-from app.models.classroom import ClassRoom
+from app.models.classroom import Classroom
 from app.models.enrollment import Enrollment
 from app.models.course_content import CourseContent
 from app.models.assignment import Assignment
@@ -103,10 +103,10 @@ app.include_router(course_content.router)
 app.include_router(course_faq.router)
 app.include_router(classroom.router)
 app.include_router(enrollment.router)
+app.include_router(attendance.router)
 app.include_router(assignment.router)
 app.include_router(feedback.router)
 app.include_router(teacher_evaluation.router)
-app.include_router(attendance.router)
 app.include_router(tuition.router)
 app.include_router(payroll.router)
 app.include_router(expense.router)

@@ -24,7 +24,7 @@ class Course(Base):
     has_certificate = Column(Boolean, default=False, nullable=False)
 
     sessions_count = Column(Integer, nullable=False)
-    total_hours = Column(Integer, nullable=False)
+    duration_hours = Column(Integer, nullable=False)
 
     image = Column(String(500), nullable=False)
     outline = Column(MutableList.as_mutable(JSON), nullable=False)
@@ -32,6 +32,9 @@ class Course(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     category = relationship("CourseCategory", back_populates="courses")
-    contents = relationship("CourseContent", back_populates="course", cascade="all, delete-orphan")
-    faqs = relationship("CourseFAQ", back_populates="course", cascade="all, delete-orphan")
     staff = relationship("Staff", back_populates="courses")
+    
+    contents = relationship("CourseContent", back_populates="course")
+    faqs = relationship("CourseFAQ", back_populates="course")
+    
+    classrooms = relationship("Classroom", back_populates="course")

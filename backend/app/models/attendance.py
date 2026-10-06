@@ -1,48 +1,28 @@
-from sqlalchemy import Column, Integer, Text, String, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, Text, String, DateTime, ForeignKey, Enum, UniqueConstraint
 from sqlalchemy.orm import relationship
-from datetime import datetime, timezone
-
+from sqlalchemy.sql import func
+import uuid
 from app.db.base import Base
-
+from app.enums.attendance import StatusType
 
 class Attendance(Base):
     __tablename__ = "attendances"
+    __table_args__ = (UniqueConstraint('classroom_id', 'student_id', 'session_number', name='uq_attendance_session'),)
+    
+    id = Column(String, primary_key=True, index=True, unique=True, default=lambda: uuid.uuid4().hex)
 
-    id = Column(Integer, primary_key=True, index=True)
+    classroom_id = Column(String, ForeignKey("classrooms.id", ondelete="CASCADE"), nullable=False, index=True)
+    student_id = Column(String, ForeignKey("students.id", ondelete="CASCADE"), nullable=False, index=True)
+    created_by = Column(String, ForeignKey("staff.id", ondelete="SET NULL"), nullable=True)
 
-    # ۱) آیدی کلاس
-    classroom_id = Column(Integer, ForeignKey("classrooms.id", ondelete="CASCADE"), nullable=False)
-
-    # ۲) آیدی هنرجو
-    student_id = Column(Integer, ForeignKey("students.id", ondelete="CASCADE"), nullable=False)
-
-    # ۳) شماره جلسه
     session_number = Column(Integer, nullable=False)
-
-    # ۴) وضعیت حضور و غیاب: present / absent / late
-    status = Column(String(10), nullable=False)
-
-    # ۵) مدت تاخیر (دقیقه)
-    late_minutes = Column(Integer, nullable=False)
-
-    # ۶) تاریخ ثبت شمسی (مثال: 1403/08/22)
-    record_date = Column(String(10), nullable=False)
-
-    # ۷) علت غیبت
-    absence_reason = Column(String(255), nullable=False)
-
-    # ۸) علت تاخیر
-    late_reason = Column(String(255), nullable=False)
-
-    # ۹) توضیحات (اختیاری)
+    status = Column(Enum(StatusType), nullable=False)
+    late_minutes = Column(Integer, nullable=False, default=0)
     description = Column(Text, nullable=True)
 
-    # ۱۰) ثبت کننده
-    recorded_by = Column(String(120), nullable=False)
+    record_date = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
-    # ۱۱) زمان سیستمی
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
-
-    # روابط
-    classroom = relationship("ClassRoom")
-    student = relationship("Student")
+    classroom = relationship("Classroom", back_populates="attendances")
+    student = relationship("Student", back_populates="attendances")
+    staff = relationship("Staff", foreign_keys=[created_by], back_populates="attendances")

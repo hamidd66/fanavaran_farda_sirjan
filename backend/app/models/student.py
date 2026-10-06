@@ -1,8 +1,10 @@
-from sqlalchemy import Column, String, DateTime, Text, ForeignKey
+from sqlalchemy import Column, Enum, String, DateTime, Text, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from app.db.base import Base
 import uuid
+
+from app.db.base import Base
+from app.enums.user import ReferralSources
 
 class Student(Base):
     __tablename__ = "students"
@@ -24,7 +26,12 @@ class Student(Base):
     
     description = Column(Text, nullable=True)
     avatar = Column(String(255), nullable=True)
+
+    referral_source = Column(Enum(ReferralSources), nullable=False)
     
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     
     user = relationship("User", back_populates="student")
+    
+    enrollments = relationship("Enrollment", back_populates="student")
+    attendances = relationship("Attendance", back_populates="student")

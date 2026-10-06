@@ -22,7 +22,7 @@ class User(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     last_login = Column(DateTime(timezone=True), nullable=True)
 
-    student = relationship("Student", back_populates="user", cascade="all, delete-orphan", uselist=False)
-    staff = relationship("Staff", back_populates="user", cascade="all, delete-orphan", uselist=False)
+    student = relationship("Student", back_populates="user", uselist=False)
+    staff = relationship("Staff", back_populates="user", uselist=False)
     course_faqs = relationship("CourseFAQ", back_populates="user")
     

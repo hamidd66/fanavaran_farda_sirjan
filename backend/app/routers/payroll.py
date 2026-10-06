@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from app.db.session import get_db
 from app.models.payroll import Payroll
-from app.models.classroom import ClassRoom
+from app.models.classroom import Classroom
 from app.models.staff import Staff
 from app.schemas.payroll import (
     PayrollCreate,
@@ -61,7 +61,7 @@ def create_payroll(
     db: Session =  Depends(get_db)
 ):
     # بررسی وجود کلاس
-    if not db.query(ClassRoom).filter(ClassRoom.id == payload.classroom_id).first():
+    if not db.query(Classroom).filter(Classroom.id == payload.classroom_id).first():
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="کلاس مورد نظر یافت نشد")
 
     # بررسی وجود کادر / استاد
@@ -86,7 +86,7 @@ def update_payroll(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="رکورد حقوق و دستمزد یافت نشد")
 
     if payload.classroom_id != record.classroom_id:
-        if not db.query(ClassRoom).filter(ClassRoom.id == payload.classroom_id).first():
+        if not db.query(Classroom).filter(Classroom.id == payload.classroom_id).first():
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="کلاس مورد نظر یافت نشد")
 
     if payload.staff_id != record.staff_id:
@@ -114,7 +114,7 @@ def patch_payroll(
     data = payload.model_dump(exclude_unset=True)
 
     if "classroom_id" in data and data["classroom_id"] != record.classroom_id:
-        if not db.query(ClassRoom).filter(ClassRoom.id == data["classroom_id"]).first():
+        if not db.query(Classroom).filter(Classroom.id == data["classroom_id"]).first():
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="کلاس مورد نظر یافت نشد")
 
     if "staff_id" in data and data["staff_id"] != record.staff_id:

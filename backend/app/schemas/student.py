@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Optional, Union
 from pydantic import BaseModel, EmailStr, Field, ConfigDict, computed_field
 from app.schemas.user import UserOut
+from app.enums.user import ReferralSources
 
 class StudentCreate(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
@@ -16,6 +17,8 @@ class StudentCreate(BaseModel):
     birth_date: str = Field(..., pattern=r"^\d{4}[/-]\d{2}[/-]\d{2}$")
     education: str = Field(..., min_length=3, max_length=50)
     address: str = Field(..., min_length=5)
+
+    referral_source: ReferralSources
 
     description: str | None = Field(None)
     avatar: str | None = Field(None, pattern=r"^/media/uploads/profile/[A-Za-z0-9_\-./]+\.(jpg|jpeg|png|webp)$")
@@ -40,6 +43,8 @@ class StudentOut(BaseModel):
     description: str | None = None
     avatar: str | None = None
 
+    referral_source: ReferralSources
+
     created_at: datetime
 
     user: UserOut
@@ -61,6 +66,8 @@ class StudentUpdate(BaseModel):
     
     description: Optional[str] = None
     avatar: Optional[str] = Field(None, pattern=r"^/media/uploads/profile/[A-Za-z0-9_\-./]+\.(jpg|jpeg|png|webp)$")
+
+    referral_source: Optional[ReferralSources] = None
 
 
 

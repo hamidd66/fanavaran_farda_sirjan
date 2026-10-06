@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from app.db.session import get_db
 from app.models.feedback import Feedback
-from app.models.classroom import ClassRoom
+from app.models.classroom import Classroom
 from app.models.student import Student
 from app.schemas.feedback import (
     FeedbackCreate,
@@ -54,7 +54,7 @@ def get_feedback(feedback_id: int, db: Session = Depends(get_db)):
 @router.post("", response_model=FeedbackResponse, status_code=status.HTTP_201_CREATED)
 def create_feedback(payload: FeedbackCreate, db: Session = Depends(get_db)):
     # بررسی وجود کلاس
-    if not db.query(ClassRoom).filter(ClassRoom.id == payload.classroom_id).first():
+    if not db.query(Classroom).filter(Classroom.id == payload.classroom_id).first():
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="کلاس مورد نظر یافت نشد")
 
     # بررسی وجود هنرجو
@@ -80,7 +80,7 @@ def update_feedback(feedback_id: int, payload: FeedbackUpdate, db: Session = Dep
 
     # بررسی وجود کلاس و دانشجو در صورت تغییر
     if payload.classroom_id != feedback.classroom_id:
-        if not db.query(ClassRoom).filter(ClassRoom.id == payload.classroom_id).first():
+        if not db.query(Classroom).filter(Classroom.id == payload.classroom_id).first():
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="کلاس مورد نظر یافت نشد")
 
     if payload.student_id != feedback.student_id:
@@ -108,7 +108,7 @@ def patch_feedback(feedback_id: int, payload: FeedbackPatch, db: Session = Depen
     update_data = payload.model_dump(exclude_unset=True)
 
     if "classroom_id" in update_data and update_data["classroom_id"] != feedback.classroom_id:
-        if not db.query(ClassRoom).filter(ClassRoom.id == update_data["classroom_id"]).first():
+        if not db.query(Classroom).filter(Classroom.id == update_data["classroom_id"]).first():
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="کلاس مورد نظر یافت نشد")
 
     if "student_id" in update_data and update_data["student_id"] != feedback.student_id:

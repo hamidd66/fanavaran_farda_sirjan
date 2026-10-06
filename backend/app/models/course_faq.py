@@ -23,7 +23,7 @@ class CourseFAQ(Base):
     user = relationship("User", back_populates="course_faqs")
 
     parent = relationship("CourseFAQ", remote_side="CourseFAQ.id", back_populates="replies")
-    replies = relationship("CourseFAQ", back_populates="parent", cascade="all, delete-orphan")
+    replies = relationship("CourseFAQ", back_populates="parent")
 
     @property
     def sender(self):

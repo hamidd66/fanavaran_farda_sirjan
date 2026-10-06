@@ -3,7 +3,7 @@ from typing import Optional
 from datetime import datetime
 import re
 
-from app.schemas.classroom import ClassRoomResponse
+from app.schemas.classroom import ClassroomResponse
 from app.schemas.student import StudentResponse
 
 # اعتبارسنجی تاریخ شمسی (1400/01/01 تا 1499/12/29)
@@ -63,7 +63,7 @@ class FeedbackPatch(BaseModel):
 class FeedbackResponse(FeedbackBase):
     id: int
     created_at: datetime
-    classroom: Optional[ClassRoomResponse] = None
+    Classroom: Optional[ClassroomResponse] = None
     student: Optional[StudentResponse] = None
 
     class Config:
