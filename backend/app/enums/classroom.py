@@ -40,3 +40,11 @@ class ClassroomRecordSort(enum.Enum):
     grade_desc = "grade_desc"
     grade_asc = "grade_asc"
 
+
+class ClassroomSessionSort(enum.Enum):
+    session_asc = "session_asc"
+    session_desc = "session_desc"
+    date_asc = "date_asc"
+    date_desc = "date_desc"
+    newest = "newest"
+    oldest = "oldest"

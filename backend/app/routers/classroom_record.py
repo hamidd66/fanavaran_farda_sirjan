@@ -1,8 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import not_, select, func, and_, exists, or_
+from sqlalchemy import and_
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
-from datetime import date
 from typing import Optional
 import math
 
@@ -17,7 +16,7 @@ from app.models.enrollment import Enrollment
 from app.models.classroom_session import ClassroomSession
 from app.models.user import User
 from app.models.student import Student
-from app.schemas.classroom_record import ClassroomRecordBatchCreate, ClassroomRecordSingleCreate, ClassroomRecordUpdate, ClassroomRecordOut, ClassroomRecordFinalizeUpdate, ClassroomRecordBatchFinalizeUpdate
+from app.schemas.classroom_record import ClassroomRecordBatchCreate, ClassroomRecordSingleCreate, ClassroomRecordUpdate, ClassroomRecordOut, ClassroomRecordFinalizeUpdate
 from app.enums.classroom import AttendanceStatus, ClassroomRecordSort
 from app.enums.user import UserRole
 
@@ -453,7 +452,7 @@ def update_classroom_record(
 
 @router.patch("/change-finalize")
 def finalize_classroom_records(
-    data: ClassroomRecordBatchFinalizeUpdate,
+    data: ClassroomRecordFinalizeUpdate,
     payload = Depends(get_payload),
     db: Session = Depends(get_db)
 ):

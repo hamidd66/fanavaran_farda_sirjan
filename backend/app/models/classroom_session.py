@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, Date, DateTime, Boolean, ForeignKey, UniqueConstraint, Enum
+from sqlalchemy import Column, String, Integer, Date, DateTime, Time, Boolean, ForeignKey, UniqueConstraint, Enum
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import uuid
@@ -19,8 +19,8 @@ class ClassroomSession(Base):
     session_number = Column(Integer, nullable=False)
     
     session_date = Column(Date, nullable=False)
-    start_time = Column(DateTime(timezone=True), nullable=False)
-    end_time = Column(DateTime(timezone=True), nullable=False)
+    start_time = Column(Time(timezone=True), nullable=False)
+    end_time = Column(Time(timezone=True), nullable=False)
 
     assignment_deadline = Column(DateTime(timezone=True), nullable=True)
 

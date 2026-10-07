@@ -106,10 +106,6 @@ class ClassroomRecordOut(BaseModel):
 
 
 class ClassroomRecordFinalizeUpdate(BaseModel):
-    is_finalized: bool = Field(...)
-
-
-class ClassroomRecordBatchFinalizeUpdate(BaseModel):
     record_ids: List[str] = Field(..., min_length=1)
     is_finalized: bool = Field(...)
 
