@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 from typing import Optional
 from datetime import datetime
 import re
@@ -7,6 +7,64 @@ from app.schemas.student import StudentResponse
 from app.schemas.course import CourseResponse
 from app.schemas.classroom import ClassroomResponse
 from app.schemas.staff import StaffOut
+
+
+class EnrollmentCreate(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    student_id: str = Field(...)
+    description: Optional[str] = Field(None, max_length=2000)
+
+
+class EnrollmentUpdate(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    description: Optional[str] = Field(None, max_length=2000)
+
+
+class StudentBrief(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    
+    id: str
+    full_name: str
+    phone: str
+    avatar: Optional[str] = None
+
+
+class ClassroomBrief(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    title: str
+    capacity: int
+
+
+class EnrollmentOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    student_id: str
+    classroom_id: str
+    registration_method: str
+    description: Optional[str] = None
+    created_at: datetime
+
+    student: Optional[StudentBrief] = None
+    classroom: Optional[ClassroomBrief] = None
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # الگوی Regex تاریخ شمسی (1400/01/01 تا 1499/12/29)
 SHAMSI_DATE_REGEX = r"^14\d{2}/(0[1-9]|1[0-2])/(0[1-9]|[12]\d|3[01])$"
@@ -44,14 +102,14 @@ class EnrollmentBase(BaseModel):
         return v
 
 
-# اسکیمای ساخت ثبت‌نام جدید
-class EnrollmentCreate(EnrollmentBase):
-    pass
+# # اسکیمای ساخت ثبت‌نام جدید
+# class EnrollmentCreate(EnrollmentBase):
+#     pass
 
 
-# اسکیمای ویرایش کامل (PUT)
-class EnrollmentUpdate(EnrollmentBase):
-    pass
+# # اسکیمای ویرایش کامل (PUT)
+# class EnrollmentUpdate(EnrollmentBase):
+#     pass
 
 
 # اسکیمای ویرایش جزئی (PATCH)

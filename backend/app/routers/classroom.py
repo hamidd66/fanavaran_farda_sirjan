@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import not_, or_, select, func, and_, exists
+from sqlalchemy import not_, select, func, and_, exists
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
 from datetime import date
@@ -21,7 +21,7 @@ from app.enums.user import UserRole
 from app.enums.classroom import ClassroomSort, HoldingType
 
 
-router = APIRouter(prefix="/classrooms", tags=["classrooms"])
+router = APIRouter(prefix="/classrooms", tags=["Classrooms"])
 
 
 @router.post("/{course_id}")

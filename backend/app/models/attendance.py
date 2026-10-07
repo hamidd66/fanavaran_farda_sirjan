@@ -20,7 +20,6 @@ class Attendance(Base):
     late_minutes = Column(Integer, nullable=False, default=0)
     description = Column(Text, nullable=True)
 
-    record_date = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     classroom = relationship("Classroom", back_populates="attendances")

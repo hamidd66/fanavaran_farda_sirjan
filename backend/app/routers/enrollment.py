@@ -1,150 +1,281 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
-from typing import List, Optional
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy import func, and_, or_
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session, joinedload
+from datetime import date
+from typing import Optional
+import math
 
 from app.db.session import get_db
+from app.services.jwt_bearer import get_payload
+from app.middleware.exception_handler import response_handler
+from app.repositories.user_repo import get_user_data
+
 from app.models.enrollment import Enrollment
-from app.models.student import Student
-from app.models.course import Course
 from app.models.classroom import Classroom
-from app.models.staff import Staff
-from app.schemas.enrollment import (
-    EnrollmentCreate,
-    EnrollmentUpdate,
-    EnrollmentPatch,
-    EnrollmentResponse,
-)
-
-router = APIRouter(
-    prefix="/enrollments",
-    tags=["Enrollments"]
-)
-
-# تابع کمکی برای بررسی وجود شناسه در جداول مربوطه
-def validate_foreign_keys(db: Session, student_id: int, course_id: int, classroom_id: int, staff_id: int):
-    if not db.query(Student).filter(Student.id == student_id).first():
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="هنرجوی انتخاب‌شده یافت نشد")
-    
-    if not db.query(Course).filter(Course.id == course_id).first():
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="دوره انتخاب‌شده یافت نشد")
-
-    Classroom = db.query(Classroom).filter(Classroom.id == classroom_id).first()
-    if not Classroom:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="کلاس انتخاب‌شده یافت نشد")
-    
-    # بررسی اینکه آیا این کلاس واقعاً متعلق به همین دوره است؟
-    if Classroom.course_id != course_id:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, 
-            detail="کلاس انتخاب‌شده متعلق به این دوره نیست"
-        )
-
-    if not db.query(Staff).filter(Staff.id == staff_id).first():
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="پرسنل/دبیر انتخاب‌شده یافت نشد")
+from app.models.user import User
+from app.models.student import Student
+from app.schemas.enrollment import EnrollmentCreate, EnrollmentOut, EnrollmentUpdate
+from app.enums.enrollment import EnrollmentSort, RegistrationMethod
+from app.enums.user import UserRole
 
 
-# ۱. دریافت لیست تمام ثبت‌نام‌ها (همراه با امکان فیلتر)
-@router.get("", response_model=List[EnrollmentResponse])
-def get_enrollments(
-    student_id: Optional[int] = None,
-    classroom_id: Optional[int] = None,
-    course_id: Optional[int] = None,
+router = APIRouter(prefix="/enrollments", tags=["Enrollments"])
+
+
+@router.post("/{classroom_id}")
+def create_enrollment(
+    classroom_id: str,
+    data: EnrollmentCreate,
+    payload = Depends(get_payload),
     db: Session = Depends(get_db)
 ):
-    query = db.query(Enrollment)
-    if student_id:
-        query = query.filter(Enrollment.student_id == student_id)
-    if classroom_id:
-        query = query.filter(Enrollment.classroom_id == classroom_id)
-    if course_id:
-        query = query.filter(Enrollment.course_id == course_id)
+    try:
+        db_classroom = db.query(Classroom).filter(Classroom.id == classroom_id).first()
+        if not db_classroom:
+            raise HTTPException(status_code=404, detail="Classroom not found")
 
-    return query.order_by(Enrollment.id.desc()).all()
+        db_student = db.query(Student).filter(Student.id == data.student_id).first()
+        if not db_student:
+            raise HTTPException(status_code=404, detail="Student not found")
 
+        existing = db.query(Enrollment).filter(
+            and_(
+                Enrollment.student_id == data.student_id,
+                Enrollment.classroom_id == classroom_id
+            )
+        ).first()
+        if existing:
+            raise HTTPException(status_code=409, detail="Student is already enrolled in this classroom")
 
-# ۲. دریافت جزئیات یک ثبت‌نام بر اساس ID
-@router.get("/{enrollment_id}", response_model=EnrollmentResponse)
-def get_enrollment(enrollment_id: int, db: Session = Depends(get_db)):
-    record = db.query(Enrollment).filter(Enrollment.id == enrollment_id).first()
-    if not record:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="رکورد ثبت‌نام یافت نشد")
-    return record
+        enrolled_count = db.query(func.count(Enrollment.id)).filter(
+            Enrollment.classroom_id == classroom_id
+        ).scalar()
+        if enrolled_count >= db_classroom.capacity:
+            raise HTTPException(status_code=409, detail="Classroom is full. No more registrations allowed.")
 
+        today = date.today()
+        if db_classroom.end_date and today > db_classroom.end_date:
+            raise HTTPException(status_code=400, detail="Classroom has ended. Registration is not allowed.")
 
-# ۳. ثبت‌نام جدید (با جلوگیری از ثبت‌نام تکراری در یک کلاس)
-@router.post("", response_model=EnrollmentResponse, status_code=status.HTTP_201_CREATED)
-def create_enrollment(payload: EnrollmentCreate, db: Session = Depends(get_db)):
-    # ۱. اعتبارسنجی وجود کلیدهای خارجی
-    validate_foreign_keys(db, payload.student_id, payload.course_id, payload.classroom_id, payload.staff_id)
+        if payload.get("sub") == data.student_id:
+            registration_method = RegistrationMethod.online
+        elif payload.get("role") in {UserRole.admin.value, UserRole.teacher.value}:
+            registration_method = RegistrationMethod.offline
+        else:
+            raise HTTPException(status_code=403, detail="You only register yourself or as an admin/teacher")
 
-    # ۲. جلوگیری از ثبت نام تکراری هنرجو در همان کلاس
-    duplicate_check = db.query(Enrollment).filter(
-        Enrollment.student_id == payload.student_id,
-        Enrollment.classroom_id == payload.classroom_id
-    ).first()
-
-    if duplicate_check:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="این هنرجو قبلاً در این کلاس ثبت‌نام شده است"
+        db_enrollment = Enrollment(
+            student_id = data.student_id,
+            classroom_id = classroom_id,
+            registration_method = registration_method,
+            description = data.description,
         )
 
-    new_enrollment = Enrollment(**payload.model_dump())
-    db.add(new_enrollment)
-    db.commit()
-    db.refresh(new_enrollment)
-    return new_enrollment
+        db.add(db_enrollment)
+        db.commit()
+        db.refresh(db_enrollment)
+
+        return response_handler(
+            status=True,
+            message="Enrollment created successfully",
+            data=EnrollmentOut.model_validate(db_enrollment).model_dump(),
+            status_code=201
+        )
+    except HTTPException as http_error:
+        db.rollback()
+        raise http_error
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=409, detail="Input data is problematic")
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to create enrollment")
 
 
-# ۴. ویرایش کامل (PUT)
-@router.put("/{enrollment_id}", response_model=EnrollmentResponse)
-def update_enrollment(enrollment_id: int, payload: EnrollmentUpdate, db: Session = Depends(get_db)):
-    record = db.query(Enrollment).filter(Enrollment.id == enrollment_id).first()
-    if not record:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="رکورد ثبت‌نام یافت نشد")
+@router.get("/{classroom_id}")
+def get_classroom_enrollments(
+    classroom_id: str,
+    db: Session = Depends(get_db),
+    search: Optional[str] = Query(None),
+    registration_method: Optional[RegistrationMethod] = Query(None),
+    sort: Optional[EnrollmentSort] = Query(None),
+    page: int = Query(1, ge=1),
+    limit: int = Query(20, ge=1, le=100),
+):
+    try:
+        db_classroom = db.query(Classroom).filter(Classroom.id == classroom_id).first()
+        if not db_classroom:
+            raise HTTPException(status_code=404, detail="Classroom not found")
 
-    validate_foreign_keys(db, payload.student_id, payload.course_id, payload.classroom_id, payload.staff_id)
+        query = db.query(Enrollment).options(
+            joinedload(Enrollment.student),
+            joinedload(Enrollment.classroom),
+        ).filter(Enrollment.classroom_id == classroom_id)
 
-    for key, value in payload.model_dump().items():
-        setattr(record, key, value)
+        if registration_method is not None:
+            query = query.filter(Enrollment.registration_method == registration_method.value)
 
-    db.commit()
-    db.refresh(record)
-    return record
+        if search:
+            search_term = f"%{search}%"
+            query = query.join(Student).filter(
+                or_(
+                    Student.full_name.ilike(search_term),
+                    Student.phone.like(search_term),
+                )
+            )
+
+        if sort == EnrollmentSort.newest:
+            query = query.order_by(Enrollment.created_at.desc())
+        elif sort == EnrollmentSort.oldest:
+            query = query.order_by(Enrollment.created_at.asc())
+        elif sort == EnrollmentSort.name_asc:
+            query = query.join(Student).order_by(Student.full_name.asc())
+        elif sort == EnrollmentSort.name_desc:
+            query = query.join(Student).order_by(Student.full_name.desc())
+        else:
+            query = query.order_by(Enrollment.created_at.desc())
+
+        total_count = query.count()
+        db_enrollments = query.offset((page - 1) * limit).limit(limit).all()
+
+        enrollments_data = [
+            EnrollmentOut.model_validate(enrollment).model_dump()
+            for enrollment in db_enrollments
+        ]
+
+        return response_handler(
+            status=True,
+            message="Enrollments retrieved successfully",
+            data={
+                "enrollments": enrollments_data,
+                "page": page,
+                "limit": limit,
+                "total": total_count,
+                "pages": math.ceil(total_count / limit)
+            },
+            status_code=200
+        )
+    except HTTPException as http_error:
+        raise http_error
+    except Exception:
+        raise HTTPException(status_code=500, detail="Failed to fetch enrollments")
 
 
-# ۵. ویرایش جزئی (PATCH)
-@router.patch("/{enrollment_id}", response_model=EnrollmentResponse)
-def patch_enrollment(enrollment_id: int, payload: EnrollmentPatch, db: Session = Depends(get_db)):
-    record = db.query(Enrollment).filter(Enrollment.id == enrollment_id).first()
-    if not record:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="رکورد ثبت‌نام یافت نشد")
+@router.patch("/{enrollment_id}")
+def update_enrollment(
+    enrollment_id: str,
+    data: EnrollmentUpdate,
+    payload = Depends(get_payload),
+    db: Session = Depends(get_db)
+):
+    try:
+        db_enrollment = db.query(Enrollment).filter(
+            Enrollment.id == enrollment_id
+        ).first()
 
-    update_data = payload.model_dump(exclude_unset=True)
+        if not db_enrollment:
+            raise HTTPException(status_code=404, detail="Enrollment not found")
 
-    # اگر یکی از شناسه‌ها تغییر کرده بود، مجدداً اعتبارسنجی شود
-    student_id = update_data.get("student_id", record.student_id)
-    course_id = update_data.get("course_id", record.course_id)
-    classroom_id = update_data.get("classroom_id", record.classroom_id)
-    staff_id = update_data.get("staff_id", record.staff_id)
+        current_user_id = payload.get("sub")
+        current_role = payload.get("role")
 
-    validate_foreign_keys(db, student_id, course_id, classroom_id, staff_id)
+        db_user = get_user_data(db, User.id == current_user_id, first=True)
 
-    for key, value in update_data.items():
-        setattr(record, key, value)
+        if current_role == UserRole.admin.value:
+            pass
+        
+        elif current_role == UserRole.teacher.value:
 
-    db.commit()
-    db.refresh(record)
-    return record
+            if not db_user or not db_user.staff:
+                raise HTTPException(status_code=403, detail="Access denied")
+            
+            if db_enrollment.classroom.teacher_id != db_user.staff.id:
+                raise HTTPException(status_code=403, detail="You can only edit enrollments of your own classrooms")
+            
+        elif current_role == UserRole.user.value:
+
+            if db_enrollment.student_id != db_user.student.id:
+                raise HTTPException(status_code=403, detail="You can only edit your own enrollments")
+
+        else:
+            raise HTTPException(status_code=403, detail="Access denied")
+
+        update_data = data.model_dump(exclude_unset=True)
+        if not update_data:
+            raise HTTPException(status_code=400, detail="No fields to update")
+
+        for key, value in update_data.items():
+            setattr(db_enrollment, key, value)
+
+        db.commit()
+        db.refresh(db_enrollment)
+
+        return response_handler(
+            status=True,
+            message="Enrollment updated successfully",
+            data=EnrollmentOut.model_validate(db_enrollment).model_dump(),
+            status_code=200
+        )
+    except HTTPException as http_error:
+        db.rollback()
+        raise http_error
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to update enrollment")
 
 
-# ۶. حذف ثبت‌نام (DELETE)
-@router.delete("/{enrollment_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_enrollment(enrollment_id: int, db: Session = Depends(get_db)):
-    record = db.query(Enrollment).filter(Enrollment.id == enrollment_id).first()
-    if not record:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="رکورد ثبت‌نام یافت نشد")
+@router.delete("/{enrollment_id}")
+def delete_enrollment(
+    enrollment_id: str,
+    payload = Depends(get_payload),
+    db: Session = Depends(get_db)
+):
+    try:
+        db_enrollment = db.query(Enrollment).filter(Enrollment.id == enrollment_id).first()
+        if not db_enrollment:
+            raise HTTPException(status_code=404, detail="Enrollment not found")
 
-    db.delete(record)
-    db.commit()
-    return None
+        current_user_id = payload.get("sub")
+        current_role = payload.get("role")
+
+        db_user = get_user_data(db, User.id == current_user_id, first=True)
+
+        if current_role == UserRole.admin.value:
+            pass
+
+        elif current_role == UserRole.teacher.value:
+
+            if not db_user or not db_user.staff:
+                raise HTTPException(status_code=403, detail="Access denied")
+            
+            if db_enrollment.classroom.teacher_id != db_user.staff.id:
+                raise HTTPException(status_code=403, detail="You can only delete enrollments of your own classrooms")
+            
+        elif current_role == UserRole.user.value:
+
+            if db_enrollment.student_id != db_user.student.id:
+                raise HTTPException(status_code=403, detail="You can only delete your own enrollments")
+            
+        else:
+            raise HTTPException(status_code=403, detail="Access denied")
+
+        db.delete(db_enrollment)
+        db.commit()
+
+        return response_handler(
+            status=True,
+            message="Enrollment deleted successfully",
+            data=None,
+            status_code=200
+        )
+    except HTTPException as http_error:
+        db.rollback()
+        raise http_error
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=409, detail="Cannot delete enrollment because it is referenced by other records")
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to delete enrollment")
+

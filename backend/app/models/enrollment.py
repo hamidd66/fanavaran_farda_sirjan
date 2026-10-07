@@ -17,7 +17,6 @@ class Enrollment(Base):
     registration_method = Column(Enum(RegistrationMethod), nullable=False)
     description = Column(Text, nullable=True)
 
-    registered_at = Column(DateTime(timezone=True), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     student = relationship("Student", back_populates="enrollments")
