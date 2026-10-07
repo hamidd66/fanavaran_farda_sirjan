@@ -34,4 +34,4 @@ class Student(Base):
     user = relationship("User", back_populates="student")
     
     enrollments = relationship("Enrollment", back_populates="student")
-    attendances = relationship("Attendance", back_populates="student")
+    classroom_records = relationship("ClassroomRecord", back_populates="student", cascade="all, delete-orphan")

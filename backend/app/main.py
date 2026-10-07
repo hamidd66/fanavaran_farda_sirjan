@@ -1,5 +1,6 @@
 # from fastapi import FastAPI
-# from app.core.database import Base, engine
+# from app.core.database import Base, 
+#   engine
 
 
 
@@ -44,34 +45,35 @@ from .middleware.exception_handler import http_exception_handler, general_except
 
 
 # ۱. ایمپورت تمام مدل‌ها برای ساخته شدن جداول
-from app.models.student import Student
-from app.models.staff import Staff
-from app.models.user import User
-from app.models.course_category import CourseCategory
-from app.models.course import Course
-from app.models.classroom import Classroom
-from app.models.enrollment import Enrollment
-from app.models.course_content import CourseContent
-from app.models.assignment import Assignment
-from app.models.course_faq import CourseFAQ
-from app.models.feedback import Feedback
-from app.models.teacher_evaluation import TeacherEvaluation
-from app.models.attendance import Attendance
-from app.models.tuition import Tuition
-from app.models.payroll import Payroll
-from app.models.expense import Expense
-from app.models.project_income import ProjectIncome
-from app.models.project_expense import ProjectExpense
-from app.models.suggestion import Suggestion
-from app.models.poll_question import PollQuestion
-from app.models.poll_response import PollResponse
-from app.models.session_grade import SessionGrade
-from app.models import term_grade
-from app.models import competition
-from app.models import competition_registration
-from app.models import competition_result
-from app.models import student_assignment_upload
-from app.models import assignment_feedback
+# from app.models.student import Student
+# from app.models.staff import Staff
+# from app.models.user import User
+# from app.models.course_category import CourseCategory
+# from app.models.course import Course
+# from app.models.classroom import Classroom
+# from app.models.enrollment import Enrollment
+# from app.models.course_content import CourseContent
+# from app.models.assignment import Assignment
+# from app.models.course_faq import CourseFAQ
+# from app.models.feedback import Feedback
+# from app.models.teacher_evaluation import TeacherEvaluation
+# from app.models.classroom_record import ClassroomRecords
+# from app.models.classroom_sessions import ClassroomSessions
+# from app.models.tuition import Tuition
+# from app.models.payroll import Payroll
+# from app.models.expense import Expense
+# from app.models.project_income import ProjectIncome
+# from app.models.project_expense import ProjectExpense
+# from app.models.suggestion import Suggestion
+# from app.models.poll_question import PollQuestion
+# from app.models.poll_response import PollResponse
+# from app.models.session_grade import SessionGrade
+# from app.models import term_grade
+# from app.models import competition
+# from app.models import competition_registration
+# from app.models import competition_result
+# from app.models import student_assignment_upload
+# from app.models import assignment_feedback
 
 
 
@@ -88,7 +90,36 @@ from app.models import assignment_feedback
 Base.metadata.create_all(bind=engine)
 
 # ۳. ایمپورت روترها
-from app.routers import course_category, user, course, classroom, enrollment, course_content, assignment, course_faq, feedback, teacher_evaluation, attendance, tuition, payroll, expense, project_income, project_expense, suggestion, poll_question, poll_response, session_grade, term_grade, competition, competition_registration, competition_result, student_assignment_upload, assignment_feedback, dashboard
+from app.routers import (
+    user, 
+    course_category, 
+    course, 
+    course_content, 
+    course_faq, 
+    classroom, 
+    classroom_record, 
+    classroom_session,
+    enrollment, 
+    assignment, 
+    feedback, 
+    teacher_evaluation, 
+    tuition, 
+    payroll, 
+    expense, 
+    project_income, 
+    project_expense, 
+    suggestion, 
+    poll_question, 
+    poll_response, 
+    session_grade, 
+    term_grade, 
+    competition, 
+    competition_registration, 
+    competition_result, 
+    student_assignment_upload, 
+    assignment_feedback, 
+    dashboard
+)
 
 # ۴. ساخت نمونه FastAPI (این خط حتماً باید قبل از include_router باشد)
 app = FastAPI(title="Fanavaran farda")
@@ -103,7 +134,8 @@ app.include_router(course_content.router)
 app.include_router(course_faq.router)
 app.include_router(classroom.router)
 app.include_router(enrollment.router)
-app.include_router(attendance.router)
+app.include_router(classroom_record.router)
+app.include_router(classroom_session.router)
 app.include_router(assignment.router)
 app.include_router(feedback.router)
 app.include_router(teacher_evaluation.router)
@@ -132,9 +164,12 @@ app.include_router(dashboard.router)
 
 
 
-app.add_exception_handler(HTTPException, http_exception_handler)
-app.add_exception_handler(Exception, general_exception_handler)
-app.add_exception_handler(RequestValidationError, validation_exception_handler)
+app.add_exception_handler(HTTPException, 
+    http_exception_handler)
+app.add_exception_handler(Exception, 
+    general_exception_handler)
+app.add_exception_handler(RequestValidationError, 
+    validation_exception_handler)
 
 @app.get("/")
 def root():

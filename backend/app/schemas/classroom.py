@@ -6,10 +6,11 @@ import re
 from app.schemas.course import CourseResponse
 from app.schemas.staff import StaffOut
 from app.enums.classroom import HoldingType
+from app.enums.global_enum import WeekDay
 
 
 class ScheduleItem(BaseModel):
-    day: str = Field(..., min_length=1, max_length=20)
+    day: WeekDay
     start_time: time
     end_time: time
 

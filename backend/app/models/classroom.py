@@ -26,7 +26,7 @@ class Classroom(Base):
     sessions_count = Column(Integer, nullable=False)
     duration_hours = Column(Integer, nullable=False)
 
-    schedule = Column(MutableList.as_mutable(JSON), nullable=False) # day, start_time, end_time
+    schedule = Column(MutableList.as_mutable(JSON), nullable=False)
 
     start_date = Column(Date, nullable=False)
     end_date = Column(Date, nullable=False)
@@ -36,4 +36,4 @@ class Classroom(Base):
     teacher = relationship("Staff", foreign_keys=[teacher_id], back_populates="teaching_classrooms")
     creator = relationship("Staff", foreign_keys=[created_by], back_populates="created_classrooms")
     enrollments = relationship("Enrollment", back_populates="classroom")
-    attendances = relationship("Attendance", back_populates="classroom")
+    classroom_sessions = relationship("ClassroomSession", back_populates="classroom", cascade="all, delete-orphan")

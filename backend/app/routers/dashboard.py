@@ -8,7 +8,7 @@ from app.models.student import Student
 from app.models.classroom import Classroom
 from app.models.course import Course
 from app.models.enrollment import Enrollment
-from app.models.attendance import Attendance
+from app.models.classroom_record import ClassroomRecord
 from app.models.term_grade import TermGrade
 # ایمپورت زیر کلیدی است:
 from app.schemas.dashboard import (

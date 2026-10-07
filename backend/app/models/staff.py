@@ -43,4 +43,5 @@ class Staff(Base):
 
     teaching_classrooms = relationship("Classroom", foreign_keys="Classroom.teacher_id", back_populates="teacher")
     created_classrooms = relationship("Classroom", foreign_keys="Classroom.created_by", back_populates="creator")
-    attendances = relationship("Attendance", foreign_keys="Attendance.created_by", back_populates="staff")
+    classroom_sessions = relationship("ClassroomSession", foreign_keys="ClassroomSession.created_by", back_populates="staff")
+    classroom_records = relationship("ClassroomRecord", foreign_keys="ClassroomRecord.created_by", back_populates="staff")
