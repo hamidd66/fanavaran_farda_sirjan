@@ -1,4 +1,4 @@
-<img width="1083" height="2268" alt="image" src="https://github.com/user-attachments/assets/8f443d46-37ec-4abb-8f9c-c48dc571fbb3" /># Fanavaran Farda Sirjan
+# Fanavaran Farda Sirjan
 
 🚀 A modern educational and software services platform developed for **Fanavaran Farda Sirjan**.
 
