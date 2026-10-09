@@ -21,7 +21,8 @@ from app.models.classroom_record import ClassroomRecord
 from app.models.user import User
 from app.schemas.classroom_session import ClassroomSessionCreate, ClassroomSessionOut, ClassroomSessionUpdate
 from app.enums.user import UserRole
-from app.enums.classroom import SessionType, ClassroomSessionSort
+from app.enums.classroom import ClassroomSessionSort
+from app.enums.course import SessionType
 
 
 router = APIRouter(prefix="/classroom_sessions", tags=["Classroom sessions"])

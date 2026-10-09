@@ -33,6 +33,7 @@ class Course(Base):
 
     category = relationship("CourseCategory", back_populates="courses")
     staff = relationship("Staff", back_populates="courses")
+    course_sessions = relationship("CourseSession", back_populates="course", cascade="all, delete-orphan")
     
     contents = relationship("CourseContent", back_populates="course")
     faqs = relationship("CourseFAQ", back_populates="course")

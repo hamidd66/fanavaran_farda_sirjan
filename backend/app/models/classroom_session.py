@@ -3,7 +3,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import uuid
 from app.db.base import Base
-from app.enums.classroom import SessionType
+from app.enums.course import SessionType
 
 
 class ClassroomSession(Base):

@@ -3,7 +3,8 @@ from typing import Optional, List, Literal, Dict, Any
 from datetime import date, datetime
 import re
 
-from app.enums.classroom import AttendanceStatus, SessionType
+from app.enums.classroom import AttendanceStatus
+from app.enums.course import SessionType
 from app.schemas.classroom import ClassroomResponse
 from app.schemas.student import StudentResponse
 

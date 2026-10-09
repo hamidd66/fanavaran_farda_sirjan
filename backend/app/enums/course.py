@@ -35,3 +35,17 @@ class ContentSort(enum.Enum):
 class FaqSort(enum.Enum):
     newest = "newest"
     oldest = "oldest"
+
+class SessionType(enum.Enum):
+    session = "session"
+    midterm = "midterm"
+    final = "final"
+
+
+class CourseSessionSort(enum.Enum):
+    session_asc = "session_asc"
+    session_desc = "session_desc"
+    newest = "newest"
+    oldest = "oldest"
+    title_asc = "title_asc"
+    title_desc = "title_desc"

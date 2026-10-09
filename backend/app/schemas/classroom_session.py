@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
 from datetime import datetime, date, time
 
-from app.enums.classroom import SessionType
+from app.enums.course import SessionType
 
 
 class ClassroomSessionCreate(BaseModel):

@@ -94,7 +94,8 @@ from app.routers import (
     user, 
     course_category, 
     course, 
-    course_content, 
+    course_session, 
+    course_content,
     course_faq, 
     classroom, 
     classroom_record, 
@@ -131,6 +132,7 @@ app.include_router(user.router)
 # app.include_router(staff.router)
 app.include_router(course_category.router) 
 app.include_router(course.router)
+app.include_router(course_session.router)
 app.include_router(course_content.router)
 app.include_router(course_faq.router)
 app.include_router(classroom.router)

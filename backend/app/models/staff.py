@@ -40,6 +40,7 @@ class Staff(Base):
     
     courses = relationship("Course", back_populates="staff")
     courses_contents = relationship("CourseContent", back_populates="staff")
+    course_sessions = relationship("CourseSession", foreign_keys="CourseSession.created_by", back_populates="staff")
 
     teaching_classrooms = relationship("Classroom", foreign_keys="Classroom.teacher_id", back_populates="teacher")
     created_classrooms = relationship("Classroom", foreign_keys="Classroom.created_by", back_populates="creator")
@@ -48,4 +49,3 @@ class Staff(Base):
 
     assignments = relationship("Assignment", foreign_keys="Assignment.created_by", back_populates="staff")
     assignment_reviews = relationship("AssignmentReview", foreign_keys="AssignmentReview.staff_id", back_populates="staff")
-    

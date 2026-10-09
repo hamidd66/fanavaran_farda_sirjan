@@ -23,13 +23,6 @@ class AttendanceStatus(enum.Enum):
     absent = "absent"
     late = "late"
 
-
-class SessionType(enum.Enum):
-    session = "session"
-    midterm = "midterm"
-    final = "final"
-
-
 class ClassroomRecordSort(enum.Enum):
     newest = "newest"
     oldest = "oldest"
