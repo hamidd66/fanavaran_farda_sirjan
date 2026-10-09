@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 
 from app.db.session import get_db
-from app.models.assignment_feedback import AssignmentFeedback
+from app.models.assignment_submission import AssignmentSubmission
 from app.schemas.assignment_feedback import (
     AssignmentFeedbackCreate,
     AssignmentFeedbackUpdate,
@@ -22,12 +22,12 @@ def get_all(
     assignment_id: Optional[int] = None,
     db: Session = Depends(get_db)
 ):
-    query = db.query(AssignmentFeedback)
+    query = db.query(AssignmentSubmission)
     if student_id:
-        query = query.filter(AssignmentFeedback.student_id == student_id)
+        query = query.filter(AssignmentSubmission.student_id == student_id)
     if assignment_id:
-        query = query.filter(AssignmentFeedback.assignment_id == assignment_id)
-    return query.order_by(AssignmentFeedback.id.desc()).all()
+        query = query.filter(AssignmentSubmission.assignment_id == assignment_id)
+    return query.order_by(AssignmentSubmission.id.desc()).all()
 
 
 @router.get("/{id}", response_model=AssignmentFeedbackResponse)
@@ -35,7 +35,7 @@ def get_by_id(
     id: int,
     db: Session = Depends(get_db)
 ):
-    record = db.query(AssignmentFeedback).filter(AssignmentFeedback.id == id).first()
+    record = db.query(AssignmentSubmission).filter(AssignmentSubmission.id == id).first()
     if not record:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -49,7 +49,7 @@ def create(
     payload: AssignmentFeedbackCreate,
     db: Session = Depends(get_db)
 ):
-    new_record = AssignmentFeedback(**payload.model_dump())
+    new_record = AssignmentSubmission(**payload.model_dump())
     db.add(new_record)
     db.commit()
     db.refresh(new_record)
@@ -62,7 +62,7 @@ def update(
     payload: AssignmentFeedbackUpdate,
     db: Session = Depends(get_db)
 ):
-    record = db.query(AssignmentFeedback).filter(AssignmentFeedback.id == id).first()
+    record = db.query(AssignmentSubmission).filter(AssignmentSubmission.id == id).first()
     if not record:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -82,7 +82,7 @@ def delete(
     id: int,
     db: Session = Depends(get_db)
 ):
-    record = db.query(AssignmentFeedback).filter(AssignmentFeedback.id == id).first()
+    record = db.query(AssignmentSubmission).filter(AssignmentSubmission.id == id).first()
     if not record:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

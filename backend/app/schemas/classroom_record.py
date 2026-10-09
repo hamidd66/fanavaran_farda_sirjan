@@ -20,7 +20,7 @@ class ClassroomRecordItemCreate(BaseModel):
     attendance_description: Optional[str] = Field(None, max_length=2000)
     late_minutes: int = Field(0, ge=0, le=600)
 
-    grade: Optional[int] = Field(None, ge=0, le=100)
+    grade: Optional[float] = Field(None, ge=0, le=100)
     grade_description: Optional[str] = Field(None, max_length=2000)
 
     is_finalized: Optional[bool] = False
@@ -41,7 +41,7 @@ class ClassroomRecordSingleCreate(BaseModel):
     attendance_description: Optional[str] = Field(None, max_length=2000)
     late_minutes: int = Field(0, ge=0, le=600)
 
-    grade: Optional[int] = Field(None, ge=0, le=100)
+    grade: Optional[float] = Field(None, ge=0, le=100)
     grade_description: Optional[str] = Field(None, max_length=2000)
 
     is_finalized: Optional[bool] = False
@@ -54,7 +54,7 @@ class ClassroomRecordUpdate(BaseModel):
     attendance_description: Optional[str] = Field(None, max_length=2000)
     late_minutes: Optional[int] = Field(None, ge=0, le=600)
     
-    grade: Optional[int] = Field(None, ge=0, le=100)
+    grade: Optional[float] = Field(None, ge=0, le=100)
     grade_description: Optional[str] = Field(None, max_length=2000)
 
     is_finalized: Optional[bool] = None
@@ -94,7 +94,7 @@ class ClassroomRecordOut(BaseModel):
     attendance_description: Optional[str] = None
     late_minutes: int
 
-    grade: Optional[int] = None
+    grade: Optional[float] = None
     grade_description: Optional[str] = None
 
     is_finalized: bool

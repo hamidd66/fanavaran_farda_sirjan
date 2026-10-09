@@ -35,3 +35,5 @@ class Student(Base):
     
     enrollments = relationship("Enrollment", back_populates="student")
     classroom_records = relationship("ClassroomRecord", back_populates="student", cascade="all, delete-orphan")
+
+    assignment_submissions = relationship("AssignmentSubmission", back_populates="student", cascade="all, delete-orphan")

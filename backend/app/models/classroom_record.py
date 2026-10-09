@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, Integer, String, DateTime, ForeignKey, Enum, Text, UniqueConstraint
+from sqlalchemy import Boolean, Column, Integer, Float, String, DateTime, ForeignKey, Enum, Text, UniqueConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import uuid
@@ -21,7 +21,7 @@ class ClassroomRecord(Base):
     attendance_description = Column(Text, nullable=True)
     late_minutes = Column(Integer, nullable=False, default=0)
 
-    grade = Column(Integer, nullable=True)
+    grade = Column(Float, nullable=True)
     grade_description = Column(Text, nullable=True)
 
     is_finalized = Column(Boolean, nullable=False, default=False)

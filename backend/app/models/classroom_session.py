@@ -33,3 +33,6 @@ class ClassroomSession(Base):
     classroom = relationship("Classroom", back_populates="classroom_sessions")
     staff = relationship("Staff", foreign_keys=[created_by], back_populates="classroom_sessions")
     classroom_records = relationship("ClassroomRecord", back_populates="classroom_session", cascade="all, delete-orphan")
+   
+    assignment_submissions = relationship("AssignmentSubmission", back_populates="classroom_session", cascade="all, delete-orphan")
+    
