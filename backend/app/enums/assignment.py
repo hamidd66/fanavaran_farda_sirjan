@@ -25,3 +25,19 @@ class AssignmentSort(enum.Enum):
     session_desc = "session_desc"
     title_asc = "title_asc"
     title_desc = "title_desc"
+
+
+class AssignmentSubmissionSort(enum.Enum):
+    newest = "newest"
+    oldest = "oldest"
+    attempt_asc = "attempt_asc"
+    attempt_desc = "attempt_desc"
+    name_asc = "name_asc"
+    name_desc = "name_desc"
+
+
+class AssignmentReviewSort(enum.Enum):
+    newest = "newest"
+    oldest = "oldest"
+    grade_desc = "grade_desc"
+    grade_asc = "grade_asc"

@@ -20,7 +20,7 @@ from app.enums.user import UserRole
 from app.enums.assignment import AssignmentType, AssignmentSort
 
 
-router = APIRouter(prefix="/assignments", tags=["Assignments & Projects"])
+router = APIRouter(prefix="/assignments", tags=["Assignments"])
 
 
 @router.post("/{course_id}")

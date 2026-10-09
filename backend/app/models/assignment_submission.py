@@ -28,4 +28,4 @@ class AssignmentSubmission(Base):
     assignment = relationship("Assignment", back_populates="assignment_submissions")
     classroom_session = relationship("ClassroomSession", back_populates="assignment_submissions")
     student = relationship("Student", back_populates="assignment_submissions")
-    assignment_reviews = relationship("AssignmentReview", back_populates="assignment_submissions", cascade="all, delete-orphan")
+    assignment_review = relationship("AssignmentReview", back_populates="assignment_submission", cascade="all, delete-orphan")
