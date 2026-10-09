@@ -101,6 +101,8 @@ from app.routers import (
     classroom_session,
     enrollment, 
     assignment, 
+    assignment_submission,
+    assignment_review,
     feedback, 
     teacher_evaluation, 
     tuition, 
@@ -117,7 +119,6 @@ from app.routers import (
     competition_registration, 
     competition_result, 
     student_assignment_upload, 
-    assignment_feedback, 
     dashboard
 )
 
@@ -137,6 +138,8 @@ app.include_router(enrollment.router)
 app.include_router(classroom_session.router)
 app.include_router(classroom_record.router)
 app.include_router(assignment.router)
+app.include_router(assignment_submission.router)
+app.include_router(assignment_review.router)
 app.include_router(feedback.router)
 app.include_router(teacher_evaluation.router)
 app.include_router(tuition.router)
@@ -153,7 +156,6 @@ app.include_router(competition.router)
 app.include_router(competition_registration.router)
 app.include_router(competition_result.router)
 app.include_router(student_assignment_upload.router)
-app.include_router(assignment_feedback.router)
 app.include_router(dashboard.router)
 
 

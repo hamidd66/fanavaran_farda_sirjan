@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Float, String, Text, ForeignKey, DateTime, Enum
+from sqlalchemy import Column, Float, String, Text, ForeignKey, DateTime, Enum, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import uuid
@@ -6,7 +6,6 @@ import uuid
 from app.db.base import Base
 from app.enums.assignment import ReviewStatus
 
-# enum ها رو به ai نشون بده
 
 class AssignmentReview(Base):
     __tablename__ = "assignment_reviews"
@@ -20,9 +19,10 @@ class AssignmentReview(Base):
     grade = Column(Float, nullable=True)
     description = Column(Text, nullable=True)
     file = Column(String(500), nullable=True)
+    is_latest = Column(Boolean, nullable=False)
 
     updated_at = Column(DateTime(timezone=True), onupdate=func.now(), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
-    assignment_submissions = relationship("AssignmentSubmission", back_populates="reviews")
+    assignment_submission = relationship("AssignmentSubmission", back_populates="assignment_review")
     staff = relationship("Staff", foreign_keys=[staff_id], back_populates="assignment_reviews")
