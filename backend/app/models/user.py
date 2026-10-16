@@ -28,4 +28,5 @@ class User(Base):
     student = relationship("Student", back_populates="user", uselist=False)
     staff = relationship("Staff", back_populates="user", uselist=False)
     course_faqs = relationship("CourseFAQ", back_populates="user")
+    audit_log = relationship("AuditLog", back_populates="user")
     
