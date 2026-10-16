@@ -21,7 +21,7 @@ class Staff(Base):
 
     education = Column(String(50), nullable=False)
     job_title = Column(String(120), nullable=False)
-    specialties = Column(String(255), nullable=False)
+    specialties = Column(String(255), nullable=False) # فعلا لیستی از enum هاست
 
     card_number = Column(String(16), unique=True, index=True, nullable=False)
     sheba_number = Column(String(24), unique=True, index=True, nullable=False)

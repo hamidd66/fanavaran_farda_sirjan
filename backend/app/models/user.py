@@ -19,6 +19,9 @@ class User(Base):
     token_version = Column(Integer, nullable=False)
     is_active = Column(Boolean, nullable=False)
 
+    locked_until = Column(DateTime(timezone=True), nullable=True)
+    failed_login_count = Column(Integer, default=0, nullable=False)
+
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     last_login = Column(DateTime(timezone=True), nullable=True)
 

@@ -27,7 +27,7 @@ class Course(Base):
     duration_hours = Column(Integer, nullable=False)
 
     image = Column(String(500), nullable=False)
-    outline = Column(MutableList.as_mutable(JSON), nullable=False)
+    # outline = Column(MutableList.as_mutable(JSON), nullable=False)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 

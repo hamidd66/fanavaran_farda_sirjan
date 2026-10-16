@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, Response, Cookie
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, Cookie, Request
 from sqlalchemy import or_
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
@@ -14,6 +14,8 @@ from app.middleware.exception_handler import response_handler
 from app.utils.hashing import hash_password, verify_password
 from app.utils.delete_file import delete_file
 from app.repositories.user_repo import get_user_data
+from app.core.rate_limiters.ip_limiter import check_ip_limit
+from app.core.rate_limiters.login_limiter import is_account_locked, register_failed_login, register_successful_login
 
 from app.models.user import User
 from app.models.staff import Staff
@@ -42,6 +44,8 @@ def register_user(response: Response, data: UserCreate, db: Session = Depends(ge
             password = hash_password(data.password),
             token_version = 1,
             is_active = is_active_status,
+            failed_login_count = 0,
+            locked_until = None
         )
         db.add(new_user)
         db.flush()
@@ -105,15 +109,26 @@ def register_user(response: Response, data: UserCreate, db: Session = Depends(ge
 
 
 @router.post("/login")
-def login_user(response: Response, data: UserLogin, db: Session = Depends(get_db)):
+def login_user(request: Request, response: Response, data: UserLogin, db: Session = Depends(get_db)):
     try:
+        check_ip_limit(request)
+
         db_user = get_user_data(db, User.national_code == data.national_code)
 
-        if not db_user or not verify_password(data.password, db_user.password):
+        if not db_user:
+            raise HTTPException(status_code=401, detail="Invalid national code or password")
+
+        if is_account_locked(db_user):
+            raise HTTPException(status_code=429, detail="You cannot submit a request due to too many attempts")
+        
+        if not verify_password(data.password, db_user.password):
+            register_failed_login(db, db_user)
             raise HTTPException(status_code=401, detail="Invalid national code or password")
 
         if not db_user.is_active:
             raise HTTPException(status_code=403, detail="Account is inactive")
+
+        register_successful_login(db, db_user)
 
         db_user.last_login = datetime.now(timezone.utc)
         
@@ -185,6 +200,26 @@ def logout_user(response: Response, payload = Depends(get_payload), db: Session 
         raise http_error
     except Exception:
         db.rollback()
+        raise HTTPException(status_code=500, detail="Logout failed")
+
+
+@router.post("/logout-current")
+def logout_current_device(response: Response, payload = Depends(get_payload)):
+    try:
+
+        delete_auth_cookie(response = response, key="access_token", path="/")
+        delete_auth_cookie(response = response, key="refresh_token", path="/user/refresh")
+
+        return response_handler(
+            status=True,
+            message="Logged out from current device successfully",
+            data=None,
+            status_code=200
+        )
+
+    except HTTPException as http_error:
+        raise http_error
+    except Exception:
         raise HTTPException(status_code=500, detail="Logout failed")
 
 

@@ -18,15 +18,15 @@ class ClassroomSession(Base):
     session_type = Column(Enum(SessionType), nullable=False)
     session_number = Column(Integer, nullable=False)
     
-    session_date = Column(Date, nullable=False)
-    start_time = Column(Time(timezone=True), nullable=False)
-    end_time = Column(Time(timezone=True), nullable=False)
+    # session_date = Column(Date, nullable=False)
+    start_time = Column(Time(timezone=True), nullable=False) #DateTime
+    end_time = Column(Time(timezone=True), nullable=False) #DateTime
 
     assignment_deadline = Column(DateTime(timezone=True), nullable=True)
 
-    topic = Column(String(200), nullable=True)
+    topic = Column(String(200), nullable=True) #title
 
-    is_completed = Column(Boolean, nullable=False, default=False)
+    # is_completed = Column(Boolean, nullable=False, default=False)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 

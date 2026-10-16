@@ -9,7 +9,8 @@ from app.enums.classroom import AttendanceStatus
 
 class ClassroomRecord(Base):
     __tablename__ = "classroom_records"
-    __table_args__ = (UniqueConstraint('student_id', 'classroom_session_id', name='uq_attendance_session'),)
+    # unique(enrollment_id, classroom_session_id)
+    __table_args__ = (UniqueConstraint('student_id', 'classroom_session_id', name='uq_attendance_session'),) # تغییر کنه به بالایی
 
     id = Column(String, primary_key=True, index=True, unique=True, default=lambda: uuid.uuid4().hex)
 

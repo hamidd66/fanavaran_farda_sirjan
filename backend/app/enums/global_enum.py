@@ -8,3 +8,4 @@ class WeekDay(enum.Enum):
     wednesday = "wednesday"
     thursday = "thursday"
     friday = "friday"
+    

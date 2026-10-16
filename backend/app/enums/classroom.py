@@ -17,11 +17,11 @@ class ClassroomSort(enum.Enum):
     tuition_asc = "tuition_asc"
     tuition_desc = "tuition_desc"
 
-
 class AttendanceStatus(enum.Enum):
-    present = "present"
-    absent = "absent"
-    late = "late"
+    present = "present"                       # حاضر
+    excused_absent = "excused_absent"         # غیبت موجه
+    unexcused_absent = "unexcused_absent"     # غیبت غیرموجه
+    late = "late"                             # تأخیر
 
 class ClassroomRecordSort(enum.Enum):
     newest = "newest"
@@ -41,3 +41,24 @@ class ClassroomSessionSort(enum.Enum):
     date_desc = "date_desc"
     newest = "newest"
     oldest = "oldest"
+
+class ClassroomStatus(enum.Enum):
+    open = "open"   # باز برای ثبت‌نام
+    in_progress = "in_progress"      # در حال برگزاری
+    completed = "completed"          # پایان‌یافته
+    cancelled = "cancelled"          # لغوشده
+
+class ClassroomSessionStatus(enum.Enum):
+    scheduled = "scheduled"          # برنامه ریزی شده
+    in_progress = "in_progress"      # درحال انجام
+    held = "held"                    # برگزار شده
+    cancelled = "cancelled"          # لغو شده
+    rescheduled = "rescheduled"      # تغییر زمان یافته
+
+class EnrollmentStatus(enum.Enum):
+    active = "active"                  # فعال
+    waitlisted = "waitlisted"          # در انتظار ظرفیت خالی
+    withdrawn = "withdrawn"            # انصراف‌داده
+    transferred = "transferred"        # منتقل‌شده
+    completed = "completed"            # تکمیل‌شده
+    deleted = "deleted"                # حذف‌شده

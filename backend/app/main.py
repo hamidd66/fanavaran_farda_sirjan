@@ -75,6 +75,7 @@ from .middleware.exception_handler import http_exception_handler, general_except
 # from app.models import student_assignment_upload
 # from app.models import assignment_feedback
 
+# import app.models
 
 
 
@@ -85,9 +86,6 @@ from .middleware.exception_handler import http_exception_handler, general_except
 
 
 
-
-# # ۲. ساخت جداول دیتابیس
-Base.metadata.create_all(bind=engine)
 
 # ۳. ایمپورت روترها
 from app.routers import (
@@ -122,6 +120,10 @@ from app.routers import (
     student_assignment_upload, 
     dashboard
 )
+
+
+# # ۲. ساخت جداول دیتابیس
+Base.metadata.create_all(bind=engine)
 
 # ۴. ساخت نمونه FastAPI (این خط حتماً باید قبل از include_router باشد)
 app = FastAPI(title="Fanavaran farda")
