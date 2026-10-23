@@ -15,7 +15,7 @@ from app.models.course import Course
 from app.models.course_category import CourseCategory
 from app.models.user import User
 from app.schemas.course import CourseCreate, CourseUpdate, CourseOut
-from app.enums.user import UserRole
+from app.enums.user import UserRoleEnum
 from app.enums.course import CourseSort
 
 
@@ -29,7 +29,7 @@ def create_course(
     db: Session = Depends(get_db)
 ):
     try:
-        if payload.get("role") not in {UserRole.admin.value, UserRole.teacher.value}:
+        if payload.get("role") not in {UserRoleEnum.admin.value, UserRoleEnum.teacher.value}:
             raise HTTPException(status_code=403, detail="Access denied")
 
         category = db.query(CourseCategory).filter(CourseCategory.id == data.category_id).first()
@@ -181,7 +181,7 @@ def update_course(
     db: Session = Depends(get_db)
 ):
     try:
-        if payload.get("role") not in {UserRole.admin.value, UserRole.teacher.value}:
+        if payload.get("role") not in {UserRoleEnum.admin.value, UserRoleEnum.teacher.value}:
             raise HTTPException(status_code=403, detail="Access denied")
 
         db_course = db.query(Course).filter(Course.id == course_id).first()
@@ -237,7 +237,7 @@ def delete_course(
     db: Session = Depends(get_db)
 ):
     try:
-        if payload.get("role") != UserRole.admin.value:
+        if payload.get("role") != UserRoleEnum.admin.value:
             raise HTTPException(status_code=403, detail="Access denied")
 
         course = db.query(Course).filter(Course.id == course_id).first()

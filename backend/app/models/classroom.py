@@ -10,7 +10,7 @@ from app.enums.classroom import HoldingType
 class Classroom(Base):
     __tablename__ = "classrooms"
 
-    id = Column(String, primary_key=True, index=True, unique=True, default=lambda: uuid.uuid4().hex)
+    id = Column(String, primary_key=True, index=True, nullable=False, unique=True, default=lambda: uuid.uuid4().hex)
 
     course_id = Column(String, ForeignKey("courses.id", ondelete="RESTRICT"), nullable=False, index=True)
     teacher_id = Column(String, ForeignKey("staff.id", ondelete="RESTRICT"), nullable=False, index=True) # باید قبل از حذف استاد، استاد تغییر کند

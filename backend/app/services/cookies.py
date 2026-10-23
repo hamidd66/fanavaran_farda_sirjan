@@ -27,6 +27,6 @@ def delete_auth_cookie(response: Response, key: str, path: str = "/") -> None:
         key = key,
         path = path,
         httponly = True,
-        secure = True,
+        secure = False,
         samesite = "lax"
     )

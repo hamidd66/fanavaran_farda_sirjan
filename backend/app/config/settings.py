@@ -1,4 +1,8 @@
 from pydantic_settings import BaseSettings
+from typing import ClassVar
+
+from app.schemas.user import UserRoleEnum
+
 
 class Settings(BaseSettings):
     DATABASE_URL: str
@@ -16,10 +20,13 @@ class Settings(BaseSettings):
     IP_WINDOW_MINUTES: int
     IP_LOCKOUT_MINUTES: int
 
-    ALLOWED_FOLDERS: list = ["course", "classroom", "profile"]
+    ALLOWED_FOLDERS: list = ["course", "classroom", "person", "specialties", "roles"]
     ALLOWED_EXTENSIONS: list = ["jpg", "jpeg", "png", "webp"]
     ALLOWED_CONTENT_TYPES: list = ["image/jpg", "image/jpeg", "image/png", "image/webp"]
     MAX_FILE_SIZE: int = 5 * 1024 * 1024  # 5MB
+
+    STAFF_ROLES: ClassVar[set[str]] = {UserRoleEnum.admin.value, UserRoleEnum.teacher.value, UserRoleEnum.owner.value}
+    STUDENT_ROLES: ClassVar[set[str]] = {UserRoleEnum.student.value, UserRoleEnum.user.value}
 
 
     class Config:

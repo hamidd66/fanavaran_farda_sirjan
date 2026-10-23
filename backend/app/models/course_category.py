@@ -8,7 +8,7 @@ import uuid
 class CourseCategory(Base):
     __tablename__ = "course_categories"
 
-    id = Column(String, primary_key=True, index=True, unique=True, default=lambda: uuid.uuid4().hex)
+    id = Column(String, primary_key=True, index=True, nullable=False, unique=True, default=lambda: uuid.uuid4().hex)
 
     name = Column(String(100), unique=True, nullable=False, index=True)
     image = Column(String(500), nullable=True)

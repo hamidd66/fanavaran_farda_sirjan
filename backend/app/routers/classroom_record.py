@@ -15,7 +15,7 @@ from app.models.classroom import Classroom
 from app.models.enrollment import Enrollment
 from app.models.classroom_session import ClassroomSession
 from app.models.user import User
-from app.models.student import Student
+from app.models.student_profile import Student
 from app.schemas.classroom_record import ClassroomRecordBatchCreate, ClassroomRecordSingleCreate, ClassroomRecordUpdate, ClassroomRecordOut, ClassroomRecordFinalizeUpdate
 from app.enums.classroom import AttendanceStatus, ClassroomRecordSort
 from app.enums.user import UserRole

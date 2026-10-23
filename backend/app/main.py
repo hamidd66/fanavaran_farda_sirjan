@@ -9,7 +9,7 @@
 
 from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
-# from fastapi.staticfiles import StaticFiles
+from fastapi.staticfiles import StaticFiles
 # from contextlib import asynccontextmanager
 # import asyncio
 # import logging
@@ -19,7 +19,7 @@ from .db.base import Base
 # from .db.session import SessionLocal
 # from .config.settings import settings
 from .middleware.exception_handler import http_exception_handler, general_exception_handler, validation_exception_handler
-# from .middleware.cors import setup_cors
+from .middleware.cors import setup_cors
 # from .utils.get_site_info import get_settings
 # from .config import logging_config
 
@@ -89,36 +89,40 @@ from .middleware.exception_handler import http_exception_handler, general_except
 
 # ۳. ایمپورت روترها
 from app.routers import (
-    user, 
-    course_category, 
-    course, 
-    course_session, 
-    course_content,
-    course_faq, 
-    classroom, 
-    classroom_record, 
-    classroom_session,
-    enrollment, 
-    assignment, 
-    assignment_submission,
-    assignment_review,
-    feedback, 
-    teacher_evaluation, 
-    tuition, 
-    payroll, 
-    expense, 
-    project_income, 
-    project_expense, 
-    suggestion, 
-    poll_question, 
-    poll_response, 
-    session_grade, 
-    term_grade, 
-    competition, 
-    competition_registration, 
-    competition_result, 
-    student_assignment_upload, 
-    dashboard
+    user,
+    role,
+    user_role,
+    specialty,
+    user_specialty,
+    # course_category, 
+    # course, 
+    # course_session, 
+    # course_content,
+    # course_faq, 
+    # classroom, 
+    # classroom_record, 
+    # classroom_session,
+    # enrollment, 
+    # assignment, 
+    # assignment_submission,
+    # assignment_review,
+    # feedback, 
+    # teacher_evaluation, 
+    # tuition, 
+    # payroll, 
+    # expense, 
+    # project_income, 
+    # project_expense, 
+    # suggestion, 
+    # poll_question, 
+    # poll_response, 
+    # session_grade, 
+    # term_grade, 
+    # competition, 
+    # competition_registration, 
+    # competition_result, 
+    # student_assignment_upload, 
+    # dashboard
 )
 
 
@@ -128,54 +132,54 @@ Base.metadata.create_all(bind=engine)
 # ۴. ساخت نمونه FastAPI (این خط حتماً باید قبل از include_router باشد)
 app = FastAPI(title="Fanavaran farda")
 
+setup_cors(app)
+
 # ۵. اضافه کردن روترها به app
 app.include_router(user.router)
+app.include_router(role.router)
+app.include_router(user_role.router)
+app.include_router(specialty.router)
+app.include_router(user_specialty.router)
 # app.include_router(student.router)
 # app.include_router(staff.router)
-app.include_router(course_category.router) 
-app.include_router(course.router)
-app.include_router(course_session.router)
-app.include_router(course_content.router)
-app.include_router(course_faq.router)
-app.include_router(classroom.router)
-app.include_router(enrollment.router)
-app.include_router(classroom_session.router)
-app.include_router(classroom_record.router)
-app.include_router(assignment.router)
-app.include_router(assignment_submission.router)
-app.include_router(assignment_review.router)
-app.include_router(feedback.router)
-app.include_router(teacher_evaluation.router)
-app.include_router(tuition.router)
-app.include_router(payroll.router)
-app.include_router(expense.router)
-app.include_router(project_income.router)
-app.include_router(project_expense.router)
-app.include_router(suggestion.router)
-app.include_router(poll_question.router)
-app.include_router(poll_response.router)
-app.include_router(session_grade.router)
-app.include_router(term_grade.router)
-app.include_router(competition.router)
-app.include_router(competition_registration.router)
-app.include_router(competition_result.router)
-app.include_router(student_assignment_upload.router)
-app.include_router(dashboard.router)
+# app.include_router(course_category.router) 
+# app.include_router(course.router)
+# app.include_router(course_session.router)
+# app.include_router(course_content.router)
+# app.include_router(course_faq.router)
+# app.include_router(classroom.router)
+# app.include_router(enrollment.router)
+# app.include_router(classroom_session.router)
+# app.include_router(classroom_record.router)
+# app.include_router(assignment.router)
+# app.include_router(assignment_submission.router)
+# app.include_router(assignment_review.router)
+# app.include_router(feedback.router)
+# app.include_router(teacher_evaluation.router)
+# app.include_router(tuition.router)
+# app.include_router(payroll.router)
+# app.include_router(expense.router)
+# app.include_router(project_income.router)
+# app.include_router(project_expense.router)
+# app.include_router(suggestion.router)
+# app.include_router(poll_question.router)
+# app.include_router(poll_response.router)
+# app.include_router(session_grade.router)
+# app.include_router(term_grade.router)
+# app.include_router(competition.router)
+# app.include_router(competition_registration.router)
+# app.include_router(competition_result.router)
+# app.include_router(student_assignment_upload.router)
+# app.include_router(dashboard.router)
 
 
 
 
+app.add_exception_handler(HTTPException, http_exception_handler)
+app.add_exception_handler(Exception, general_exception_handler)
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
 
-
-
-
-
-app.add_exception_handler(HTTPException, 
-    http_exception_handler)
-app.add_exception_handler(Exception, 
-    general_exception_handler)
-app.add_exception_handler(RequestValidationError, 
-    validation_exception_handler)
+app.mount("/media", StaticFiles(directory="media"), name="media")
 
 @app.get("/")
 def root():

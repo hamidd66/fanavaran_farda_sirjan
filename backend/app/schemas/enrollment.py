@@ -3,10 +3,10 @@ from typing import Optional
 from datetime import datetime
 import re
 
-from app.schemas.student import StudentResponse
+from app.schemas.student_profile import StudentResponse
 from app.schemas.course import CourseResponse
 from app.schemas.classroom import ClassroomResponse
-from app.schemas.staff import StaffOut
+from app.schemas.staff_profile import StaffOut
 
 
 class EnrollmentCreate(BaseModel):

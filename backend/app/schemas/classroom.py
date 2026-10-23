@@ -4,7 +4,7 @@ from datetime import datetime, date, time
 import re
 
 from app.schemas.course import CourseResponse
-from app.schemas.staff import StaffOut
+from app.schemas.staff_profile import StaffOut
 from app.enums.classroom import HoldingType
 from app.enums.global_enum import WeekDay
 

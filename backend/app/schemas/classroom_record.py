@@ -6,7 +6,7 @@ import re
 from app.enums.classroom import AttendanceStatus
 from app.enums.course import SessionType
 from app.schemas.classroom import ClassroomResponse
-from app.schemas.student import StudentResponse
+from app.schemas.student_profile import StudentResponse
 
 
 from pydantic import BaseModel, Field, ConfigDict

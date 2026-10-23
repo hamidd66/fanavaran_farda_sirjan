@@ -9,7 +9,7 @@ from app.enums.course import ContentType
 class CourseContent(Base):
     __tablename__ = "course_contents"
 
-    id = Column(String, primary_key=True, index=True, unique=True, default=lambda: uuid.uuid4().hex)
+    id = Column(String, primary_key=True, index=True, nullable=False, unique=True, default=lambda: uuid.uuid4().hex)
 
     course_id = Column(String, ForeignKey("courses.id", ondelete="CASCADE"), nullable=False, index=True)
     created_by = Column(String, ForeignKey("staff.id", ondelete="SET NULL"), nullable=True)

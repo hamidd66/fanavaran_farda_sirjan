@@ -4,7 +4,7 @@ from datetime import datetime
 import re
 
 from app.schemas.classroom import ClassroomResponse
-from app.schemas.staff import StaffOut
+from app.schemas.staff_profile import StaffOut
 
 SHAMSI_DATE_REGEX = r"^14\d{2}/(0[1-9]|1[0-2])/(0[1-9]|[12]\d|3[01])$"
 TIME_REGEX = r"^([01]\d|2[0-3]):[0-5]\d$"

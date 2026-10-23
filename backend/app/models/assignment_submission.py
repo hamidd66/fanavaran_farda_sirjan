@@ -11,7 +11,7 @@ class AssignmentSubmission(Base):
     __tablename__ = "assignment_submissions"
     __table_args__ = (UniqueConstraint('assignment_id', 'student_id', 'attempt_number', name='uq_submission_attempt'),)
 
-    id = Column(String, primary_key=True, index=True, unique=True, default=lambda: uuid.uuid4().hex)
+    id = Column(String, primary_key=True, index=True, nullable=False, unique=True, default=lambda: uuid.uuid4().hex)
 
     assignment_id = Column(String, ForeignKey("assignments.id", ondelete="CASCADE"), nullable=False, index=True)
     classroom_session_id = Column(String, ForeignKey("classroom_sessions.id", ondelete="CASCADE"), nullable=False, index=True)

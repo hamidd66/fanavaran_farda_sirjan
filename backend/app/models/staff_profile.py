@@ -1,0 +1,78 @@
+# from sqlalchemy import Column, Enum, String, DateTime, Text, ForeignKey
+# from sqlalchemy.orm import relationship
+# from sqlalchemy.sql import func
+# import uuid
+
+# from app.db.base import Base
+# from app.enums.user import ReferralSources
+
+# class Staff(Base):
+#     __tablename__ = "staff"
+
+#     id = Column(String, primary_key=True, index=True, nullable=False, unique=True, default=lambda: uuid.uuid4().hex)
+
+#     user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, unique=True)
+
+#     full_name = Column(String(100), nullable=False, index=True)
+#     father_name = Column(String(50), nullable=False)
+
+#     phone = Column(String(11), unique=True, index=True, nullable=False)
+#     email = Column(String(100), nullable=False, unique=True)
+
+#     education = Column(String(50), nullable=False)
+#     job_title = Column(String(120), nullable=False)
+#     specialties = Column(String(255), nullable=False) # فعلا لیستی از enum هاست
+
+#     card_number = Column(String(16), unique=True, index=True, nullable=False)
+#     sheba_number = Column(String(24), unique=True, index=True, nullable=False)
+
+#     birth_date = Column(String(10), nullable=False)
+#     address = Column(Text, nullable=False)
+
+#     description = Column(Text, nullable=True)
+#     avatar = Column(String(255), nullable=True)
+
+#     referral_source = Column(Enum(ReferralSources), nullable=True)
+
+#     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+#     user = relationship("User", back_populates="staff")
+    
+#     courses = relationship("Course", back_populates="staff")
+#     courses_contents = relationship("CourseContent", back_populates="staff")
+#     course_sessions = relationship("CourseSession", foreign_keys="CourseSession.created_by", back_populates="staff")
+
+#     teaching_classrooms = relationship("Classroom", foreign_keys="Classroom.teacher_id", back_populates="teacher")
+#     created_classrooms = relationship("Classroom", foreign_keys="Classroom.created_by", back_populates="creator")
+#     classroom_sessions = relationship("ClassroomSession", foreign_keys="ClassroomSession.created_by", back_populates="staff")
+#     classroom_records = relationship("ClassroomRecord", foreign_keys="ClassroomRecord.created_by", back_populates="staff")
+
+#     assignments = relationship("Assignment", foreign_keys="Assignment.created_by", back_populates="staff")
+#     assignment_reviews = relationship("AssignmentReview", foreign_keys="AssignmentReview.staff_id", back_populates="staff")
+
+
+from sqlalchemy import Column, String, Date, DateTime, ForeignKey, Enum
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
+from app.db.base import Base
+from app.enums.staff_profile import StaffEmploymentStatus, EmploymentType
+import uuid
+
+
+class StaffProfile(Base):
+    __tablename__ = "staff_profiles"
+
+    id = Column(String, primary_key=True, index=True, nullable=False, unique=True, default=lambda: uuid.uuid4().hex)
+    person_id = Column(String, ForeignKey("persons.id", ondelete="CASCADE"), nullable=False, unique=True, index=True)
+
+    employment_status = Column(Enum(StaffEmploymentStatus), nullable=False)
+    employment_type = Column(Enum(EmploymentType), nullable=False)
+    job_title = Column(String(120), nullable=False)
+    card_number = Column(String(19), nullable=False)
+    sheba_number = Column(String(26), nullable=False)
+    hire_date = Column(Date, nullable=False)
+
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now(), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    person = relationship("Person", back_populates="staff_profile")

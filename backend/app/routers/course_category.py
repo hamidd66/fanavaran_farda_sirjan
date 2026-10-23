@@ -13,7 +13,7 @@ from app.utils.delete_file import delete_file
 
 from app.models.course_category import CourseCategory
 from app.schemas.course_category import CourseCategoryCreate, CourseCategoryOut, CourseCategoryUpdate, CourseCategoryOrderItemUpdate
-from app.enums.user import UserRole
+from app.enums.user import UserRoleEnum
 from app.enums.course import CategorySort
 
 
@@ -23,7 +23,7 @@ router = APIRouter(prefix="/course-categories", tags=["Course Categories"])
 @router.post("/")
 def create_course_category(data: CourseCategoryCreate, payload = Depends(get_payload), db: Session = Depends(get_db)):
     try:
-        if payload.get("role") != UserRole.admin.value:
+        if payload.get("role") != UserRoleEnum.admin.value:
             raise HTTPException(status_code=403, detail="Access denied")
 
         existing_category = db.query(CourseCategory).filter(CourseCategory.name == data.name).first()
@@ -125,7 +125,7 @@ def reorder_course_categories(
     db: Session = Depends(get_db)
 ):
     try:
-        if payload.get("role") != UserRole.admin.value:
+        if payload.get("role") != UserRoleEnum.admin.value:
             raise HTTPException(status_code=403, detail="Access denied")
 
         item_ids = [item.id for item in data.items]
@@ -183,7 +183,7 @@ def update_course_category(
     db: Session = Depends(get_db)
 ):
     try:
-        if payload.get("role") != UserRole.admin.value:
+        if payload.get("role") != UserRoleEnum.admin.value:
             raise HTTPException(status_code=403, detail="Access denied")
 
         category = db.query(CourseCategory).filter(CourseCategory.id == category_id).first()
@@ -240,7 +240,7 @@ def delete_course_category(
     db: Session = Depends(get_db)
 ):
     try:
-        if payload.get("role") != UserRole.admin.value:
+        if payload.get("role") != UserRoleEnum.admin.value:
             raise HTTPException(status_code=403, detail="Access denied")
 
         category = db.query(CourseCategory).filter(CourseCategory.id == category_id).first()

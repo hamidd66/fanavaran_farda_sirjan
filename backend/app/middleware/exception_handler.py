@@ -15,8 +15,16 @@ async def http_exception_handler(request: Request, exc: HTTPException):
         status_code=exc.status_code,
         content=response_handler(
             status=False,
-            message=exc.detail if isinstance(exc.detail, str) else exc.detail.get("message"),
-            data=None,
+            message=(
+                exc.detail
+                if isinstance(exc.detail, str)
+                else "Request failed"
+            ),
+            data=(
+                exc.detail
+                if not isinstance(exc.detail, str)
+                else None
+            ),
             status_code=exc.status_code
         )
     )

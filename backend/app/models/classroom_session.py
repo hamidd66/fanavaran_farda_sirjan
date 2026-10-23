@@ -10,7 +10,7 @@ class ClassroomSession(Base):
     __tablename__ = "classroom_sessions"
     __table_args__ = (UniqueConstraint('classroom_id', 'session_number', name='uq_session_number'),)
 
-    id = Column(String, primary_key=True, index=True, unique=True, default=lambda: uuid.uuid4().hex)
+    id = Column(String, primary_key=True, index=True, nullable=False, unique=True, default=lambda: uuid.uuid4().hex)
 
     classroom_id = Column(String, ForeignKey("classrooms.id", ondelete="CASCADE"), nullable=False, index=True)
     created_by = Column(String, ForeignKey("staff.id", ondelete="SET NULL"), nullable=True)

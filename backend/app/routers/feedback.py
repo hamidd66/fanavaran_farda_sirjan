@@ -5,7 +5,7 @@ from typing import List, Optional
 from app.db.session import get_db
 from app.models.feedback import Feedback
 from app.models.classroom import Classroom
-from app.models.student import Student
+from app.models.student_profile import Student
 from app.schemas.feedback import (
     FeedbackCreate,
     FeedbackUpdate,

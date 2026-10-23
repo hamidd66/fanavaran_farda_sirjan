@@ -12,7 +12,7 @@ class ClassroomRecord(Base):
     # unique(enrollment_id, classroom_session_id)
     __table_args__ = (UniqueConstraint('student_id', 'classroom_session_id', name='uq_attendance_session'),) # تغییر کنه به بالایی
 
-    id = Column(String, primary_key=True, index=True, unique=True, default=lambda: uuid.uuid4().hex)
+    id = Column(String, primary_key=True, index=True, nullable=False, unique=True, default=lambda: uuid.uuid4().hex)
 
     student_id = Column(String, ForeignKey("students.id", ondelete="CASCADE"), nullable=False, index=True)
     created_by = Column(String, ForeignKey("staff.id", ondelete="SET NULL"), nullable=True)

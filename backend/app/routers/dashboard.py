@@ -4,7 +4,7 @@ from sqlalchemy import not_, exists, and_, func
 from typing import List
 
 from app.db.session import get_db
-from app.models.student import Student
+from app.models.student_profile import Student
 from app.models.classroom import Classroom
 from app.models.course import Course
 from app.models.enrollment import Enrollment

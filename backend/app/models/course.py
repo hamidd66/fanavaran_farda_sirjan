@@ -9,7 +9,7 @@ import uuid
 class Course(Base):
     __tablename__ = "courses"
 
-    id = Column(String, primary_key=True, index=True, unique=True, default=lambda: uuid.uuid4().hex)
+    id = Column(String, primary_key=True, index=True, nullable=False, unique=True, default=lambda: uuid.uuid4().hex)
 
     category_id = Column(String, ForeignKey("course_categories.id", ondelete="RESTRICT"), nullable=False, index=True)
     created_by = Column(String, ForeignKey("staff.id", ondelete="SET NULL"), nullable=True)

@@ -1,13 +1,15 @@
 from datetime import datetime
-from typing import Optional
-from pydantic import BaseModel, Field, ConfigDict, field_validator, EmailStr
-from app.enums.user import ReferralSources, UserRole
-from app.core.validators import validate_iran_national_code
-
-
+from typing import Optional, List
+from pydantic import BaseModel, Field, ConfigDict, EmailStr
+from app.enums.user import ReferralSources, UserRoleEnum
+from app.schemas.user_role import UserRoleOut
+from app.schemas.person import PersonOut
 
 class ToggleActiveStatus(BaseModel):
     is_active: bool
+
+class ToggleDeleteStatus(BaseModel):
+    is_deleted: bool
 
 class ChangePassword(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
@@ -18,7 +20,7 @@ class ChangePassword(BaseModel):
 class UserCreate(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
 
-    role: UserRole
+    role: UserRoleEnum
 
     national_code: str = Field(..., pattern=r"^\d{10}$")
     password: str = Field(..., min_length=8, max_length=128)
@@ -47,33 +49,64 @@ class UserCreate(BaseModel):
     sheba_number: Optional[str] = Field(None, pattern=r"^(IR)?\d{24}$")
     
 
-class UserUpdate(BaseModel):
+# class UserUpdate(BaseModel):
+#     model_config = ConfigDict(str_strip_whitespace=True)
+
+#     national_code: Optional[str] = Field(None, pattern=r"^\d{10}$")
+
+#     full_name: Optional[str] = Field(None, min_length=3, max_length=100)
+#     father_name: Optional[str] = Field(None, min_length=3, max_length=50)
+
+#     phone: Optional[str] = Field(None, pattern=r"^09\d{9}$")
+#     email: Optional[EmailStr] = None
+
+#     birth_date: Optional[str] = Field(None, pattern=r"^\d{4}[/-]\d{2}[/-]\d{2}$")
+#     education: Optional[str] = Field(None, max_length=50)
+#     address: Optional[str] = Field(None, min_length=3)
+
+#     description: Optional[str] = None
+#     avatar: Optional[str] = Field(None, pattern=r"^/media/uploads/profile/[A-Za-z0-9_\-./]+\.(jpg|jpeg|png|webp)$")
+
+#     referral_source: Optional[ReferralSources] = Field(None)
+    
+#     parent_phone: Optional[str] = Field(None, pattern=r"^09\d{9}$")
+    
+#     job_title: Optional[str] = Field(None, max_length=120)
+#     specialties: Optional[str] = Field(None, max_length=255)
+    
+#     card_number: Optional[str] = Field(None, pattern=r"^\d{4}-\d{4}-\d{4}-\d{4}$")
+#     sheba_number: Optional[str] = Field(None, pattern=r"^(IR)?\d{24}$")
+
+
+class UserLogin(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
 
-    national_code: Optional[str] = Field(None, pattern=r"^\d{10}$")
+    national_code: str = Field(..., pattern=r"^\d{10}$")
+    password: str = Field(..., min_length=8, max_length=128)
 
-    full_name: Optional[str] = Field(None, min_length=3, max_length=100)
-    father_name: Optional[str] = Field(None, min_length=3, max_length=50)
 
-    phone: Optional[str] = Field(None, pattern=r"^09\d{9}$")
-    email: Optional[EmailStr] = None
+# class UserOut(BaseModel):
+#     model_config = ConfigDict(from_attributes=True)
 
-    birth_date: Optional[str] = Field(None, pattern=r"^\d{4}[/-]\d{2}[/-]\d{2}$")
-    education: Optional[str] = Field(None, max_length=50)
-    address: Optional[str] = Field(None, min_length=3)
+#     id: str
+#     role: UserRoleEnum
+#     national_code: str
+#     is_active: bool
+#     created_at: datetime
+#     last_login: Optional[datetime] = None
 
-    description: Optional[str] = None
-    avatar: Optional[str] = Field(None, pattern=r"^/media/uploads/profile/[A-Za-z0-9_\-./]+\.(jpg|jpeg|png|webp)$")
+# &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
-    referral_source: Optional[ReferralSources] = Field(None)
-    
-    parent_phone: Optional[str] = Field(None, pattern=r"^09\d{9}$")
-    
-    job_title: Optional[str] = Field(None, max_length=120)
-    specialties: Optional[str] = Field(None, max_length=255)
-    
-    card_number: Optional[str] = Field(None, pattern=r"^\d{4}-\d{4}-\d{4}-\d{4}$")
-    sheba_number: Optional[str] = Field(None, pattern=r"^(IR)?\d{24}$")
+
+class ToggleActiveStatus(BaseModel):
+    is_active: bool
+
+
+class ChangePassword(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    old_password: Optional[str] = Field(None, min_length=8, max_length=128)
+    new_password: str = Field(..., min_length=8, max_length=128)
 
 
 class UserLogin(BaseModel):
@@ -87,61 +120,15 @@ class UserOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: str
-    role: UserRole
     national_code: str
     is_active: bool
     created_at: datetime
-    last_login: datetime | None = None
+    last_login: Optional[datetime] = None
 
+    user_roles: List[UserRoleOut]
+    person: PersonOut
 
-# -----------------------------------------------------
-
-# class UserCreate(BaseModel):
-#     model_config = ConfigDict(str_strip_whitespace=True)
-
-#     national_code: str = Field(..., min_length=10, max_length=10)
-#     full_name: str = Field(..., min_length=3, max_length=120)
-#     role: UserRole = Field(default=UserRole.user)
-#     password: str = Field(..., min_length=8, max_length=128)
-
-#     @field_validator("national_code")
-#     @classmethod
-#     def validate_national_code(cls, v: str):
-#         if not validate_iran_national_code(v):
-#             raise ValueError("کد ملی معتبر نیست.")
-#         return v
-
-
-# Backward compatibility alias
-# RegisterUser = UserCreate
-
-
-class LoginUser(BaseModel):
+class UserUpdate(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
 
-    national_code: Optional[str] = None
-    phone: Optional[str] = None
-    username: Optional[str] = None
-    password: str = Field(..., min_length=8, max_length=128)
-
-
-# class UserUpdate(BaseModel):
-#     model_config = ConfigDict(str_strip_whitespace=True)
-
-#     full_name: Optional[str] = Field(None, min_length=3, max_length=120)
-#     role: Optional[UserRole] = None
-#     password: Optional[str] = Field(None, min_length=8, max_length=128)
-#     is_active: Optional[bool] = None
-
-
-# class UserOut(BaseModel):
-#     model_config = ConfigDict(from_attributes=True)
-
-#     id: str
-#     national_code: str
-#     full_name: str
-#     role: UserRole
-#     token_version: int = 1
-#     is_active: bool = True
-#     last_login: Optional[datetime] = None
-#     created_at: Optional[datetime] = None
+    national_code: Optional[str] = Field(None, pattern=r"^\d{10}$")

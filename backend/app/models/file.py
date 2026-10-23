@@ -9,7 +9,7 @@ from app.db.base import Base
 class File(Base):
     __tablename__ = "files"
 
-    id = Column(String, primary_key=True, index=True, unique=True, default=lambda: uuid.uuid4().hex)
+    id = Column(String, primary_key=True, index=True, nullable=False, unique=True, default=lambda: uuid.uuid4().hex)
 
     uploaded_by = Column(String, ForeignKey("users.id", ondelete="RESTRICT"), nullable=False)
 

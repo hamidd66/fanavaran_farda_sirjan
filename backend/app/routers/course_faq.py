@@ -12,7 +12,7 @@ from app.models.course_faq import CourseFAQ
 from app.models.course import Course
 from app.models.user import User
 from app.schemas.course_faq import CourseFAQCreate, CourseFAQUpdate, CourseFAQOut, CourseFAQApprovalUpdate
-from app.enums.user import UserRole
+from app.enums.user import UserRoleEnum
 from app.enums.course import FaqSort
 
 
@@ -31,7 +31,7 @@ def create_course_faq(
         if not db_course:
             raise HTTPException(status_code=404, detail="Course not found")
 
-        is_staff = payload.get("role") in {UserRole.admin.value, UserRole.teacher.value}
+        is_staff = payload.get("role") in {UserRoleEnum.admin.value, UserRoleEnum.teacher.value}
         parent_id = data.parent_id or None
 
         db_parent = None
@@ -49,7 +49,7 @@ def create_course_faq(
             if db_parent.parent_id is not None:
                 raise HTTPException(status_code=400, detail="Cannot reply to a reply.")
 
-            if db_parent.user.role != UserRole.user:
+            if db_parent.user.role != UserRoleEnum.user:
                 raise HTTPException(status_code=400, detail="Only student questions can receive replies.")
 
             if not db_parent.is_approved:
@@ -106,7 +106,7 @@ def get_course_faqs(
             raise HTTPException(status_code=404, detail="Course not found")
 
         user_role = payload.get("role") if payload else None
-        is_staff = user_role in {UserRole.admin.value, UserRole.teacher.value}
+        is_staff = user_role in {UserRoleEnum.admin.value, UserRoleEnum.teacher.value}
 
         query = db.query(CourseFAQ).options(
             joinedload(CourseFAQ.user).joinedload(User.student),
@@ -178,7 +178,7 @@ def update_course_faq_message(
 
         db_faq.message = data.message
 
-        is_staff = payload.get("role") in {UserRole.admin.value, UserRole.teacher.value}
+        is_staff = payload.get("role") in {UserRoleEnum.admin.value, UserRoleEnum.teacher.value}
         if not is_staff:
             db_faq.is_approved = False
 
@@ -207,7 +207,7 @@ def approve_course_faq(
     db: Session = Depends(get_db)
 ):
     try:
-        if payload.get("role") not in {UserRole.admin.value, UserRole.teacher.value}:
+        if payload.get("role") not in {UserRoleEnum.admin.value, UserRoleEnum.teacher.value}:
             raise HTTPException(status_code=403, detail="Access denied")
 
         db_faq = db.query(CourseFAQ).filter(CourseFAQ.id == faq_id).first()
@@ -244,7 +244,7 @@ def delete_course_faq(
     db: Session = Depends(get_db)
 ):
     try:
-        if payload.get("role") != UserRole.admin.value:
+        if payload.get("role") != UserRoleEnum.admin.value:
             raise HTTPException(status_code=403, detail="Access denied")
         
         db_faq = db.query(CourseFAQ).filter(CourseFAQ.id == faq_id).first()

@@ -9,7 +9,7 @@ class Enrollment(Base):
     __tablename__ = "enrollments"
     __table_args__ = (UniqueConstraint('student_id', 'classroom_id', name='uq_student_Classroom'),)
 
-    id = Column(String, primary_key=True, index=True, unique=True, default=lambda: uuid.uuid4().hex)
+    id = Column(String, primary_key=True, index=True, nullable=False, unique=True, default=lambda: uuid.uuid4().hex)
 
     student_id = Column(String, ForeignKey("students.id", ondelete="CASCADE"), nullable=False, index=True)
     classroom_id = Column(String, ForeignKey("classrooms.id", ondelete="RESTRICT"), nullable=False, index=True)

@@ -5,7 +5,7 @@ from typing import List, Optional
 from app.db.session import get_db
 from app.models.payroll import Payroll
 from app.models.classroom import Classroom
-from app.models.staff import Staff
+from app.models.staff_profile import Staff
 from app.schemas.payroll import (
     PayrollCreate,
     PayrollUpdate,

@@ -19,7 +19,7 @@ from app.models.assignment_submission import AssignmentSubmission
 from app.models.assignment_review import AssignmentReview
 from app.models.enrollment import Enrollment
 from app.models.user import User
-from app.models.student import Student
+from app.models.student_profile import Student
 from app.schemas.assignment_submission import AssignmentSubmissionCreate, AssignmentSubmissionOut, AssignmentSubmissionUpdate
 from app.enums.user import UserRole
 from app.enums.assignment import SubmissionStatus, AssignmentSubmissionSort, ReviewStatus

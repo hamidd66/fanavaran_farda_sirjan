@@ -16,7 +16,7 @@ from app.models.course import Course
 from app.models.user import User
 from app.schemas.course_content import CourseContentCreate, CourseContentUpdate, CourseContentOut
 from app.enums.course import ContentType, ContentSort
-from app.enums.user import UserRole
+from app.enums.user import UserRoleEnum
 
 
 router = APIRouter(prefix="/course-contents", tags=["Course Contents"])
@@ -30,7 +30,7 @@ def create_course_content(
     db: Session = Depends(get_db)
 ):
     try:
-        if payload.get("role") not in {UserRole.admin.value, UserRole.teacher.value}:
+        if payload.get("role") not in {UserRoleEnum.admin.value, UserRoleEnum.teacher.value}:
             raise HTTPException(status_code=403, detail="Access denied")
 
         db_course = db.query(Course).filter(Course.id == course_id).first()
@@ -175,7 +175,7 @@ def update_course_content(
     db: Session = Depends(get_db)
 ):
     try:
-        if payload.get("role") not in {UserRole.admin.value, UserRole.teacher.value}:
+        if payload.get("role") not in {UserRoleEnum.admin.value, UserRoleEnum.teacher.value}:
             raise HTTPException(status_code=403, detail="Access denied")
 
         db_content = db.query(CourseContent).filter(
@@ -229,7 +229,7 @@ def delete_course_content(
     db: Session = Depends(get_db)
 ):
     try:
-        if payload.get("role") not in {UserRole.admin.value, UserRole.teacher.value}:
+        if payload.get("role") not in {UserRoleEnum.admin.value, UserRoleEnum.teacher.value}:
             raise HTTPException(status_code=403, detail="Access denied")
 
         db_content = db.query(CourseContent).filter(

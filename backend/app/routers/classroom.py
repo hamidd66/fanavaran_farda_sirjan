@@ -14,7 +14,7 @@ from app.repositories.user_repo import get_user_data
 from app.models.classroom import Classroom
 from app.models.enrollment import Enrollment
 from app.models.course import Course
-from app.models.staff import Staff
+from app.models.staff_profile import Staff
 from app.models.user import User
 from app.schemas.classroom import ClassroomCreate, ClassroomUpdate, ClassroomOut
 from app.enums.user import UserRole

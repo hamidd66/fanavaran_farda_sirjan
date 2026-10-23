@@ -14,7 +14,7 @@ from app.repositories.user_repo import get_user_data
 from app.models.enrollment import Enrollment
 from app.models.classroom import Classroom
 from app.models.user import User
-from app.models.student import Student
+from app.models.student_profile import Student
 from app.schemas.enrollment import EnrollmentCreate, EnrollmentOut, EnrollmentUpdate
 from app.enums.enrollment import EnrollmentSort, RegistrationMethod
 from app.enums.user import UserRole

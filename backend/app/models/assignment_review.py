@@ -10,7 +10,7 @@ from app.enums.assignment import ReviewStatus
 class AssignmentReview(Base):
     __tablename__ = "assignment_reviews"
 
-    id = Column(String, primary_key=True, index=True, unique=True, default=lambda: uuid.uuid4().hex)
+    id = Column(String, primary_key=True, index=True, nullable=False, unique=True, default=lambda: uuid.uuid4().hex)
 
     submission_id = Column(String, ForeignKey("assignment_submissions.id", ondelete="CASCADE"), nullable=False, index=True)
     staff_id = Column(String, ForeignKey("staff.id", ondelete="SET NULL"), nullable=True)

@@ -1,11 +1,15 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+# uvicorn app.main:app --reload --host localhost --port 8000
+
 def setup_cors(app: FastAPI):
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],
         # allow_origins=["http://localhost:3000"],
+        # allow_origins=["http://localhost:5500"],
+        # allow_origins=["http://127.0.0.1:5500"],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],

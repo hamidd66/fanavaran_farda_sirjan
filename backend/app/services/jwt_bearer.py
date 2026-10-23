@@ -1,6 +1,7 @@
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi import Request, HTTPException, Depends
 from sqlalchemy.orm import Session
+
 from app.db.session import get_db
 from app.services.tokens import verify_token
 from app.models.user import User
@@ -11,11 +12,16 @@ class JWTBearer(HTTPBearer):
         super().__init__(auto_error=auto_error)
 
     async def __call__(self, request: Request) -> dict | None:
-        auth: HTTPAuthorizationCredentials | None = await super().__call__(request)
+        token = request.cookies.get("access_token")
 
-        if auth is None: return None
+        if not token:
+            auth: HTTPAuthorizationCredentials | None = await super().__call__(request)
 
-        payload = verify_token(auth.credentials)
+            if auth is None: return None
+
+            token = auth.credentials
+
+        payload = verify_token(token)
 
         if payload is None:
             if self.auto_error:
@@ -48,13 +54,13 @@ def _validate_user(payload: dict | None, db: Session) -> bool:
     token_version = payload.get("token_version")
     if token_version is None: return False
 
-    user = db.query(User).filter(
-        User.id == user_id
+    user_exists = db.query(User.id).filter(
+        User.id == user_id,
+        User.is_active.is_(True),
+        User.is_deleted.is_(False),
+        User.token_version == token_version
     ).first()
-    if user is None: return False
 
-    if not user.is_active: return False
-
-    if user.token_version != token_version: return False
+    if user_exists is None: return False
 
     return True

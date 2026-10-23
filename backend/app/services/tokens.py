@@ -49,13 +49,13 @@ def verify_token(token: str):
 def generate_access_token(user):
     return create_access_token({
         "sub": user.id,
-        "role": user.role.value,
+        "role": [role.role.name for role in user.user_roles],
         "token_version": user.token_version,
     })
 
 def generate_refresh_token(user):
     return create_refresh_token({
         "sub": user.id,
-        "role": user.role.value,
+        "role": [role.role.name for role in user.user_roles],
         "token_version": user.token_version,
     })

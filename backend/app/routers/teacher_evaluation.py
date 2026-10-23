@@ -5,8 +5,8 @@ from typing import List, Optional
 from app.db.session import get_db
 from app.models.teacher_evaluation import TeacherEvaluation
 from app.models.classroom import Classroom
-from app.models.staff import Staff
-from app.models.student import Student
+from app.models.staff_profile import Staff
+from app.models.student_profile import Student
 from app.schemas.teacher_evaluation import (
     TeacherEvaluationCreate,
     TeacherEvaluationUpdate,

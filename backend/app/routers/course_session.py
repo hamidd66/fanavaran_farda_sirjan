@@ -16,7 +16,7 @@ from app.models.enrollment import Enrollment
 from app.models.course_session import CourseSession
 from app.models.user import User
 from app.schemas.course_session import CourseSessionCreate, CourseSessionOut, CourseSessionUpdate, CourseSessionBrief
-from app.enums.user import UserRole
+from app.enums.user import UserRoleEnum
 from app.enums.course import SessionType, CourseSessionSort
 
 
@@ -34,7 +34,7 @@ def create_course_session(
         current_user_id = payload.get("sub")
         current_role = payload.get("role")
 
-        if current_role not in {UserRole.admin.value, UserRole.teacher.value}:
+        if current_role not in {UserRoleEnum.admin.value, UserRoleEnum.teacher.value}:
             raise HTTPException(status_code=403, detail="Access denied")
 
         db_course = db.query(Course).filter(Course.id == course_id).first()
@@ -143,7 +143,7 @@ def get_course_sessions(
         db_user = get_user_data(db, User.id == current_user_id, first=True)
         enrolled_course_ids = set()
 
-        if current_role == UserRole.user.value and current_user_id:
+        if current_role == UserRoleEnum.user.value and current_user_id:
             enrolled_results = db.query(Classroom.course_id).join(
                 Enrollment, Enrollment.classroom_id == Classroom.id
             ).filter(
@@ -175,10 +175,10 @@ def get_course_sessions(
             if session.is_free_preview:
                 session_dict = CourseSessionOut.model_validate(session).model_dump()
 
-            elif current_role in {UserRole.admin.value, UserRole.teacher.value}:
+            elif current_role in {UserRoleEnum.admin.value, UserRoleEnum.teacher.value}:
                 session_dict = CourseSessionOut.model_validate(session).model_dump()
 
-            elif current_role == UserRole.user.value and session.course_id in enrolled_course_ids:
+            elif current_role == UserRoleEnum.user.value and session.course_id in enrolled_course_ids:
                 session_dict = CourseSessionOut.model_validate(session).model_dump()
                 
             else:
@@ -226,10 +226,10 @@ def get_course_session(
         if db_session.is_free_preview:
             has_full_access = True
 
-        elif current_role in {UserRole.admin.value, UserRole.teacher.value}:
+        elif current_role in {UserRoleEnum.admin.value, UserRoleEnum.teacher.value}:
             has_full_access = True
 
-        elif current_role == UserRole.user.value and current_user_id:
+        elif current_role == UserRoleEnum.user.value and current_user_id:
             db_user = get_user_data(db, User.id == current_user_id, first=True)
 
             is_enrolled = db.query(Enrollment).join(Classroom).filter(
@@ -274,7 +274,7 @@ def update_course_session(
         current_user_id = payload.get("sub")
         current_role = payload.get("role")
 
-        if current_role not in {UserRole.admin.value, UserRole.teacher.value}:
+        if current_role not in {UserRoleEnum.admin.value, UserRoleEnum.teacher.value}:
             raise HTTPException(status_code=403, detail="Access denied")
 
         db_session = db.query(CourseSession).options(
@@ -284,7 +284,7 @@ def update_course_session(
         if not db_session:
             raise HTTPException(status_code=404, detail="Course session not found")
 
-        if current_role == UserRole.teacher.value:
+        if current_role == UserRoleEnum.teacher.value:
             db_user = get_user_data(db, User.id == current_user_id, first=True)
 
             if not db_user or not db_user.staff:
@@ -352,14 +352,14 @@ def delete_course_session(
         current_user_id = payload.get("sub")
         current_role = payload.get("role")
 
-        if current_role not in {UserRole.admin.value, UserRole.teacher.value}:
+        if current_role not in {UserRoleEnum.admin.value, UserRoleEnum.teacher.value}:
             raise HTTPException(status_code=403, detail="Access denied")
 
         db_session = db.query(CourseSession).filter(CourseSession.id == session_id).first()
         if not db_session:
             raise HTTPException(status_code=404, detail="Course session not found")
 
-        if current_role == UserRole.teacher.value:
+        if current_role == UserRoleEnum.teacher.value:
             db_user = get_user_data(db, User.id == current_user_id, first=True)
 
             if not db_user or not db_user.staff:

@@ -8,7 +8,7 @@ import uuid
 class CourseFAQ(Base):
     __tablename__ = "course_faqs"
 
-    id = Column(String, primary_key=True, index=True, unique=True, default=lambda: uuid.uuid4().hex)
+    id = Column(String, primary_key=True, index=True, nullable=False, unique=True, default=lambda: uuid.uuid4().hex)
 
     course_id = Column(String, ForeignKey("courses.id", ondelete="CASCADE"), nullable=False, index=True)
     sender_id = Column(String, ForeignKey("users.id", ondelete="SET NULL"), nullable=False)
