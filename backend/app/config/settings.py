@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     IP_WINDOW_MINUTES: int
     IP_LOCKOUT_MINUTES: int
 
-    ALLOWED_FOLDERS: list = ["course", "classroom", "person", "specialties", "roles"]
+    ALLOWED_FOLDERS: list = ["course", "classroom", "person", "specialties", "roles", "courses", "course_categories"]
     ALLOWED_EXTENSIONS: list = ["jpg", "jpeg", "png", "webp"]
     ALLOWED_CONTENT_TYPES: list = ["image/jpg", "image/jpeg", "image/png", "image/webp"]
     MAX_FILE_SIZE: int = 5 * 1024 * 1024  # 5MB

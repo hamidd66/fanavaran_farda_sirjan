@@ -232,10 +232,8 @@ async def update_specialty(
 
             deleted_attachment_ids = [file_att.id for file_att in db_specialty.file_attachments if file_att.purpose == "image"]
             if deleted_attachment_ids:
-                _, _, deleted_paths = remove_files(
-                    db=db,
-                    attachment_ids=deleted_attachment_ids
-                )
+                result = remove_files(db=db, attachment_ids=deleted_attachment_ids)
+                deleted_paths = result["deleted_paths"]
 
             await add_files(
                 db=db,
@@ -305,15 +303,15 @@ def delete_specialty(
             raise HTTPException(status_code=400, detail="Cannot delete specialty because it is assigned to one or more users.")
 
         is_image = False
+        deleted_paths = []
+
         if db_specialty.file_attachments:
             is_image = True
             
             deleted_attachment_ids = [file_att.id for file_att in db_specialty.file_attachments if file_att.purpose == "image"]
             if deleted_attachment_ids:
-                _, _, deleted_paths = remove_files(
-                    db=db,
-                    attachment_ids=deleted_attachment_ids
-                )
+                result = remove_files(db=db, attachment_ids=deleted_attachment_ids)
+                deleted_paths = result["deleted_paths"]
 
         db.delete(db_specialty)
 

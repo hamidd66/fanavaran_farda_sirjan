@@ -896,10 +896,8 @@ async def update_user(
 
             deleted_attachment_ids = [file_att.id for file_att in db_user.person.file_attachments if file_att.purpose == "avatar"]
             if deleted_attachment_ids:
-                _, _, deleted_paths = remove_files(
-                    db=db,
-                    attachment_ids=deleted_attachment_ids
-                )
+                result = remove_files(db=db, attachment_ids=deleted_attachment_ids)
+                deleted_paths = result["deleted_paths"]
 
             await add_files(
                 db=db,

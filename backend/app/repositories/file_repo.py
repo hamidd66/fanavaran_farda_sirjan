@@ -1,6 +1,7 @@
 ﻿from sqlalchemy.orm import Session, selectinload
 from fastapi import UploadFile, HTTPException
 from typing import List, Optional
+from sqlalchemy import func
 
 from app.models.file_attachment import FileAttachment
 from app.models.file import File
@@ -51,6 +52,7 @@ async def add_files(
             for db_file, sf in zip(db_files, saved_files)
         ]
         db.add_all(db_attachments)
+        db.flush()
 
         return db_files, db_attachments
         
@@ -108,9 +110,8 @@ def remove_files(
             if not has_remaining_attachments:
                 deleted_paths.append(db_file.file_path)
                 db.delete(db_file)
-        
-        if deleted_paths:
-            delete_files(deleted_paths)
+
+        db.flush()
 
         return {
             "deleted_attachments_count": len(deleted_attachment_ids),
@@ -122,4 +123,41 @@ def remove_files(
         raise
     except Exception:
         raise HTTPException(status_code=500, detail="Failed to delete files")
+
+
+def reorder_files(
+    db: Session,
+    entity_id: str,
+    entity_type: str,
+    purpose: str,
+) -> int:
+    try:
+
+        db_attachments = (
+            db.query(FileAttachment)
+            .filter(
+                FileAttachment.entity_id == entity_id,
+                FileAttachment.entity_type == entity_type,
+                FileAttachment.purpose == purpose,
+            )
+            .order_by(
+                FileAttachment.display_order.asc(),
+                FileAttachment.created_at.asc(),
+                FileAttachment.id.asc()
+            )
+            .all()
+        )
+
+        for index, attachment in enumerate(db_attachments, start=1):
+            if attachment.display_order != index:
+                attachment.display_order = index
+
+        db.flush()
+
+        return len(db_attachments)
+
+    except HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(status_code=500, detail="Failed to reorder files")
 

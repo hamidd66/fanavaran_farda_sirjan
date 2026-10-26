@@ -11,10 +11,6 @@ class CategorySort(enum.Enum):
 class CourseSort(enum.Enum):
     newest = "newest"
     oldest = "oldest"
-    tuition_asc = "tuition_asc"
-    tuition_desc = "tuition_desc"
-    title_asc = "title_asc"
-    title_desc = "title_desc"
 
 
 class ContentType(enum.Enum):

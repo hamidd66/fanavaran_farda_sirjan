@@ -1,4 +1,4 @@
-﻿from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+﻿from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, UniqueConstraint
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 import uuid
@@ -8,6 +8,17 @@ from app.db.base import Base
 
 class FileAttachment(Base):
     __tablename__ = "file_attachments"
+    __table_args__ = (
+        UniqueConstraint(
+            "entity_id",
+            "entity_type",
+            "purpose",
+            "display_order",
+            name="uq_attachment_display_order",
+            deferrable=True,
+            initially="DEFERRED"
+        ),
+    )
 
     id = Column(String, primary_key=True, index=True, nullable=False, unique=True, default=lambda: uuid.uuid4().hex)
 

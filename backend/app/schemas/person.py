@@ -18,15 +18,15 @@ NULLABLE_FIELDS = {
 class PersonUpdate(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
 
-    full_name: Optional[str] = Field(None, min_length=1)
-    father_name: Optional[str] = Field(None, min_length=1)
+    full_name: Optional[str] = Field(None, min_length=2)
+    father_name: Optional[str] = Field(None, min_length=2)
     birth_date: Optional[date] = None
     gender: Optional[Gender] = None
-    phone: Optional[str] = Field(None, min_length=1)
+    phone: Optional[str] = Field(None, min_length=2)
     email: Optional[EmailStr] = None
-    address: Optional[str] = Field(None, min_length=1)
-    description: Optional[str] = Field(None, min_length=1)
-    field_of_study: Optional[str] = Field(None, min_length=1)
+    address: Optional[str] = Field(None, min_length=2)
+    description: Optional[str] = Field(None, min_length=0)
+    field_of_study: Optional[str] = Field(None, min_length=0)
     education_level: Optional[EducationLevel] = None
     referral_source: Optional[ReferralSources] = None
 
@@ -35,7 +35,7 @@ class PersonUpdate(BaseModel):
         for field in self.model_fields_set:
             value = getattr(self, field)
             if value is None and field not in NULLABLE_FIELDS: raise ValueError(f"{field} cannot be null")
-            if isinstance(value, str) and not value.strip(): raise ValueError(f"{field} cannot be an empty string")
+            if isinstance(value, str) and not value.strip() and field not in NULLABLE_FIELDS: raise ValueError(f"{field} cannot be an empty string")
         return self
 
 

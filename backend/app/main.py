@@ -94,8 +94,8 @@ from app.routers import (
     user_role,
     specialty,
     user_specialty,
-    # course_category, 
-    # course, 
+    course_category, 
+    course, 
     # course_session, 
     # course_content,
     # course_faq, 
@@ -126,7 +126,7 @@ from app.routers import (
 )
 
 
-# # ۲. ساخت جداول دیتابیس
+# Base.metadata.drop_all(bind=engine)
 Base.metadata.create_all(bind=engine)
 
 # ۴. ساخت نمونه FastAPI (این خط حتماً باید قبل از include_router باشد)
@@ -140,10 +140,8 @@ app.include_router(role.router)
 app.include_router(user_role.router)
 app.include_router(specialty.router)
 app.include_router(user_specialty.router)
-# app.include_router(student.router)
-# app.include_router(staff.router)
-# app.include_router(course_category.router) 
-# app.include_router(course.router)
+app.include_router(course_category.router) 
+app.include_router(course.router)
 # app.include_router(course_session.router)
 # app.include_router(course_content.router)
 # app.include_router(course_faq.router)
