@@ -26,15 +26,15 @@ router = APIRouter(prefix="/courses", tags=["Courses"])
 
 @router.post("/")
 async def create_course(
-    data: str = Form(...),
-    images: List[UploadFile] = File(...),
+    data: str = Form(..., description='{"category_id": "", "title": "", "prerequisites": "", "short_description": "", "long_description": "", "has_certificate": true, "is_active": true}'),
+    images: List[UploadFile] | None = File(None),
     payload: dict = Depends(get_payload),
     db: Session = Depends(get_db)
 ):
     try:
         user_id = payload.get("sub")
-        
-        if payload.get("role") not in {UserRoleEnum.admin.value, UserRoleEnum.teacher.value}:
+
+        if not any(role in {UserRoleEnum.admin.value, UserRoleEnum.teacher.value} for role in payload.get("role", [])):
             raise HTTPException(status_code=403, detail="Access denied")
 
         course_data = CourseCreate.model_validate_json(data)
@@ -108,7 +108,8 @@ def get_courses(
     search: Optional[str] = Query(None),
     sort: Optional[CourseSort] = Query(None),
     category_id: Optional[str] = Query(None),
-    is_deleted: Optional[bool] = Query(True),
+    is_deleted: Optional[bool] = Query(None),
+    is_active: Optional[bool] = Query(None),
 ):
     try:
         viewer_is_admin = bool(payload) and "admin" in payload.get("role", [])
@@ -119,10 +120,13 @@ def get_courses(
         )
 
         if viewer_is_admin:
-            if is_deleted is not None:
+            if is_deleted is not None:  
                 query = query.filter(Course.is_deleted == is_deleted)
         else:
-            query = query.filter(Course.is_deleted.is_(True))
+            query = query.filter(Course.is_deleted.is_(False))
+
+        if is_active:
+            query = query.filter(Course.is_active == is_active)
 
         if category_id:
             query = query.filter(Course.category_id == category_id)
@@ -215,14 +219,14 @@ def get_course_by_id(
 async def update_course(
     course_id: str,
     data: str = Form(...),
-    images: Optional[List[UploadFile]] = File(None),
+    images: List[UploadFile] | None = File(None),
     payload: dict = Depends(get_payload),
     db: Session = Depends(get_db)
 ):
     try:
         user_id = payload.get("sub")
-
-        if payload.get("role") not in {UserRoleEnum.admin.value, UserRoleEnum.teacher.value}:
+        
+        if not any(role in {UserRoleEnum.admin.value, UserRoleEnum.teacher.value} for role in payload.get("role", [])):
             raise HTTPException(status_code=403, detail="Access denied")
 
         course_data = CourseUpdate.model_validate_json(data)

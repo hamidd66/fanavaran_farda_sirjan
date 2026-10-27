@@ -11,7 +11,7 @@ class Specialty(Base):
     __tablename__ = "specialties"
 
     id = Column(String, primary_key=True, index=True, nullable=False, unique=True, default=lambda: uuid.uuid4().hex)
-    created_by = Column(String, ForeignKey("users.id", ondelete="SET NULL"), nullable=False, index=True)
+    created_by = Column(String, ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
 
     name = Column(String(100), unique=True, nullable=False)
     description = Column(Text, nullable=True)

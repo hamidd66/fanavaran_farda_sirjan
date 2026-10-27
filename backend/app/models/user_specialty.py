@@ -11,7 +11,7 @@ class UserSpecialty(Base):
     id = Column(String, primary_key=True, index=True, nullable=False, unique=True, default=lambda: uuid.uuid4().hex)
     person_id = Column(String, ForeignKey("persons.id", ondelete="CASCADE"), nullable=False, index=True)
     specialty_id = Column(String, ForeignKey("specialties.id", ondelete="RESTRICT"), nullable=False, index=True)
-    assigned_by = Column(String, ForeignKey("users.id", ondelete="SET NULL"), nullable=False, index=True)
+    assigned_by = Column(String, ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
 
     assigned_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 

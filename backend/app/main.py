@@ -14,8 +14,8 @@ from fastapi.staticfiles import StaticFiles
 # import asyncio
 # import logging
 
-from .db.database import engine
-from .db.base import Base
+# from .db.database import engine
+# from .db.base import Base
 # from .db.session import SessionLocal
 # from .config.settings import settings
 from .middleware.exception_handler import http_exception_handler, general_exception_handler, validation_exception_handler
@@ -125,9 +125,9 @@ from app.routers import (
     # dashboard
 )
 
-
+# دیگه کار با alembic انجام میشه
 # Base.metadata.drop_all(bind=engine)
-Base.metadata.create_all(bind=engine)
+# Base.metadata.create_all(bind=engine)
 
 # ۴. ساخت نمونه FastAPI (این خط حتماً باید قبل از include_router باشد)
 app = FastAPI(title="Fanavaran farda")

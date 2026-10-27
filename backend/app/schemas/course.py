@@ -50,16 +50,14 @@ class CourseOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: str
+    created_by: str
     title: str
     prerequisites: str
     short_description: str
     long_description: str
-    tuition: int
     has_certificate: bool
     is_active: bool
     is_deleted: bool
-    sessions_count: int
-    duration_hours: int
     created_at: datetime
     updated_at: Optional[datetime] = None
 

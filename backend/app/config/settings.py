@@ -28,6 +28,7 @@ class Settings(BaseSettings):
     STAFF_ROLES: ClassVar[set[str]] = {UserRoleEnum.admin.value, UserRoleEnum.teacher.value, UserRoleEnum.owner.value}
     STUDENT_ROLES: ClassVar[set[str]] = {UserRoleEnum.student.value, UserRoleEnum.user.value}
 
+    PROJECT_TABLES: ClassVar[set[str]] = {"users", "persons", "staff_profiles", "student_profiles", "roles", "user_roles", "specialties", "user_specialties", "audit_logs", "files", "file_attachments", "course_categories", "courses"}
 
     class Config:
         env_file = ".env"

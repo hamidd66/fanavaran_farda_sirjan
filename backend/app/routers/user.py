@@ -891,6 +891,7 @@ async def update_user(
         if not changed_keys and not avatar:
             raise HTTPException(status_code=400, detail="No fields to update")
 
+        deleted_paths = []
         if avatar:
             changed_keys.append("avatar")
 

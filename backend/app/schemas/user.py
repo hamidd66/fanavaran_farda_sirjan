@@ -126,7 +126,7 @@ class UserOut(BaseModel):
     last_login: Optional[datetime] = None
 
     user_roles: List[UserRoleOut]
-    person: PersonOut
+    person: Optional[PersonOut]
 
 class UserUpdate(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
