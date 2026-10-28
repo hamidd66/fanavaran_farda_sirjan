@@ -1,4 +1,5 @@
-﻿from sqlalchemy.orm import Session, selectinload
+﻿from uuid import UUID
+from sqlalchemy.orm import Session, selectinload
 from fastapi import UploadFile, HTTPException
 from typing import List, Optional
 from sqlalchemy import func
@@ -11,8 +12,8 @@ from app.utils.delete_file import delete_files
 
 async def add_files(
     db: Session,
-    uploaded_by: str,
-    entity_id: str,
+    uploaded_by: UUID,
+    entity_id: UUID,
     entity_type: str,
     files: List[UploadFile],
     purpose: str,
@@ -66,7 +67,7 @@ async def add_files(
 
 def remove_files(
     db: Session,
-    attachment_ids: List[str],
+    attachment_ids: List[UUID],
 ) -> dict:
 
     deleted_paths: list[str] = []
@@ -127,7 +128,7 @@ def remove_files(
 
 def reorder_files(
     db: Session,
-    entity_id: str,
+    entity_id: UUID,
     entity_type: str,
     purpose: str,
 ) -> int:

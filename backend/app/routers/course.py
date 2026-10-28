@@ -1,3 +1,4 @@
+from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File, Form
 from sqlalchemy import or_
 from sqlalchemy.exc import IntegrityError
@@ -32,8 +33,8 @@ async def create_course(
     db: Session = Depends(get_db)
 ):
     try:
-        user_id = payload.get("sub")
-
+        user_id = UUID(payload.get("sub"))
+        
         if not any(role in {UserRoleEnum.admin.value, UserRoleEnum.teacher.value} for role in payload.get("role", [])):
             raise HTTPException(status_code=403, detail="Access denied")
 
@@ -177,7 +178,7 @@ def get_courses(
 
 @router.get("/{course_id}")
 def get_course_by_id(
-    course_id: str,
+    course_id: UUID,
     payload: dict | None = Depends(get_optional_payload),
     db: Session = Depends(get_db)
 ):
@@ -217,14 +218,14 @@ def get_course_by_id(
 
 @router.patch("/{course_id}")
 async def update_course(
-    course_id: str,
+    course_id: UUID,
     data: str = Form(...),
     images: List[UploadFile] | None = File(None),
     payload: dict = Depends(get_payload),
     db: Session = Depends(get_db)
 ):
     try:
-        user_id = payload.get("sub")
+        user_id = UUID(payload.get("sub"))
         
         if not any(role in {UserRoleEnum.admin.value, UserRoleEnum.teacher.value} for role in payload.get("role", [])):
             raise HTTPException(status_code=403, detail="Access denied")
@@ -337,12 +338,13 @@ async def update_course(
 
 @router.patch("/{course_id}/toggle-active")
 def toggle_course_active_status(
-    course_id: str,
+    course_id: UUID,
     data: ToggleCourseActiveStatus,
     payload: dict = Depends(get_payload),
     db: Session = Depends(get_db),
 ):
     try:
+        admin_id = UUID(payload.get("sub"))
         if "admin" not in payload.get("role", []):
             raise HTTPException(status_code=403, detail="Access denied")
 
@@ -355,7 +357,7 @@ def toggle_course_active_status(
 
         db_course.is_active = data.is_active
         log = AuditLog(
-            user_id=payload.get("sub"),
+            user_id=admin_id,
             entity_id=db_course.id,
             entity_type="Course",
             action=ActionTypes.update,
@@ -381,12 +383,13 @@ def toggle_course_active_status(
 
 @router.patch("/{course_id}/soft-delete")
 def toggle_soft_delete_course(
-    course_id: str,
+    course_id: UUID,
     data: ToggleCourseDeleteStatus,
     payload: dict = Depends(get_payload),
     db: Session = Depends(get_db),
 ):
     try:
+        admin_id = UUID(payload.get("sub"))
         if "admin" not in payload.get("role", []):
             raise HTTPException(status_code=403, detail="Access denied")
 
@@ -400,7 +403,7 @@ def toggle_soft_delete_course(
         db_course.is_deleted = data.is_deleted
 
         log = AuditLog(
-            user_id=payload.get("sub"),
+            user_id=admin_id,
             entity_id=db_course.id,
             entity_type="Course",
             action=ActionTypes.update,
@@ -426,11 +429,12 @@ def toggle_soft_delete_course(
 
 @router.delete("/{course_id}/hard-delete")
 def hard_delete_course(
-    course_id: str,
+    course_id: UUID,
     payload: dict = Depends(get_payload),
     db: Session = Depends(get_db),
 ):
     try:
+        admin_id = UUID(payload.get("sub"))
         if "admin" not in payload.get("role", []):
             raise HTTPException(status_code=403, detail="Access denied")
 

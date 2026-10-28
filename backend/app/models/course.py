@@ -1,7 +1,6 @@
-from sqlalchemy import Column, String, Text, Boolean, DateTime, ForeignKey, and_
+from sqlalchemy import Column, String, Text, Boolean, DateTime, ForeignKey, and_, func, text
 from sqlalchemy.orm import relationship, foreign
-from sqlalchemy.sql import func
-import uuid
+from sqlalchemy.dialects.postgresql import UUID
 
 from app.db.base import Base
 from app.models.file_attachment import FileAttachment
@@ -10,9 +9,10 @@ from app.models.file_attachment import FileAttachment
 class Course(Base):
     __tablename__ = "courses"
 
-    id = Column(String, primary_key=True, index=True, nullable=False, unique=True, default=lambda: uuid.uuid4().hex)
-    category_id = Column(String, ForeignKey("course_categories.id", ondelete="RESTRICT"), nullable=False, index=True)
-    created_by = Column(String, ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"))
+
+    category_id = Column(UUID(as_uuid=True), ForeignKey("course_categories.id", ondelete="RESTRICT"), nullable=False, index=True)
+    created_by = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
 
     title = Column(String(200), nullable=False, index=True)
     prerequisites = Column(String(300), nullable=False)

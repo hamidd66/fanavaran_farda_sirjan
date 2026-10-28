@@ -1,8 +1,6 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, text, func, and_
 from sqlalchemy.orm import relationship, foreign
-from sqlalchemy.sql import func
-from sqlalchemy import and_
-import uuid
+from sqlalchemy.dialects.postgresql import UUID
 
 from app.db.base import Base
 from app.models.audit_logs import AuditLog
@@ -11,7 +9,7 @@ from app.models.audit_logs import AuditLog
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(String, primary_key=True, index=True, nullable=False, unique=True, default=lambda: uuid.uuid4().hex)
+    id = Column(UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"))
 
     national_code = Column(String(10), unique=True, index=True, nullable=False)
     password = Column(String(255), nullable=False)
@@ -42,7 +40,7 @@ class User(Base):
         "AuditLog",
         primaryjoin=lambda: and_(
             User.id == foreign(AuditLog.entity_id),
-            AuditLog.entity_type == "user",
+            AuditLog.entity_type == "users",
         ),
         viewonly=True,
     )

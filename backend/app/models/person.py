@@ -1,7 +1,7 @@
-from sqlalchemy import Column, String, Date, DateTime, ForeignKey, Text, Enum, and_
+from sqlalchemy import Column, String, Date, DateTime, ForeignKey, Text, Enum, and_, func, text
 from sqlalchemy.orm import relationship, foreign
-from sqlalchemy.sql import func
-import uuid
+from sqlalchemy.dialects.postgresql import UUID
+
 
 from app.db.base import Base
 from app.enums.person import Gender, EducationLevel
@@ -12,8 +12,8 @@ from app.models.file_attachment import FileAttachment
 class Person(Base):
     __tablename__ = "persons"
 
-    id = Column(String, primary_key=True, index=True, nullable=False, unique=True, default=lambda: uuid.uuid4().hex)
-    user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, unique=True, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"))
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, unique=True, index=True)
     
     full_name = Column(String(120), nullable=False)
     father_name = Column(String(80), nullable=False)
@@ -39,7 +39,8 @@ class Person(Base):
         "FileAttachment",
         primaryjoin=lambda: and_(
             Person.id == foreign(FileAttachment.entity_id),
-            FileAttachment.entity_type == "person",
+            FileAttachment.entity_type == "persons",
         ),
         viewonly=True,
     )
+

@@ -1,3 +1,4 @@
+from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, Form, File
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
@@ -29,7 +30,7 @@ async def create_specialty(
     db: Session = Depends(get_db)
 ):
     try:
-        admin_id = payload.get("sub")
+        admin_id = UUID(payload.get("sub"))
 
         if "admin" not in payload.get("role", []):
             raise HTTPException(status_code=403, detail="Access denied")
@@ -138,7 +139,7 @@ def batch_update_specialties_status(
     db: Session = Depends(get_db)
 ):
     try:
-        admin_id = payload.get("sub")
+        admin_id = UUID(payload.get("sub"))
 
         if "admin" not in payload.get("role", []):
             raise HTTPException(status_code=403, detail="Access denied")
@@ -193,7 +194,7 @@ def batch_update_specialties_status(
 
 @router.patch("/{specialty_id}")
 async def update_specialty(
-    specialty_id: str,
+    specialty_id: UUID,
     data: str = Form(...),
     image: UploadFile | None = File(None),
     payload: dict = Depends(get_payload),
@@ -284,7 +285,7 @@ async def update_specialty(
 
 @router.delete("/{specialty_id}")
 def delete_specialty(
-    specialty_id: str,
+    specialty_id: UUID,
     payload: dict = Depends(get_payload),
     db: Session = Depends(get_db)
 ):

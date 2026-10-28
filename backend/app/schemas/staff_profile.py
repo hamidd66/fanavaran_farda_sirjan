@@ -1,3 +1,4 @@
+from uuid import UUID
 from datetime import datetime, date
 from typing import Optional, List
 from pydantic import BaseModel, EmailStr, Field, ConfigDict, field_validator
@@ -125,8 +126,8 @@ class StaffCreateByAdmin(BaseModel):
     hire_date: date = Field(...)
 
     # Roles and specialties
-    role_ids: List[str] = Field(..., min_length=1)
-    specialty_ids: Optional[List[str]] = None
+    role_ids: List[UUID] = Field(..., min_length=1)
+    specialty_ids: Optional[List[UUID]] = None
 
 
 class StaffUpdate(BaseModel):
@@ -154,8 +155,8 @@ class RegisterStaffProfileSchema(BaseModel):
 class StaffProfileOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: str
-    person_id: str
+    id: UUID
+    person_id: UUID
     employment_status: StaffEmploymentStatus
     employment_type: EmploymentType
     job_title: str

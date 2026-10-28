@@ -1,3 +1,4 @@
+from uuid import UUID
 from pydantic import BaseModel, Field, ConfigDict, model_validator
 from typing import Optional, List
 from datetime import datetime
@@ -37,7 +38,7 @@ class CourseCategoryUpdate(BaseModel):
 
 class CategoryStatusItem(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
-    category_id: str
+    category_id: UUID
     is_active: bool
 
 class BatchCategoriesStatus(BaseModel):
@@ -46,7 +47,7 @@ class BatchCategoriesStatus(BaseModel):
 
 
 class CourseCategoryOrderItem(BaseModel):
-    id: str = Field(...)
+    id: UUID = Field(...)
     display_order: int = Field(..., ge=0)
 
 
@@ -57,8 +58,8 @@ class CourseCategoryOrderItemUpdate(BaseModel):
 class CourseCategoryOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: str
-    created_by: Optional[str] = None
+    id: UUID
+    created_by: Optional[UUID] = None
     name: str
     slug: str
     description: Optional[str] = None

@@ -1,3 +1,4 @@
+from uuid import UUID
 from datetime import datetime, date
 from typing import Optional, List
 from pydantic import BaseModel, Field, ConfigDict, EmailStr, model_validator
@@ -42,8 +43,8 @@ class PersonUpdate(BaseModel):
 class PersonOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: str
-    user_id: str
+    id: UUID
+    user_id: UUID
     full_name: str
     father_name: str
     birth_date: date

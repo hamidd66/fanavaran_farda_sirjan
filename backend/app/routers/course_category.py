@@ -1,3 +1,4 @@
+from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File, Form
 from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.exc import IntegrityError
@@ -189,7 +190,7 @@ def get_course_categories(
 
 @router.get("/{category_id}")
 def get_course_category_by_id(
-    category_id: str,
+    category_id: UUID,
     payload: dict | None = Depends(get_optional_payload),
     db: Session = Depends(get_db)
 ):
@@ -345,7 +346,7 @@ def batch_update_categories_status(
 
 @router.patch("/{category_id}")
 async def update_course_category(
-    category_id: str,
+    category_id: UUID,
     data: str = Form(...),
     image: UploadFile | None = File(None),
     payload: dict = Depends(get_payload),
@@ -447,7 +448,7 @@ async def update_course_category(
 
 @router.delete("/{category_id}")
 def delete_course_category(
-    category_id: str,
+    category_id: UUID,
     payload: dict = Depends(get_payload),
     db: Session = Depends(get_db)
 ):

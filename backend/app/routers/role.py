@@ -1,3 +1,4 @@
+from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File, Form
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
@@ -83,7 +84,7 @@ def batch_update_roles_status(
 
 @router.patch("/{role_id}")
 async def update_role_info(
-    role_id: str,
+    role_id: UUID,
     data: str = Form(...),
     image: UploadFile | None = File(None),
     payload: dict = Depends(get_payload),

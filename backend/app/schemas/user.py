@@ -1,3 +1,4 @@
+from uuid import UUID
 from datetime import datetime
 from typing import Optional, List
 from pydantic import BaseModel, Field, ConfigDict, EmailStr
@@ -119,7 +120,7 @@ class UserLogin(BaseModel):
 class UserOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: str
+    id: UUID
     national_code: str
     is_active: bool
     created_at: datetime

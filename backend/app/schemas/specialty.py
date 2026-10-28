@@ -1,3 +1,4 @@
+from uuid import UUID
 from datetime import datetime, date
 from typing import Optional, List
 from pydantic import BaseModel, Field, ConfigDict
@@ -23,7 +24,7 @@ class SpecialtyUpdate(BaseModel):
 
 class SpecialtyStatusItem(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
-    specialty_id: str
+    specialty_id: UUID
     is_active: bool
 
 class BatchSpecialtiesStatus(BaseModel):
@@ -34,8 +35,8 @@ class BatchSpecialtiesStatus(BaseModel):
 class SpecialtyOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: str
-    created_by: str
+    id: UUID
+    created_by: UUID
     name: str
     description: Optional[str] = None
     is_active: bool

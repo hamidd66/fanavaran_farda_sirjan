@@ -1,3 +1,4 @@
+from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, Cookie, Request, File, UploadFile, Form
 from sqlalchemy import or_
 from sqlalchemy.exc import IntegrityError
@@ -104,7 +105,7 @@ async def register_student(
         log = AuditLog(
             user_id=new_user.id,
             entity_id=new_user.id,
-            entity_type="User",
+            entity_type="users",
             action=ActionTypes.create,
             changed_fields=["national_code", "password"],
         )
@@ -115,7 +116,7 @@ async def register_student(
                 db=db,
                 uploaded_by=new_user.id,
                 entity_id=new_person.id,
-                entity_type="person",
+                entity_type="persons",
                 purpose="avatar",
                 files=[avatar],
                 display_order=[1]
@@ -165,7 +166,7 @@ async def register_student_by_admin(
         if "admin" not in payload.get("role", []):
             raise HTTPException(status_code=403, detail="Access denied")
 
-        admin_id = payload.get("sub")
+        admin_id = UUID(payload.get("sub"))
         student_data = StudentCreateByAdmin.model_validate_json(data)
 
         existing_user = get_user_data(db, User.national_code == student_data.national_code)
@@ -238,7 +239,7 @@ async def register_student_by_admin(
         log = AuditLog(
             user_id=admin_id,
             entity_id=new_user.id,
-            entity_type="User",
+            entity_type="users",
             action=ActionTypes.create,
             changed_fields=["national_code", "password", "is_active"],
         )
@@ -249,7 +250,7 @@ async def register_student_by_admin(
                 db=db,
                 uploaded_by=admin_id,
                 entity_id=new_person.id,
-                entity_type="person",
+                entity_type="persons",
                 purpose="avatar",
                 files=[avatar],
                 display_order=[1]
@@ -289,7 +290,7 @@ async def register_staff_by_admin(
         if "admin" not in payload.get("role", []):
             raise HTTPException(status_code=403, detail="Access denied")
 
-        admin_id = payload.get("sub")
+        admin_id = UUID(payload.get("sub"))
         staff_data = StaffCreateByAdmin.model_validate_json(data)
 
         existing_user = get_user_data(db, User.national_code == staff_data.national_code)
@@ -373,7 +374,7 @@ async def register_staff_by_admin(
         log = AuditLog(
             user_id=admin_id,
             entity_id=new_user.id,
-            entity_type="User",
+            entity_type="users",
             action=ActionTypes.create,
             changed_fields=["national_code", "password", "is_active"],
         )
@@ -384,7 +385,7 @@ async def register_staff_by_admin(
                 db=db,
                 uploaded_by=admin_id,
                 entity_id=new_person.id,
-                entity_type="person",
+                entity_type="persons",
                 purpose="avatar",
                 files=[avatar],
                 display_order=[1]
@@ -479,7 +480,7 @@ def logout_user(
     db: Session = Depends(get_db),
 ):
     try:
-        user_id = payload.get("sub")
+        user_id = UUID(payload.get("sub"))
 
         updated_rows = (
             db.query(User)
@@ -496,7 +497,7 @@ def logout_user(
         log = AuditLog(
             user_id=user_id,
             entity_id=user_id,
-            entity_type="User",
+            entity_type="users",
             action=ActionTypes.update,
             changed_fields=["token_version"],
         )
@@ -595,13 +596,13 @@ def refresh_token(
 
 @router.post("/{user_id}/staff-profile")
 def register_user_as_staff(
-    user_id: str,
+    user_id: UUID,
     data: RegisterStaffProfileSchema,
     payload: dict = Depends(get_payload),
     db: Session = Depends(get_db)
 ):
     try:
-        admin_id = payload.get("sub")
+        admin_id = UUID(payload.get("sub"))
 
         if "admin" not in payload.get("role", []):
             raise HTTPException(status_code=403, detail="Access denied")
@@ -650,13 +651,13 @@ def register_user_as_staff(
 
 @router.post("/{user_id}/student-profile")
 def register_user_as_student(
-    user_id: str,
+    user_id: UUID,
     data: RegisterStudentProfileSchema,
     payload: dict = Depends(get_payload),
     db: Session = Depends(get_db)
 ):
     try:
-        admin_id = payload.get("sub")
+        admin_id = UUID(payload.get("sub"))
 
         if "admin" not in payload.get("role", []):
             raise HTTPException(status_code=403, detail="Access denied")
@@ -710,7 +711,7 @@ def get_current_user_profile(
     db: Session = Depends(get_db)
 ):
     try:
-        user_id = payload.get("sub")
+        user_id = UUID(payload.get("sub"))
         
         db_user = get_user_data(db, User.id == user_id)
         
@@ -811,7 +812,7 @@ def get_users(
 
 @router.get("/{user_id}")
 def get_user_by_id(
-    user_id: str, 
+    user_id: UUID, 
     payload: dict = Depends(get_payload), 
     db: Session = Depends(get_db)
 ):
@@ -839,7 +840,7 @@ def get_user_by_id(
 
 @router.patch("/{user_id}")
 async def update_user(
-    user_id: str,
+    user_id: UUID,
     data: str = Form(...),
     avatar: UploadFile | None = File(None),
     payload: dict = Depends(get_payload),
@@ -847,7 +848,7 @@ async def update_user(
 ):
     try:
         user_roles = payload.get("role", [])
-        current_user_id = payload.get("sub")
+        current_user_id = UUID(payload.get("sub"))
         is_admin = "admin" in user_roles
 
         if not is_admin and current_user_id != user_id:
@@ -904,7 +905,7 @@ async def update_user(
                 db=db,
                 uploaded_by=current_user_id,
                 entity_id=db_user.person.id,
-                entity_type="person",
+                entity_type="persons",
                 purpose="avatar",
                 files=[avatar],
                 display_order=[1]
@@ -914,7 +915,7 @@ async def update_user(
             log = AuditLog(
                 user_id=current_user_id,
                 entity_id=db_user.id,
-                entity_type="User",
+                entity_type="users",
                 action=ActionTypes.update,
                 changed_fields=changed_keys,
             )
@@ -949,13 +950,13 @@ async def update_user(
 
 @router.patch("/{user_id}/toggle-active")
 def toggle_active_status(
-    user_id: str,
+    user_id: UUID,
     data: ToggleActiveStatus,
     payload: dict = Depends(get_payload),
     db: Session = Depends(get_db),
 ):
     try:
-        current_user_id = payload.get("sub")
+        current_user_id = UUID(payload.get("sub"))
 
         if "admin" not in payload.get("role", []):
             raise HTTPException(status_code=403, detail="Access denied")
@@ -976,7 +977,7 @@ def toggle_active_status(
         log = AuditLog(
             user_id=current_user_id,
             entity_id=db_user.id,
-            entity_type="User",
+            entity_type="users",
             action=ActionTypes.update,
             changed_fields=["is_active", "token_version"],
         )
@@ -1001,13 +1002,13 @@ def toggle_active_status(
 @router.patch("/{user_id}/change-password")
 def change_password(
     response: Response, 
-    user_id: str, 
+    user_id: UUID, 
     data: ChangePassword, 
     payload: dict = Depends(get_payload), 
     db: Session = Depends(get_db)
 ):
     try:
-        current_user_id = payload.get("sub")
+        current_user_id = UUID(payload.get("sub"))
         is_admin = "admin" in payload.get("role", [])
 
         if not is_admin and current_user_id != user_id:
@@ -1033,7 +1034,7 @@ def change_password(
         log = AuditLog(
             user_id=current_user_id,
             entity_id=db_user.id,
-            entity_type="User",
+            entity_type="users",
             action=ActionTypes.update,
             changed_fields=["password", "token_version"],
         )
@@ -1065,13 +1066,13 @@ def change_password(
 
 @router.patch("/{user_id}/delete")
 def toggle_user_soft_delete(
-    user_id: str,
+    user_id: UUID,
     data: ToggleDeleteStatus,
     payload: dict = Depends(get_payload),
     db: Session = Depends(get_db)
 ):
     try:
-        current_admin_id = payload.get("sub")
+        current_admin_id = UUID(payload.get("sub"))
 
         if "admin" not in payload.get("role", []):
             raise HTTPException(status_code=403, detail="Access denied")
@@ -1094,7 +1095,7 @@ def toggle_user_soft_delete(
         log = AuditLog(
             user_id=current_admin_id,
             entity_id=db_user.id,
-            entity_type="User",
+            entity_type="users",
             action=ActionTypes.update,
             changed_fields=["is_deleted"] + (["token_version"] if data.is_deleted else []),
         )

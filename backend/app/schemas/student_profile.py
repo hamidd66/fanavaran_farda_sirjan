@@ -1,3 +1,4 @@
+from uuid import UUID
 from datetime import datetime, date
 from typing import Optional, Union, List
 from pydantic import BaseModel, EmailStr, Field, ConfigDict, computed_field
@@ -128,7 +129,7 @@ class StudentCreateByAdmin(BaseModel):
     parent_phone: str = Field(..., pattern=r"^09\d{9}$")
 
     # Roles and specialties
-    specialty_ids: Optional[List[str]] = None
+    specialty_ids: Optional[List[UUID]] = None
 
 
 # class StudentUpdate(BaseModel):
@@ -172,8 +173,8 @@ class RegisterStudentProfileSchema(BaseModel):
 class StudentProfileOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: str
-    person_id: str
+    id: UUID
+    person_id: UUID
     educational_status: StudentEducationalStatus
     parent_phone: str
     updated_at: Optional[datetime] = None

@@ -7,7 +7,7 @@ def create_access_token(data: dict):
     expire = datetime.now(timezone.utc) + timedelta(minutes = settings.ACCESS_TOKEN_EXPIRE_MINUTES)
 
     to_encode = {
-        "sub": str(data["sub"]),
+        "sub": data["sub"],
         "role": data["role"],
         "token_version": data["token_version"],
         "type": "access",
@@ -25,7 +25,7 @@ def create_refresh_token(data: dict):
     expire = datetime.now(timezone.utc) + timedelta(days = settings.REFRESH_TOKEN_EXPIRE_DAYS)
 
     to_encode = {
-        "sub": str(data["sub"]),
+        "sub": data["sub"],
         "role": data["role"],
         "token_version": data["token_version"],
         "type": "refresh",
@@ -48,14 +48,14 @@ def verify_token(token: str):
 
 def generate_access_token(user):
     return create_access_token({
-        "sub": user.id,
+        "sub": str(user.id),
         "role": [role.role.name for role in user.user_roles],
         "token_version": user.token_version,
     })
 
 def generate_refresh_token(user):
     return create_refresh_token({
-        "sub": user.id,
+        "sub": str(user.id),
         "role": [role.role.name for role in user.user_roles],
         "token_version": user.token_version,
     })

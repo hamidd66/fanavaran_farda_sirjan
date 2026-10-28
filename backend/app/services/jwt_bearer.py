@@ -1,6 +1,7 @@
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi import Request, HTTPException, Depends
 from sqlalchemy.orm import Session
+from uuid import UUID
 
 from app.db.session import get_db
 from app.services.tokens import verify_token
@@ -48,7 +49,7 @@ def get_optional_payload(payload: dict | None = Depends(JWTBearer(auto_error=Fal
 def _validate_user(payload: dict | None, db: Session) -> bool:
     if payload is None: return False
 
-    user_id = payload.get("sub")
+    user_id = UUID(payload.get("sub"))
     if user_id is None: return False
 
     token_version = payload.get("token_version")

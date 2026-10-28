@@ -1,7 +1,6 @@
-﻿from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
-from sqlalchemy.sql import func
+﻿from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, func, text
 from sqlalchemy.orm import relationship
-import uuid
+from sqlalchemy.dialects.postgresql import UUID
 
 from app.db.base import Base
 
@@ -9,9 +8,9 @@ from app.db.base import Base
 class File(Base):
     __tablename__ = "files"
 
-    id = Column(String, primary_key=True, index=True, nullable=False, unique=True, default=lambda: uuid.uuid4().hex)
+    id = Column(UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"))
 
-    uploaded_by = Column(String, ForeignKey("users.id", ondelete="RESTRICT"), nullable=False)
+    uploaded_by = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT"), nullable=False)
 
     file_path = Column(String(500), nullable=False)
     extension = Column(String(20), nullable=False)

@@ -1,3 +1,4 @@
+from uuid import UUID
 from datetime import datetime
 from typing import Optional, List
 from pydantic import BaseModel, Field, ConfigDict
@@ -8,7 +9,7 @@ from app.schemas.file_attachment import FileAttachmentOut
 class RoleStatusItem(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
 
-    role_id: str
+    role_id: UUID
     is_active: bool
 
 
@@ -28,8 +29,8 @@ class UpdateRoleSchema(BaseModel):
 class RoleOut (BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: str
-    created_by: Optional[str] = None
+    id: UUID
+    created_by: Optional[UUID] = None
     name: str
     title: str
     description: Optional[str] = None 

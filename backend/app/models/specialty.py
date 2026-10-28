@@ -1,7 +1,6 @@
-from sqlalchemy import Column, String, Boolean, DateTime, Text, ForeignKey, and_
+from sqlalchemy import Column, String, Boolean, DateTime, Text, ForeignKey, and_, func, text
 from sqlalchemy.orm import relationship, foreign
-from sqlalchemy.sql import func
-import uuid
+from sqlalchemy.dialects.postgresql import UUID
 
 from app.db.base import Base
 from app.models.file_attachment import FileAttachment
@@ -10,8 +9,8 @@ from app.models.file_attachment import FileAttachment
 class Specialty(Base):
     __tablename__ = "specialties"
 
-    id = Column(String, primary_key=True, index=True, nullable=False, unique=True, default=lambda: uuid.uuid4().hex)
-    created_by = Column(String, ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"))
+    created_by = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
 
     name = Column(String(100), unique=True, nullable=False)
     description = Column(Text, nullable=True)
@@ -31,3 +30,5 @@ class Specialty(Base):
         ),
         viewonly=True,
     )
+
+    

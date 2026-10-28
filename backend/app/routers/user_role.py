@@ -1,3 +1,4 @@
+from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -20,13 +21,13 @@ router = APIRouter(prefix="/user-roles", tags=["User Roles"])
 
 @router.patch("/{user_id}/batch-roles")
 def batch_update_user_roles(
-    user_id: str,
+    user_id: UUID,
     data: BatchRolesAssignSchema,
     payload: dict = Depends(get_payload),
     db: Session = Depends(get_db)
 ):
     try:
-        admin_id = payload.get("sub")
+        admin_id = UUID(payload.get("sub"))
 
         if "admin" not in payload.get("role", []):
             raise HTTPException(status_code=403, detail="Access denied")
@@ -135,13 +136,13 @@ def batch_update_user_roles(
 
 @router.patch("/{user_id}/batch-roles-access")
 def batch_update_role_access(
-    user_id: str,
+    user_id: UUID,
     data: BatchRoleAccessSchema,
     payload: dict = Depends(get_payload),
     db: Session = Depends(get_db)
 ):
     try:
-        admin_id = payload.get("sub")
+        admin_id = UUID(payload.get("sub"))
 
         if "admin" not in payload.get("role", []):
             raise HTTPException(status_code=403, detail="Access denied")

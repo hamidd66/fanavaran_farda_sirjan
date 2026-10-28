@@ -1,7 +1,6 @@
-from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime, ForeignKey, and_
+from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime, ForeignKey, and_, func, text
 from sqlalchemy.orm import relationship, foreign
-from sqlalchemy.sql import func
-import uuid
+from sqlalchemy.dialects.postgresql import UUID
 
 from app.db.base import Base
 from app.models.file_attachment import FileAttachment
@@ -10,8 +9,8 @@ from app.models.file_attachment import FileAttachment
 class CourseCategory(Base):
     __tablename__ = "course_categories"
 
-    id = Column(String, primary_key=True, index=True, nullable=False, unique=True, default=lambda: uuid.uuid4().hex)
-    created_by = Column(String, ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"))
+    created_by = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
 
     name = Column(String(100), unique=True, nullable=False, index=True)
     slug = Column(String(150), unique=True, nullable=False, index=True)
