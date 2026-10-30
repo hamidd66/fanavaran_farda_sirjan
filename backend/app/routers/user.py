@@ -9,7 +9,6 @@ from pydantic import ValidationError
 import math
 
 from app.db.session import get_db
-from app.services.jwt_bearer import get_payload
 from app.services.cookies import set_auth_cookie, delete_auth_cookie
 from app.services.tokens import verify_token, generate_access_token, generate_refresh_token
 from app.middleware.exception_handler import response_handler
@@ -18,8 +17,9 @@ from app.utils.delete_file import delete_files
 from app.core.rate_limiters.ip_limiter import check_ip_limit
 from app.core.rate_limiters.login_limiter import is_account_locked, register_failed_login, register_successful_login
 from app.repositories.user_repo import get_user_data
-from app.repositories.user_role_repo import get_role_by_name
+from app.repositories.role_repo import get_role_by_name
 from app.repositories.file_repo import add_files, remove_files
+from app.dependencies.permissions import require_roles
 
 from app.models.audit_logs import AuditLog
 from app.models.person import Person
@@ -158,15 +158,12 @@ async def register_student(
 @router.post("/admin/register/student")
 async def register_student_by_admin(
     data: str = Form(...),
+    auth: dict = Depends(require_roles("admin")),
     avatar: UploadFile | None = File(None),
-    payload: dict = Depends(get_payload),
     db: Session = Depends(get_db),
 ):
     try:
-        if "admin" not in payload.get("role", []):
-            raise HTTPException(status_code=403, detail="Access denied")
-
-        admin_id = UUID(payload.get("sub"))
+        admin_id = UUID(auth["payload"]["sub"])
         student_data = StudentCreateByAdmin.model_validate_json(data)
 
         existing_user = get_user_data(db, User.national_code == student_data.national_code)
@@ -283,14 +280,11 @@ async def register_student_by_admin(
 async def register_staff_by_admin(
     data: str = Form(...),
     avatar: UploadFile | None = File(None),
-    payload: dict = Depends(get_payload),
+    auth: dict = Depends(require_roles("admin")),
     db: Session = Depends(get_db),
 ):
     try:
-        if "admin" not in payload.get("role", []):
-            raise HTTPException(status_code=403, detail="Access denied")
-
-        admin_id = UUID(payload.get("sub"))
+        admin_id = UUID(auth["payload"]["sub"])
         staff_data = StaffCreateByAdmin.model_validate_json(data)
 
         existing_user = get_user_data(db, User.national_code == staff_data.national_code)
@@ -476,11 +470,11 @@ def login_user(
 @router.post("/logout")
 def logout_user(
     response: Response,
-    payload: dict = Depends(get_payload),
+    auth: dict = Depends(require_roles()),
     db: Session = Depends(get_db),
 ):
     try:
-        user_id = UUID(payload.get("sub"))
+        user_id = UUID(auth["payload"]["sub"])
 
         updated_rows = (
             db.query(User)
@@ -526,7 +520,7 @@ def logout_user(
 @router.post("/logout-current")
 def logout_current_device(
     response: Response,
-    payload: dict = Depends(get_payload),
+    auth: dict = Depends(require_roles()),
 ):
     try:
         delete_auth_cookie(response=response, key="access_token", path="/")
@@ -598,14 +592,11 @@ def refresh_token(
 def register_user_as_staff(
     user_id: UUID,
     data: RegisterStaffProfileSchema,
-    payload: dict = Depends(get_payload),
+    auth: dict = Depends(require_roles("admin")),
     db: Session = Depends(get_db)
 ):
     try:
-        admin_id = UUID(payload.get("sub"))
-
-        if "admin" not in payload.get("role", []):
-            raise HTTPException(status_code=403, detail="Access denied")
+        admin_id = UUID(auth["payload"]["sub"])
 
         db_user = get_user_data(db, User.id == user_id, User.is_deleted.is_(False))
         if not db_user:
@@ -653,14 +644,11 @@ def register_user_as_staff(
 def register_user_as_student(
     user_id: UUID,
     data: RegisterStudentProfileSchema,
-    payload: dict = Depends(get_payload),
+    auth: dict = Depends(require_roles("admin")),
     db: Session = Depends(get_db)
 ):
     try:
-        admin_id = UUID(payload.get("sub"))
-
-        if "admin" not in payload.get("role", []):
-            raise HTTPException(status_code=403, detail="Access denied")
+        admin_id = UUID(auth["payload"]["sub"])
 
         db_user = get_user_data(db, User.id == user_id, User.is_deleted.is_(False))
         if not db_user:
@@ -707,11 +695,11 @@ def register_user_as_student(
 
 @router.get("/me")
 def get_current_user_profile(
-    payload: dict = Depends(get_payload),
+    auth: dict = Depends(require_roles()),
     db: Session = Depends(get_db)
 ):
     try:
-        user_id = UUID(payload.get("sub"))
+        user_id = UUID(auth["payload"]["sub"])
         
         db_user = get_user_data(db, User.id == user_id)
         
@@ -736,7 +724,7 @@ def get_current_user_profile(
 @router.get("/")
 def get_users(
     db: Session = Depends(get_db),
-    payload: dict = Depends(get_payload),
+    auth: dict = Depends(require_roles("admin")),
     roles: Optional[List[str]] = Query(None),
     page: int = Query(1, ge=1),
     limit: int = Query(20, ge=1, le=100),
@@ -746,8 +734,6 @@ def get_users(
     sort: Optional[UserSort] = Query(None),
 ):
     try:
-        if "admin" not in payload.get("role", []):
-            raise HTTPException(status_code=403, detail="Access denied")
         
         query = db.query(User).options(
             joinedload(User.person).joinedload(Person.student_profile),
@@ -813,12 +799,10 @@ def get_users(
 @router.get("/{user_id}")
 def get_user_by_id(
     user_id: UUID, 
-    payload: dict = Depends(get_payload), 
+    auth: dict = Depends(require_roles("admin")), 
     db: Session = Depends(get_db)
 ):
     try:
-        if "admin" not in payload.get("role", []):
-            raise HTTPException(status_code=403, detail="Access denied")
         
         db_user = get_user_data(db, User.id == user_id, User.is_deleted.is_(False))
         
@@ -843,12 +827,12 @@ async def update_user(
     user_id: UUID,
     data: str = Form(...),
     avatar: UploadFile | None = File(None),
-    payload: dict = Depends(get_payload),
+    auth: dict = Depends(require_roles()),
     db: Session = Depends(get_db)
 ):
     try:
-        user_roles = payload.get("role", [])
-        current_user_id = UUID(payload.get("sub"))
+        user_roles = auth["roles"]
+        current_user_id = UUID(auth["payload"]["sub"])
         is_admin = "admin" in user_roles
 
         if not is_admin and current_user_id != user_id:
@@ -952,14 +936,11 @@ async def update_user(
 def toggle_active_status(
     user_id: UUID,
     data: ToggleActiveStatus,
-    payload: dict = Depends(get_payload),
+    auth: dict = Depends(require_roles("admin")),
     db: Session = Depends(get_db),
 ):
     try:
-        current_user_id = UUID(payload.get("sub"))
-
-        if "admin" not in payload.get("role", []):
-            raise HTTPException(status_code=403, detail="Access denied")
+        current_user_id = UUID(auth["payload"]["sub"])
 
         if current_user_id == user_id:
             raise HTTPException(status_code=400, detail="You cannot change your active status")
@@ -1004,12 +985,12 @@ def change_password(
     response: Response, 
     user_id: UUID, 
     data: ChangePassword, 
-    payload: dict = Depends(get_payload), 
+    auth: dict = Depends(require_roles()), 
     db: Session = Depends(get_db)
 ):
     try:
-        current_user_id = UUID(payload.get("sub"))
-        is_admin = "admin" in payload.get("role", [])
+        current_user_id = UUID(auth["payload"]["sub"])
+        is_admin = "admin" in auth["roles"]
 
         if not is_admin and current_user_id != user_id:
             raise HTTPException(status_code=403, detail="Access denied")
@@ -1068,14 +1049,11 @@ def change_password(
 def toggle_user_soft_delete(
     user_id: UUID,
     data: ToggleDeleteStatus,
-    payload: dict = Depends(get_payload),
+    auth: dict = Depends(require_roles("admin")),
     db: Session = Depends(get_db)
 ):
     try:
-        current_admin_id = UUID(payload.get("sub"))
-
-        if "admin" not in payload.get("role", []):
-            raise HTTPException(status_code=403, detail="Access denied")
+        current_admin_id = UUID(auth["payload"]["sub"])
         
         if current_admin_id == user_id:
             raise HTTPException(status_code=400, detail="You cannot delete your own admin account")

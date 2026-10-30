@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
-from app.services.jwt_bearer import get_payload
+from app.dependencies.permissions import require_roles
 from app.middleware.exception_handler import response_handler
 from app.repositories.user_repo import get_user_data
 from app.config.settings import settings
@@ -23,14 +23,11 @@ router = APIRouter(prefix="/user-roles", tags=["User Roles"])
 def batch_update_user_roles(
     user_id: UUID,
     data: BatchRolesAssignSchema,
-    payload: dict = Depends(get_payload),
+    auth: dict = Depends(require_roles("admin")),
     db: Session = Depends(get_db)
 ):
     try:
-        admin_id = UUID(payload.get("sub"))
-
-        if "admin" not in payload.get("role", []):
-            raise HTTPException(status_code=403, detail="Access denied")
+        admin_id = UUID(auth["payload"]["sub"])
 
         if admin_id == user_id:
             raise HTTPException(status_code=400, detail="You cannot change your roles")
@@ -138,14 +135,11 @@ def batch_update_user_roles(
 def batch_update_role_access(
     user_id: UUID,
     data: BatchRoleAccessSchema,
-    payload: dict = Depends(get_payload),
+    auth: dict = Depends(require_roles("admin")),
     db: Session = Depends(get_db)
 ):
     try:
-        admin_id = UUID(payload.get("sub"))
-
-        if "admin" not in payload.get("role", []):
-            raise HTTPException(status_code=403, detail="Access denied")
+        admin_id = UUID(auth["payload"]["sub"])
         
         if admin_id == user_id:
             raise HTTPException(status_code=400, detail="You cannot change your roles access status")

@@ -8,7 +8,7 @@ from typing import Optional
 import math
 
 from app.db.session import get_db
-from app.services.jwt_bearer import get_payload, get_optional_payload
+from app.dependencies.permissions import require_roles
 from app.middleware.exception_handler import response_handler
 from app.repositories.file_repo import add_files, remove_files
 from app.utils.delete_file import delete_files
@@ -28,14 +28,11 @@ router = APIRouter(prefix="/course-categories", tags=["Course Categories"])
 async def create_course_category(
     data: str = Form(...),
     image: UploadFile | None = File(None),
-    payload: dict = Depends(get_payload),
+    auth: dict = Depends(require_roles("admin")),
     db: Session = Depends(get_db)
 ):
     try:
-        admin_id = payload.get("sub")
-
-        if "admin" not in payload.get("role", []):
-            raise HTTPException(status_code=403, detail="Access denied")
+        admin_id = auth["payload"]["sub"]
 
         category_data = CourseCategoryCreate.model_validate_json(data)
 
@@ -111,7 +108,7 @@ async def create_course_category(
 @router.get("/")
 def get_course_categories(
     db: Session = Depends(get_db),
-    payload: dict | None = Depends(get_optional_payload),
+    auth: dict = Depends(require_roles(auth_optional=True)),
     is_active: Optional[bool] = Query(None),
     sort: Optional[CategorySort] = Query(None),
     page: int = Query(1, ge=1),
@@ -119,7 +116,7 @@ def get_course_categories(
     search: Optional[str] = Query(None),
 ):
     try:
-        viewer_is_admin = bool(payload) and "admin" in payload.get("role", [])
+        viewer_is_admin = bool(auth["payload"]) and "admin" in auth["roles"]
 
         query = db.query(CourseCategory).options(selectinload(CourseCategory.file_attachments))
 
@@ -191,11 +188,11 @@ def get_course_categories(
 @router.get("/{category_id}")
 def get_course_category_by_id(
     category_id: UUID,
-    payload: dict | None = Depends(get_optional_payload),
+    auth: dict = Depends(require_roles(auth_optional=True)),
     db: Session = Depends(get_db)
 ):
     try:
-        viewer_is_admin = bool(payload) and "admin" in payload.get("role", [])
+        viewer_is_admin = bool(auth["payload"]) and "admin" in auth["roles"]
 
         db_category = (
             db.query(CourseCategory)
@@ -235,12 +232,10 @@ def get_course_category_by_id(
 @router.patch("/reorder")
 def reorder_course_categories(
     data: CourseCategoryOrderItemUpdate,
-    payload: dict = Depends(get_payload),
+    auth: dict = Depends(require_roles("admin")),
     db: Session = Depends(get_db)
 ):
     try:
-        if "admin" not in payload.get("role", []):
-            raise HTTPException(status_code=403, detail="Access denied")
 
         item_ids = [item.id for item in data.items]
 
@@ -287,14 +282,11 @@ def reorder_course_categories(
 @router.patch("/batch-active")
 def batch_update_categories_status(
     data: BatchCategoriesStatus,
-    payload: dict = Depends(get_payload),
+    auth: dict = Depends(require_roles("admin")),
     db: Session = Depends(get_db)
 ):
     try:
-        admin_id = payload.get("sub")
-
-        if "admin" not in payload.get("role", []):
-            raise HTTPException(status_code=403, detail="Access denied")
+        admin_id = auth["payload"]["sub"]
 
         if not data.items:
             raise HTTPException(status_code=400, detail="Items list cannot be empty")
@@ -349,14 +341,11 @@ async def update_course_category(
     category_id: UUID,
     data: str = Form(...),
     image: UploadFile | None = File(None),
-    payload: dict = Depends(get_payload),
+    auth: dict = Depends(require_roles("admin")),
     db: Session = Depends(get_db)
 ):
     try:
-        admin_id = payload.get("sub")
-
-        if "admin" not in payload.get("role", []):
-            raise HTTPException(status_code=403, detail="Access denied")
+        admin_id = auth["payload"]["sub"]
 
         db_category = (
             db.query(CourseCategory)
@@ -449,14 +438,11 @@ async def update_course_category(
 @router.delete("/{category_id}")
 def delete_course_category(
     category_id: UUID,
-    payload: dict = Depends(get_payload),
+    auth: dict = Depends(require_roles("admin")),
     db: Session = Depends(get_db)
 ):
     try:
-        admin_id = payload.get("sub")
-
-        if "admin" not in payload.get("role", []):
-            raise HTTPException(status_code=403, detail="Access denied")
+        admin_id = auth["payload"]["sub"]
 
         db_category = (
             db.query(CourseCategory)

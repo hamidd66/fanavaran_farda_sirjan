@@ -10,7 +10,7 @@ class UserRoleOut(BaseModel):
     id: UUID
     user_id: UUID
     role_id: UUID
-    assigned_by: UUID
+    assigned_by: Optional[UUID]
     is_access: bool
     assigned_at: datetime
     role: RoleOut

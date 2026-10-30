@@ -33,6 +33,7 @@ class User(Base):
 
     course_category = relationship("CourseCategory", back_populates="user", foreign_keys="CourseCategory.created_by")
     course = relationship("Course", back_populates="user", foreign_keys="Course.created_by")
+    course_questions = relationship("CourseQuestion", back_populates="sender")
 
     audit_log_creator = relationship("AuditLog", back_populates="user")
 

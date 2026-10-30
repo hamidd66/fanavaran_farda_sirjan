@@ -28,7 +28,7 @@ class ContentSort(enum.Enum):
     newest = "newest"
     oldest = "oldest"
 
-class FaqSort(enum.Enum):
+class QuestionSort(enum.Enum):
     newest = "newest"
     oldest = "oldest"
 

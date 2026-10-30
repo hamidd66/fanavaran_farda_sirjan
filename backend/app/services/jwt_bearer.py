@@ -47,13 +47,19 @@ def get_optional_payload(payload: dict | None = Depends(JWTBearer(auto_error=Fal
 
 
 def _validate_user(payload: dict | None, db: Session) -> bool:
-    if payload is None: return False
+    if not isinstance(payload, dict):
+        return False
 
-    user_id = UUID(payload.get("sub"))
-    if user_id is None: return False
+    try:
+        user_id = UUID(str(payload["sub"]))
+    except (KeyError, ValueError, TypeError, AttributeError):
+        return False
 
     token_version = payload.get("token_version")
     if token_version is None: return False
+
+    if payload.get("type") != "access":
+        return False
 
     user_exists = db.query(User.id).filter(
         User.id == user_id,

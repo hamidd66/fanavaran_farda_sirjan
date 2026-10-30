@@ -8,7 +8,7 @@ from typing import Optional
 import math
 
 from app.db.session import get_db
-from app.services.jwt_bearer import get_payload
+from app.dependencies.permissions import require_roles
 from app.middleware.exception_handler import response_handler
 from app.repositories.file_repo import add_files, remove_files
 from app.utils.delete_file import delete_files
@@ -25,14 +25,11 @@ router = APIRouter(prefix="/roles", tags=["Roles"])
 @router.patch("/batch-status")
 def batch_update_roles_status(
     data: BatchRolesStatusSchema,
-    payload: dict = Depends(get_payload),
+    auth: dict = Depends(require_roles("admin")),
     db: Session = Depends(get_db)
 ):
     try:
-        admin_id = payload.get("sub")
-
-        if "admin" not in payload.get("role", []):
-            raise HTTPException(status_code=403, detail="Access denied")
+        admin_id = auth["payload"]["sub"]
 
         if not data.items:
             raise HTTPException(status_code=400, detail="Items list cannot be empty")
@@ -87,14 +84,11 @@ async def update_role_info(
     role_id: UUID,
     data: str = Form(...),
     image: UploadFile | None = File(None),
-    payload: dict = Depends(get_payload),
+    auth: dict = Depends(require_roles("admin")),
     db: Session = Depends(get_db)
 ):
     try:
-        admin_id = payload.get("sub")
-
-        if "admin" not in payload.get("role", []):
-            raise HTTPException(status_code=403, detail="Access denied")
+        admin_id = auth["payload"]["sub"]
 
         db_role = db.query(Role).filter(Role.id == role_id).first()
         if not db_role:
@@ -172,15 +166,13 @@ async def update_role_info(
 @router.get("/")
 def get_roles(
     db: Session = Depends(get_db),
-    payload: dict = Depends(get_payload),
+    auth: dict = Depends(require_roles("admin")),
     is_active: Optional[bool] = Query(None),
     page: int = Query(1, ge=1),
     limit: int = Query(20, ge=1, le=100),
     search: Optional[str] = Query(None),
 ):
     try:
-        if "admin" not in payload.get("role", []):
-            raise HTTPException(status_code=403, detail="Access denied")
         
         query = db.query(Role)
         

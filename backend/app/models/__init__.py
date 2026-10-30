@@ -17,4 +17,7 @@ from app.models.file import File
 
 from app.models.course_category import CourseCategory
 from app.models.course import Course
+from app.models.course_question import CourseQuestion
+
+from app.models.term import Term
 

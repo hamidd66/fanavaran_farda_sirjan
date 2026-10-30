@@ -8,7 +8,7 @@ from typing import Optional, List
 import math
 
 from app.db.session import get_db
-from app.services.jwt_bearer import get_payload, get_optional_payload
+from app.dependencies.permissions import require_roles
 from app.middleware.exception_handler import response_handler
 from app.repositories.file_repo import add_files, remove_files, reorder_files
 from app.utils.delete_file import delete_files
@@ -29,14 +29,11 @@ router = APIRouter(prefix="/courses", tags=["Courses"])
 async def create_course(
     data: str = Form(..., description='{"category_id": "", "title": "", "prerequisites": "", "short_description": "", "long_description": "", "has_certificate": true, "is_active": true}'),
     images: List[UploadFile] | None = File(None),
-    payload: dict = Depends(get_payload),
+    auth: dict = Depends(require_roles("admin", "teacher")),
     db: Session = Depends(get_db)
 ):
     try:
-        user_id = UUID(payload.get("sub"))
-        
-        if not any(role in {UserRoleEnum.admin.value, UserRoleEnum.teacher.value} for role in payload.get("role", [])):
-            raise HTTPException(status_code=403, detail="Access denied")
+        user_id = UUID(auth["payload"]["sub"])
 
         course_data = CourseCreate.model_validate_json(data)
         category = db.query(CourseCategory).filter(CourseCategory.id == course_data.category_id).first()
@@ -103,7 +100,7 @@ async def create_course(
 @router.get("/")
 def get_courses(
     db: Session = Depends(get_db),
-    payload: dict | None = Depends(get_optional_payload),
+    auth: dict = Depends(require_roles(auth_optional=True)),
     page: int = Query(1, ge=1),
     limit: int = Query(20, ge=1, le=100),
     search: Optional[str] = Query(None),
@@ -113,7 +110,7 @@ def get_courses(
     is_active: Optional[bool] = Query(None),
 ):
     try:
-        viewer_is_admin = bool(payload) and "admin" in payload.get("role", [])
+        viewer_is_admin = bool(auth["payload"]) and "admin" in auth["roles"]
 
         query = db.query(Course).options(
             # joinedload(Course.faqs),
@@ -179,11 +176,11 @@ def get_courses(
 @router.get("/{course_id}")
 def get_course_by_id(
     course_id: UUID,
-    payload: dict | None = Depends(get_optional_payload),
+    auth: dict = Depends(require_roles(auth_optional=True)),
     db: Session = Depends(get_db)
 ):
     try:
-        viewer_is_admin = bool(payload) and "admin" in payload.get("role", [])
+        viewer_is_admin = bool(auth["payload"]) and "admin" in auth["roles"]
 
         db_course = (
             db.query(Course)
@@ -221,14 +218,11 @@ async def update_course(
     course_id: UUID,
     data: str = Form(...),
     images: List[UploadFile] | None = File(None),
-    payload: dict = Depends(get_payload),
+    auth: dict = Depends(require_roles("admin", "teacher")),
     db: Session = Depends(get_db)
 ):
     try:
-        user_id = UUID(payload.get("sub"))
-        
-        if not any(role in {UserRoleEnum.admin.value, UserRoleEnum.teacher.value} for role in payload.get("role", [])):
-            raise HTTPException(status_code=403, detail="Access denied")
+        user_id = UUID(auth["payload"]["sub"])
 
         course_data = CourseUpdate.model_validate_json(data)
         update_data = course_data.model_dump(
@@ -340,13 +334,11 @@ async def update_course(
 def toggle_course_active_status(
     course_id: UUID,
     data: ToggleCourseActiveStatus,
-    payload: dict = Depends(get_payload),
+    auth: dict = Depends(require_roles("admin")),
     db: Session = Depends(get_db),
 ):
     try:
-        admin_id = UUID(payload.get("sub"))
-        if "admin" not in payload.get("role", []):
-            raise HTTPException(status_code=403, detail="Access denied")
+        admin_id = UUID(auth["payload"]["sub"])
 
         db_course = db.query(Course).filter(Course.id == course_id, Course.is_deleted == False).first()
         if not db_course:
@@ -385,13 +377,11 @@ def toggle_course_active_status(
 def toggle_soft_delete_course(
     course_id: UUID,
     data: ToggleCourseDeleteStatus,
-    payload: dict = Depends(get_payload),
+    auth: dict = Depends(require_roles("admin")),
     db: Session = Depends(get_db),
 ):
     try:
-        admin_id = UUID(payload.get("sub"))
-        if "admin" not in payload.get("role", []):
-            raise HTTPException(status_code=403, detail="Access denied")
+        admin_id = UUID(auth["payload"]["sub"])
 
         db_course = db.query(Course).filter(Course.id == course_id).first()
         if not db_course:
@@ -430,13 +420,11 @@ def toggle_soft_delete_course(
 @router.delete("/{course_id}/hard-delete")
 def hard_delete_course(
     course_id: UUID,
-    payload: dict = Depends(get_payload),
+    auth: dict = Depends(require_roles("admin")),
     db: Session = Depends(get_db),
 ):
     try:
-        admin_id = UUID(payload.get("sub"))
-        if "admin" not in payload.get("role", []):
-            raise HTTPException(status_code=403, detail="Access denied")
+        admin_id = UUID(auth["payload"]["sub"])
 
         db_course = db.query(Course).filter(Course.id == course_id).first()
         if not db_course:

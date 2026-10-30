@@ -29,6 +29,7 @@ class Course(Base):
 
     category = relationship("CourseCategory", back_populates="courses")
     user = relationship("User", back_populates="course", foreign_keys=[created_by])
+    course_questions = relationship("CourseQuestion", back_populates="course")
 
     # course_sessions = relationship("CourseSession", back_populates="course", cascade="all, delete-orphan")
     # contents = relationship("CourseContent", back_populates="course")

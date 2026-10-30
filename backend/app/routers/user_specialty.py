@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
-from app.services.jwt_bearer import get_payload
+from app.dependencies.permissions import require_roles
 from app.middleware.exception_handler import response_handler
 from app.repositories.user_repo import get_user_data
 
@@ -22,14 +22,11 @@ router = APIRouter(prefix="/user-specialties", tags=["User Specialties"])
 def batch_update_user_specialties(
     user_id: UUID,
     data: BatchSpecialtiesAssignSchema,
-    payload: dict = Depends(get_payload),
+    auth: dict = Depends(require_roles("admin")),
     db: Session = Depends(get_db)
 ):
     try:
-        admin_id = UUID(payload.get("sub"))
-
-        if "admin" not in payload.get("role", []):
-            raise HTTPException(status_code=403, detail="Access denied")
+        admin_id = UUID(auth["payload"]["sub"])
 
         db_user = get_user_data(db, User.id == user_id, User.is_deleted.is_(False))
         if not db_user:

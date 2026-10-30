@@ -7,7 +7,7 @@ from typing import Optional
 import math
 
 from app.db.session import get_db
-from app.services.jwt_bearer import get_payload
+from app.dependencies.permissions import require_roles
 from app.middleware.exception_handler import response_handler
 from app.repositories.file_repo import add_files, remove_files
 from app.utils.delete_file import delete_files
@@ -26,14 +26,11 @@ router = APIRouter(prefix="/specialties", tags=["Specialties"])
 async def create_specialty(
     data: str = Form(..., description='{"name": "", "description": "", "is_active": true}'),
     image: UploadFile | None = File(None),
-    payload: dict = Depends(get_payload),
+    auth: dict = Depends(require_roles("admin")),
     db: Session = Depends(get_db)
 ):
     try:
-        admin_id = UUID(payload.get("sub"))
-
-        if "admin" not in payload.get("role", []):
-            raise HTTPException(status_code=403, detail="Access denied")
+        admin_id = UUID(auth["payload"]["sub"])
 
         specialty_data = SpecialtyCreate.model_validate_json(data)
 
@@ -135,14 +132,11 @@ def get_specialties_list(
 @router.patch("/batch-active")
 def batch_update_specialties_status(
     data: BatchSpecialtiesStatus,
-    payload: dict = Depends(get_payload),
+    auth: dict = Depends(require_roles("admin")),
     db: Session = Depends(get_db)
 ):
     try:
-        admin_id = UUID(payload.get("sub"))
-
-        if "admin" not in payload.get("role", []):
-            raise HTTPException(status_code=403, detail="Access denied")
+        admin_id = UUID(auth["payload"]["sub"])
 
         if not data.items:
             raise HTTPException(status_code=400, detail="Items list cannot be empty")
@@ -197,14 +191,11 @@ async def update_specialty(
     specialty_id: UUID,
     data: str = Form(...),
     image: UploadFile | None = File(None),
-    payload: dict = Depends(get_payload),
+    auth: dict = Depends(require_roles("admin")),
     db: Session = Depends(get_db)
 ):
     try:
-        admin_id = payload.get("sub")
-
-        if "admin" not in payload.get("role", []):
-            raise HTTPException(status_code=403, detail="Access denied")
+        admin_id = auth["payload"]["sub"]
 
         db_specialty = db.query(Specialty).filter(Specialty.id == specialty_id).first()
         if not db_specialty:
@@ -286,14 +277,11 @@ async def update_specialty(
 @router.delete("/{specialty_id}")
 def delete_specialty(
     specialty_id: UUID,
-    payload: dict = Depends(get_payload),
+    auth: dict = Depends(require_roles("admin")),
     db: Session = Depends(get_db)
 ):
     try:
-        admin_id = payload.get("sub")
-
-        if "admin" not in payload.get("role", []):
-            raise HTTPException(status_code=403, detail="Access denied")
+        admin_id = auth["payload"]["sub"]
 
         db_specialty = db.query(Specialty).filter(Specialty.id == specialty_id).first()
         if not db_specialty:
