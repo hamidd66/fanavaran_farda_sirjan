@@ -32,8 +32,12 @@ class User(Base):
     specialty = relationship("Specialty", back_populates="user", foreign_keys="Specialty.created_by")
 
     course_category = relationship("CourseCategory", back_populates="user", foreign_keys="CourseCategory.created_by")
-    course = relationship("Course", back_populates="user", foreign_keys="Course.created_by")
+    courses = relationship("Course", back_populates="user", foreign_keys="Course.created_by")
     course_questions = relationship("CourseQuestion", back_populates="sender")
+
+    terms = relationship("Term", back_populates="user", foreign_keys="Term.created_by")
+    term_sessions = relationship("TermSession", back_populates="user", foreign_keys="TermSession.created_by")
+    session_contents = relationship("SessionContent", back_populates="user", foreign_keys="SessionContent.created_by")
 
     audit_log_creator = relationship("AuditLog", back_populates="user")
 

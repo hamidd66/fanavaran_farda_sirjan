@@ -1,6 +1,6 @@
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query, Header
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm import Session, selectinload, joinedload
 from sqlalchemy.exc import IntegrityError
 from typing import Optional
 import math
@@ -149,7 +149,7 @@ def get_questions(
             CourseQuestion.term_id == term_id,
             CourseQuestion.parent_id == None,
         ).options(
-            CourseQuestion.replies
+            joinedload(CourseQuestion.replies)
         )
 
         if viewer_is_staff:

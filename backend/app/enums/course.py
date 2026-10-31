@@ -7,20 +7,9 @@ class CategorySort(enum.Enum):
     newest = "newest"            # جدیدترین
     oldest = "oldest"            # قدیمی‌ترین
 
-
 class CourseSort(enum.Enum):
     newest = "newest"
     oldest = "oldest"
-
-
-class ContentType(enum.Enum):
-    video = "video"
-    image = "image"
-    audio = "audio"
-    pdf = "pdf"
-    document = "document"
-    source_code = "source_code"
-    link = "link"
 
 class ContentSort(enum.Enum):
     session_asc = "session_asc"
@@ -31,12 +20,6 @@ class ContentSort(enum.Enum):
 class QuestionSort(enum.Enum):
     newest = "newest"
     oldest = "oldest"
-
-class SessionType(enum.Enum):
-    session = "session"
-    midterm = "midterm"
-    final = "final"
-
 
 class CourseSessionSort(enum.Enum):
     session_asc = "session_asc"

@@ -6,7 +6,6 @@ class HoldingType(enum.Enum):
     online = "online"         # آنلاین
     offline = "offline"       # آفلاین
 
-
 class ClassroomSort(enum.Enum):
     newest = "newest"
     oldest = "oldest"
@@ -43,7 +42,7 @@ class ClassroomSessionSort(enum.Enum):
     oldest = "oldest"
 
 class ClassroomStatus(enum.Enum):
-    open = "open"   # باز برای ثبت‌نام
+    open = "open"                    # باز برای ثبت‌نام
     in_progress = "in_progress"      # در حال برگزاری
     completed = "completed"          # پایان‌یافته
     cancelled = "cancelled"          # لغوشده
@@ -62,3 +61,13 @@ class EnrollmentStatus(enum.Enum):
     transferred = "transferred"        # منتقل‌شده
     completed = "completed"            # تکمیل‌شده
     deleted = "deleted"                # حذف‌شده
+
+class WeekDay(enum.Enum):
+    saturday = "saturday"
+    sunday = "sunday"
+    monday = "monday"
+    tuesday = "tuesday"
+    wednesday = "wednesday"
+    thursday = "thursday"
+    friday = "friday"
+    

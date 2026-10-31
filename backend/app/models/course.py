@@ -15,10 +15,10 @@ class Course(Base):
     created_by = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
 
     title = Column(String(200), nullable=False, index=True)
-    prerequisites = Column(String(300), nullable=False)
-
     short_description = Column(String(500), nullable=False)
     long_description = Column(Text, nullable=False)
+
+    prerequisites = Column(String(300), nullable=False)
 
     has_certificate = Column(Boolean, nullable=False, default=False)
     is_active = Column(Boolean, nullable=False, default=True)
@@ -28,8 +28,10 @@ class Course(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     category = relationship("CourseCategory", back_populates="courses")
-    user = relationship("User", back_populates="course", foreign_keys=[created_by])
-    course_questions = relationship("CourseQuestion", back_populates="course")
+    user = relationship("User", back_populates="courses", foreign_keys=[created_by])
+    
+    course_questions = relationship("CourseQuestion", back_populates="course", cascade="all, delete-orphan")
+    terms = relationship("Term", back_populates="course")
 
     # course_sessions = relationship("CourseSession", back_populates="course", cascade="all, delete-orphan")
     # contents = relationship("CourseContent", back_populates="course")

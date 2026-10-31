@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File, 
 from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.exc import IntegrityError
 from pydantic import ValidationError
-from sqlalchemy import or_, func
+from sqlalchemy import or_, func, update, case
 from typing import Optional
 import math
 
@@ -12,6 +12,7 @@ from app.dependencies.permissions import require_roles
 from app.middleware.exception_handler import response_handler
 from app.repositories.file_repo import add_files, remove_files
 from app.utils.delete_file import delete_files
+from app.utils.ordering import reorder_items
 
 from app.models.course_category import CourseCategory
 from app.models.course import Course
@@ -26,7 +27,7 @@ router = APIRouter(prefix="/course-categories", tags=["Course Categories"])
 
 @router.post("/")
 async def create_course_category(
-    data: str = Form(...),
+    data: str = Form(..., description='{"name": "", "slug": "", "description": "", "is_active": true}'),
     image: UploadFile | None = File(None),
     auth: dict = Depends(require_roles("admin")),
     db: Session = Depends(get_db)
@@ -233,44 +234,110 @@ def get_course_category_by_id(
 def reorder_course_categories(
     data: CourseCategoryOrderItemUpdate,
     auth: dict = Depends(require_roles("admin")),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     try:
+        items = data.items
 
-        item_ids = [item.id for item in data.items]
+        if not items:
+            raise HTTPException(status_code=400, detail="Items list is empty")
 
-        if len(item_ids) != len(set(item_ids)):
+        new_orders = {
+            item.id: item.display_order
+            for item in items
+        }
+
+        if len(new_orders) != len(items):
             raise HTTPException(status_code=400, detail="Duplicate category IDs in request")
 
-        db_categories = db.query(CourseCategory).filter(CourseCategory.id.in_(item_ids)).all()
+        if sorted(new_orders.values()) != list(range(1, len(items) + 1)):
+            raise HTTPException(status_code=400, detail="Display orders must be unique and consecutive starting from 1")
 
-        found_ids = {category.id for category in db_categories}
-        missing_ids = set(item_ids) - found_ids
+        current = dict(
+            db.query(
+                CourseCategory.id,
+                CourseCategory.display_order
+            )
+            .order_by(CourseCategory.id)
+            .with_for_update()
+            .all()
+        )
 
-        if missing_ids:
-            raise HTTPException(status_code=404, detail=f"Categories not found: {list(missing_ids)}")
+        unknown_ids = new_orders.keys() - current.keys()
 
-        category_map = {category.id: category for category in db_categories}
+        if unknown_ids:
+            raise HTTPException(status_code=404, detail=f"Categories not found: {sorted(map(str, unknown_ids))}")
 
-        for item in data.items:
-            category_map[item.id].display_order = item.display_order
+        if len(current) != len(new_orders):
+            raise HTTPException(status_code=400, detail="All active categories must be included")
+
+        changes = {
+            cid: order
+            for cid, order in new_orders.items()
+            if current[cid] != order
+        }
+
+        if changes:
+            changed_ids = list(changes)
+
+            temp_shift = (
+                max(current.values())
+                + len(current)
+            )
+
+            db.execute(
+                update(CourseCategory)
+                .where(CourseCategory.id.in_(changed_ids))
+                .values(
+                    display_order=(
+                        CourseCategory.display_order + temp_shift
+                    )
+                )
+                .execution_options(
+                    synchronize_session=False
+                )
+            )
+
+            db.execute(
+                update(CourseCategory)
+                .where(CourseCategory.id.in_(changed_ids))
+                .values(
+                    display_order=case(
+                        changes,
+                        value=CourseCategory.id
+                    )
+                )
+                .execution_options(
+                    synchronize_session=False
+                )
+            )
+
+        categories = (
+            db.query(CourseCategory)
+            .filter(
+                CourseCategory.id.in_(new_orders)
+            )
+            .order_by(CourseCategory.display_order)
+            .all()
+        )
+
+        result = [
+            CourseCategoryOut.model_validate(category).model_dump()
+            for category in categories
+        ]
 
         db.commit()
-
-        updated_categories = [
-            CourseCategoryOut.model_validate(category_map[item.id]).model_dump()
-            for item in sorted(data.items, key=lambda item: item.display_order)
-        ]
 
         return response_handler(
             status=True,
             message="Course categories reordered successfully",
-            data=updated_categories,
-            status_code=200
+            data=result,
+            status_code=200,
         )
-    except HTTPException as http_error:
+
+    except HTTPException:
         db.rollback()
-        raise http_error
+        raise
     except IntegrityError:
         db.rollback()
         raise HTTPException(status_code=409, detail="Conflict while reordering course categories")
@@ -468,14 +535,23 @@ def delete_course_category(
                 result = remove_files(db=db, attachment_ids=deleted_attachment_ids)
                 deleted_paths = result["deleted_paths"]
 
+        category_name = db_category.name
+
         db.delete(db_category)
+        db.flush()
+
+        reorder_items(
+            db=db,
+            model=CourseCategory,
+            order_field="display_order"
+        )
 
         log = AuditLog(
             user_id=admin_id,
             entity_id=category_id,
             entity_type="CourseCategory",
             action=ActionTypes.delete,
-            changed_fields=["deleted", db_category.name],
+            changed_fields=["deleted", category_name],
         )
         db.add(log)
 

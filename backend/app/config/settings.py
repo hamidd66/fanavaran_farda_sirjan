@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     IP_WINDOW_MINUTES: int
     IP_LOCKOUT_MINUTES: int
 
-    ALLOWED_FOLDERS: list = ["course", "classroom", "person", "specialties", "roles", "courses", "course_categories"]
+    ALLOWED_FOLDERS: list = ["course", "classroom", "person", "specialties", "roles", "courses", "course_categories", "terms", "session_contents"]
     ALLOWED_EXTENSIONS: list = ["jpg", "jpeg", "png", "webp"]
     ALLOWED_CONTENT_TYPES: list = ["image/jpg", "image/jpeg", "image/png", "image/webp"]
     MAX_FILE_SIZE: int = 5 * 1024 * 1024  # 5MB
@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     STAFF_ROLES: ClassVar[set[str]] = {UserRoleEnum.admin.value, UserRoleEnum.teacher.value, UserRoleEnum.owner.value}
     STUDENT_ROLES: ClassVar[set[str]] = {UserRoleEnum.student.value, UserRoleEnum.user.value}
 
-    PROJECT_TABLES: ClassVar[set[str]] = {"users", "persons", "staff_profiles", "student_profiles", "roles", "user_roles", "specialties", "user_specialties", "audit_logs", "files", "file_attachments", "course_categories", "courses", "course_questions", "terms"}
+    PROJECT_TABLES: ClassVar[set[str]] = {"users", "persons", "staff_profiles", "student_profiles", "roles", "user_roles", "specialties", "user_specialties", "audit_logs", "files", "file_attachments", "course_categories", "courses", "course_questions", "terms", "term_sessions", "session_contents"}
 
     class Config:
         env_file = ".env"

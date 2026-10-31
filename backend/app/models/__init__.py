@@ -20,4 +20,6 @@ from app.models.course import Course
 from app.models.course_question import CourseQuestion
 
 from app.models.term import Term
+from app.models.term_session import TermSession
+from app.models.session_content import SessionContent
 

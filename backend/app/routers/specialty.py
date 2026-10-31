@@ -302,6 +302,8 @@ def delete_specialty(
                 result = remove_files(db=db, attachment_ids=deleted_attachment_ids)
                 deleted_paths = result["deleted_paths"]
 
+        specialty_name = db_specialty.name
+
         db.delete(db_specialty)
 
         log = AuditLog(
@@ -309,7 +311,7 @@ def delete_specialty(
             entity_id=specialty_id,
             entity_type="Specialty",
             action=ActionTypes.delete,
-            changed_fields=["deleted", db_specialty.name],
+            changed_fields=["hard_delete", specialty_name],
         )
         db.add(log)
 

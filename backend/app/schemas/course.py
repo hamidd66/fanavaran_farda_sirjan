@@ -30,10 +30,12 @@ class CourseUpdate(BaseModel):
     long_description: Optional[str] = Field(None, min_length=20)
     has_certificate: Optional[bool] = None
     deleted_image_ids: Optional[list[UUID]] = Field(default_factory=list)
+    is_active: bool = Field(True)
 
     @model_validator(mode="after")
     def validate_update_data(self):
         for field in self.model_fields_set:
+            if field == "deleted_image_ids": continue
             value = getattr(self, field)
             if value is None: raise ValueError(f"{field} cannot be null")
             if isinstance(value, str) and not value.strip(): raise ValueError(f"{field} cannot be an empty string")
@@ -63,7 +65,7 @@ class CourseOut(BaseModel):
     updated_at: Optional[datetime] = None
 
     terms_count: int = 0
-    faqs_count: int = 0
+    questions_count: int = 0
 
     category: CourseCategoryOut
     user: Optional[UserOut] = None

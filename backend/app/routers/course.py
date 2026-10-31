@@ -2,7 +2,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File, Form
 from sqlalchemy import or_
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session, joinedload, selectinload
+from sqlalchemy.orm import Session, selectinload
 from pydantic import ValidationError
 from typing import Optional, List
 import math
@@ -14,11 +14,11 @@ from app.repositories.file_repo import add_files, remove_files, reorder_files
 from app.utils.delete_file import delete_files
 
 from app.models.course import Course
+from app.models.term import Term
 from app.models.course_category import CourseCategory
 from app.models.audit_logs import AuditLog
 from app.enums.audit_logs import ActionTypes
 from app.schemas.course import CourseCreate, CourseUpdate, CourseOut, ToggleCourseActiveStatus, ToggleCourseDeleteStatus
-from app.enums.user import UserRoleEnum
 from app.enums.course import CourseSort
 
 
@@ -28,14 +28,15 @@ router = APIRouter(prefix="/courses", tags=["Courses"])
 @router.post("/")
 async def create_course(
     data: str = Form(..., description='{"category_id": "", "title": "", "prerequisites": "", "short_description": "", "long_description": "", "has_certificate": true, "is_active": true}'),
-    images: List[UploadFile] | None = File(None),
-    auth: dict = Depends(require_roles("admin", "teacher")),
+    images: Optional[List[UploadFile]] = File(None),
+    auth: dict = Depends(require_roles("admin")),
     db: Session = Depends(get_db)
 ):
     try:
         user_id = UUID(auth["payload"]["sub"])
 
         course_data = CourseCreate.model_validate_json(data)
+
         category = db.query(CourseCategory).filter(CourseCategory.id == course_data.category_id).first()
         if not category:
             raise HTTPException(status_code=404, detail="Category not found")
@@ -59,7 +60,7 @@ async def create_course(
             entity_id=new_course.id,
             entity_type="Course",
             action=ActionTypes.create,
-            changed_fields=["title", "category_id"],
+            changed_fields=["created"],
         )
         db.add(log)
 
@@ -110,11 +111,11 @@ def get_courses(
     is_active: Optional[bool] = Query(None),
 ):
     try:
-        viewer_is_admin = bool(auth["payload"]) and "admin" in auth["roles"]
+        viewer_is_admin = bool(auth["payload"]) and bool("admin" in auth["roles"])
 
         query = db.query(Course).options(
-            # joinedload(Course.faqs),
-            # joinedload(Course.terms),
+            selectinload(Course.course_questions),
+            selectinload(Course.terms),
         )
 
         if viewer_is_admin:
@@ -151,8 +152,8 @@ def get_courses(
         courses_data = []
         for course in courses:
             course_dict = CourseOut.model_validate(course).model_dump()
-            # course_dict["terms_count"] = len(course.contents) if course.terms else 0
-            # course_dict["faqs_count"] = len(course.faqs) if course.faqs else 0
+            course_dict["terms"] = len(course.terms) if course.terms else 0
+            course_dict["questions_count"] = len(course.course_questions) if course.course_questions else 0
             courses_data.append(course_dict)
 
         return response_handler(
@@ -180,14 +181,14 @@ def get_course_by_id(
     db: Session = Depends(get_db)
 ):
     try:
-        viewer_is_admin = bool(auth["payload"]) and "admin" in auth["roles"]
+        viewer_is_admin = bool(auth["payload"]) and bool("admin" in auth["roles"])
 
         db_course = (
             db.query(Course)
             .filter(Course.id == course_id)
             .options(
-                # joinedload(Course.faqs),
-                # joinedload(Course.terms),
+                selectinload(Course.course_questions),
+                selectinload(Course.terms),
             )
             .first()
         )
@@ -198,8 +199,8 @@ def get_course_by_id(
             raise HTTPException(status_code=404, detail="Course not found")
 
         course_dict = CourseOut.model_validate(db_course).model_dump()
-        # course_dict["terms_count"] = len(db_course.contents) if db_course.terms else 0
-        # course_dict["faqs_count"] = len(db_course.faqs) if db_course.faqs else 0
+        course_dict["terms_count"] = len(db_course.terms) if db_course.terms else 0
+        course_dict["questions_count"] = len(db_course.course_questions) if db_course.course_questions else 0
 
         return response_handler(
             status=True,
@@ -217,8 +218,8 @@ def get_course_by_id(
 async def update_course(
     course_id: UUID,
     data: str = Form(...),
-    images: List[UploadFile] | None = File(None),
-    auth: dict = Depends(require_roles("admin", "teacher")),
+    images: Optional[List[UploadFile]] = File(None),
+    auth: dict = Depends(require_roles("admin")),
     db: Session = Depends(get_db)
 ):
     try:
@@ -257,10 +258,8 @@ async def update_course(
         if deleted_image_ids:
             deleted_ids_set = set(deleted_image_ids)
             attachments = [
-                attachment
-                for attachment in db_course.file_attachments
-                if attachment.id in deleted_ids_set
-                and attachment.purpose == "image"
+                attachment for attachment in db_course.file_attachments
+                if attachment.id in deleted_ids_set and attachment.purpose == "image"
             ]
             if len(attachments) != len(deleted_ids_set):
                 raise HTTPException(status_code=400, detail="Invalid image IDs")
@@ -430,14 +429,38 @@ def hard_delete_course(
         if not db_course:
             raise HTTPException(status_code=404, detail="Course not found")
 
-        # has_terms = db.query(Term.id).filter(
-        #     Term.course_id == course_id
-        # ).first()
-        # if has_terms:
-        #     raise HTTPException(status_code=400, detail="Cannot hard-delete course. Delete all terms first.")
+        has_terms = db.query(Term.id).filter(
+            Term.course_id == course_id
+        ).first()
+        if has_terms:
+            raise HTTPException(status_code=400, detail="Cannot hard-delete course. Delete all terms first.")
+
+        deleted_paths = []
+        attachments = [
+            attachment for attachment in db_course.file_attachments
+        ]
+        deleted_attachment_ids = [attachment.id for attachment in attachments]
+        if deleted_attachment_ids:
+            result = remove_files(db=db, attachment_ids=deleted_attachment_ids)
+            deleted_paths = result["deleted_paths"]
+
+        course_title = db_course.title
 
         db.delete(db_course)
+
+        log = AuditLog(
+            user_id=admin_id,
+            entity_id=db_course,
+            entity_type="Specialty",
+            action=ActionTypes.delete,
+            changed_fields=["hard_delete", course_title],
+        )
+        db.add(log)
         db.commit()
+
+        # if len(deleted_paths) > 0:
+        if deleted_paths:
+            delete_files(deleted_paths)
 
         return response_handler(
             status=True,
