@@ -5,8 +5,6 @@ from sqlalchemy.dialects.postgresql import UUID
 from app.db.base import Base
 from app.models.file_attachment import FileAttachment
 
-# فیلد های sessions_count و duration_hours باید حذف بشن ("حذف فیلد های ترم" رو از چت چی پی تی بخون)
-# حواست به alembic باشه
 
 class Term(Base):
     __tablename__ = "terms"
@@ -32,8 +30,6 @@ class Term(Base):
     prerequisites = Column(String(300), nullable=False)
 
     tuition = Column(BigInteger, nullable=False, default=0)
-    sessions_count = Column(Integer, nullable=False, default=0)
-    duration_hours = Column(Integer, nullable=False, default=0)
 
     is_active = Column(Boolean, nullable=False, server_default=true())
     is_deleted = Column(Boolean, nullable=False, server_default=false())

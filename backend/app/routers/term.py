@@ -143,6 +143,7 @@ def get_terms_by_course(
 
         query = db.query(Term).filter(Term.course_id == course_id).options(
             selectinload(Term.course_questions),
+            selectinload(Term.term_sessions),
             selectinload(Term.file_attachments),
             selectinload(Term.user)
         )
@@ -182,7 +183,25 @@ def get_terms_by_course(
         terms_data = []
         for term in terms:
             term_dict = TermOut.model_validate(term).model_dump()
-            term_dict["questions_count"] = len(term.course_questions) if term.course_questions else 0
+
+            sessions = [
+                session for session in term.term_sessions
+                if not session.is_deleted
+            ]
+            term_dict["sessions_count"] = len(sessions)
+
+            duration_hours = sum(
+                session.estimated_duration or 0
+                for session in sessions
+            )
+            term_dict["duration_hours"] = duration_hours
+
+            questions = [
+                question for question in term.course_questions
+                if not question.is_deleted
+            ]
+            term_dict["questions_count"] = len(questions) if term.course_questions else 0
+
             terms_data.append(term_dict)
 
         return response_handler(
@@ -226,6 +245,7 @@ def get_term_by_id(
             .filter(Term.id == term_id, Term.course_id == course_id)
             .options(
                 selectinload(Term.file_attachments),
+                selectinload(Term.term_sessions),
                 selectinload(Term.user),
                 selectinload(Term.course_questions)
             )
@@ -241,7 +261,24 @@ def get_term_by_id(
             raise HTTPException(status_code=404, detail="Session not found")
         
         term_data = TermOut.model_validate(db_term).model_dump()
-        term_data["questions_count"] = len(db_term.course_questions) if db_term.course_questions else 0
+        
+        sessions = [
+            session for session in db_term.term_sessions
+            if not session.is_deleted
+        ]
+        term_data["sessions_count"] = len(sessions)
+
+        duration_hours = sum(
+            session.estimated_duration or 0
+            for session in sessions
+        )
+        term_data["duration_hours"] = duration_hours
+
+        questions = [
+            question for question in db_term.course_questions
+            if not question.is_deleted
+        ]
+        term_data["questions_count"] = len(questions) if db_term.course_questions else 0
 
         return response_handler(
             status=True,

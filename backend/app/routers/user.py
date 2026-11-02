@@ -105,7 +105,7 @@ async def register_student(
         log = AuditLog(
             user_id=new_user.id,
             entity_id=new_user.id,
-            entity_type="users",
+            entity_type="Users",
             action=ActionTypes.create,
             changed_fields=["national_code", "password"],
         )
@@ -236,7 +236,7 @@ async def register_student_by_admin(
         log = AuditLog(
             user_id=admin_id,
             entity_id=new_user.id,
-            entity_type="users",
+            entity_type="Users",
             action=ActionTypes.create,
             changed_fields=["national_code", "password", "is_active"],
         )
@@ -368,7 +368,7 @@ async def register_staff_by_admin(
         log = AuditLog(
             user_id=admin_id,
             entity_id=new_user.id,
-            entity_type="users",
+            entity_type="Users",
             action=ActionTypes.create,
             changed_fields=["national_code", "password", "is_active"],
         )
@@ -491,7 +491,7 @@ def logout_user(
         log = AuditLog(
             user_id=user_id,
             entity_id=user_id,
-            entity_type="users",
+            entity_type="Users",
             action=ActionTypes.update,
             changed_fields=["token_version"],
         )
@@ -899,7 +899,7 @@ async def update_user(
             log = AuditLog(
                 user_id=current_user_id,
                 entity_id=db_user.id,
-                entity_type="users",
+                entity_type="Users",
                 action=ActionTypes.update,
                 changed_fields=changed_keys,
             )
@@ -958,7 +958,7 @@ def toggle_active_status(
         log = AuditLog(
             user_id=current_user_id,
             entity_id=db_user.id,
-            entity_type="users",
+            entity_type="Users",
             action=ActionTypes.update,
             changed_fields=["is_active", "token_version"],
         )
@@ -1015,7 +1015,7 @@ def change_password(
         log = AuditLog(
             user_id=current_user_id,
             entity_id=db_user.id,
-            entity_type="users",
+            entity_type="Users",
             action=ActionTypes.update,
             changed_fields=["password", "token_version"],
         )
@@ -1073,7 +1073,7 @@ def toggle_user_soft_delete(
         log = AuditLog(
             user_id=current_admin_id,
             entity_id=db_user.id,
-            entity_type="users",
+            entity_type="Users",
             action=ActionTypes.update,
             changed_fields=["is_deleted"] + (["token_version"] if data.is_deleted else []),
         )

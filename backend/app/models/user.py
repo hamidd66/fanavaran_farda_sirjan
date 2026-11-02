@@ -45,7 +45,7 @@ class User(Base):
         "AuditLog",
         primaryjoin=lambda: and_(
             User.id == foreign(AuditLog.entity_id),
-            AuditLog.entity_type == "users",
+            AuditLog.entity_type == "Users",
         ),
         viewonly=True,
     )

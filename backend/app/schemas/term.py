@@ -17,8 +17,6 @@ class TermCreate(BaseModel):
     prerequisites: str = Field(..., min_length=1, max_length=300)
 
     tuition: int = Field(..., ge=0)
-    sessions_count: int = Field(..., ge=0)
-    duration_hours: int = Field(..., ge=0)
 
     is_active: Optional[bool] = Field(True)
 
@@ -30,8 +28,6 @@ class TermUpdate(BaseModel):
     long_description: Optional[str] = Field(None, min_length=20)
     prerequisites: Optional[str] = Field(None, min_length=1, max_length=300)
     tuition: Optional[int] = Field(None, ge=0)
-    sessions_count: Optional[int] = Field(None, ge=0)
-    duration_hours: Optional[int] = Field(None, ge=0)
     is_active: Optional[bool] = Field(None)
     
     deleted_image_ids: Optional[List[UUID]] = Field(default_factory=list)
@@ -73,13 +69,13 @@ class TermOut(BaseModel):
     term_number: int
     prerequisites: str
     tuition: int
-    sessions_count: int
-    duration_hours: int
     is_active: bool
     is_deleted: bool
     created_at: datetime
     updated_at: Optional[datetime] = None
 
+    sessions_count: int = 0
+    duration_hours: int = 0
     questions_count: int = 0
 
     user: Optional[UserOut] = None
