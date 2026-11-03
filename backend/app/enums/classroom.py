@@ -2,9 +2,48 @@ import enum
 
 
 class HoldingType(enum.Enum):
-    in_person = "in_person"   # حضوری
-    online = "online"         # آنلاین
-    offline = "offline"       # آفلاین
+    in_person = "in_person"                            # حضوری
+    online = "online"                                  # آنلاین
+    offline = "offline"                                # آفلاین
+
+class ClassroomStatus(enum.Enum):
+    draft = "draft"                                    # پیش‌نویس؛ کلاس ساخته شده ولی هنوز منتشر نشده.
+    open_for_registration = "open_for_registration"    # باز برای ثبت‌نام.
+    registration_closed = "registration_closed"        # ثبت‌نام بسته شده و کلاس هنوز شروع نشده.
+    in_progress = "in_progress"                        # در حال برگزاری.
+    completed = "completed"                            # پایان‌یافته.
+    cancelled = "cancelled"                            # لغوشده 
+
+class EnrollmentStatus(enum.Enum):
+    pending = "pending"                                # در انتظار تأیید یا پرداخت.
+    active = "active"                                  # فعال.
+    waitlisted = "waitlisted"                          # در انتظار ظرفیت خالی.
+    withdrawn = "withdrawn"                            # انصراف‌داده.
+    transferred = "transferred"                        # منتقل‌شده به کلاس دیگر.
+    completed = "completed"                            # تکمیل‌شده.
+    suspended = "suspended"                            # تعلیق‌شده.
+
+class ClassroomSessionStatus(enum.Enum):
+    scheduled = "scheduled"                            # برنامه ریزی شده
+    in_progress = "in_progress"                        # درحال انجام
+    held = "held"                                      # برگزار شده
+    cancelled = "cancelled"                            # لغو شده
+    rescheduled = "rescheduled"                        # تغییر زمان یافته
+
+class AttendanceStatus(enum.Enum):
+    present = "present"                                # حاضر
+    absent = "absent"                                  # غایب
+    excused = "excused"                                # غیبت موجه
+
+class WeekDay(enum.Enum):
+    saturday = "saturday"
+    sunday = "sunday"
+    monday = "monday"
+    tuesday = "tuesday"
+    wednesday = "wednesday"
+    thursday = "thursday"
+    friday = "friday"
+
 
 class ClassroomSort(enum.Enum):
     newest = "newest"
@@ -16,12 +55,6 @@ class ClassroomSort(enum.Enum):
     tuition_asc = "tuition_asc"
     tuition_desc = "tuition_desc"
 
-class AttendanceStatus(enum.Enum):
-    present = "present"                       # حاضر
-    excused_absent = "excused_absent"         # غیبت موجه
-    unexcused_absent = "unexcused_absent"     # غیبت غیرموجه
-    late = "late"                             # تأخیر
-
 class ClassroomRecordSort(enum.Enum):
     newest = "newest"
     oldest = "oldest"
@@ -32,7 +65,6 @@ class ClassroomRecordSort(enum.Enum):
     grade_desc = "grade_desc"
     grade_asc = "grade_asc"
 
-
 class ClassroomSessionSort(enum.Enum):
     session_asc = "session_asc"
     session_desc = "session_desc"
@@ -40,34 +72,4 @@ class ClassroomSessionSort(enum.Enum):
     date_desc = "date_desc"
     newest = "newest"
     oldest = "oldest"
-
-class ClassroomStatus(enum.Enum):
-    open = "open"                    # باز برای ثبت‌نام
-    in_progress = "in_progress"      # در حال برگزاری
-    completed = "completed"          # پایان‌یافته
-    cancelled = "cancelled"          # لغوشده
-
-class ClassroomSessionStatus(enum.Enum):
-    scheduled = "scheduled"          # برنامه ریزی شده
-    in_progress = "in_progress"      # درحال انجام
-    held = "held"                    # برگزار شده
-    cancelled = "cancelled"          # لغو شده
-    rescheduled = "rescheduled"      # تغییر زمان یافته
-
-class EnrollmentStatus(enum.Enum):
-    active = "active"                  # فعال
-    waitlisted = "waitlisted"          # در انتظار ظرفیت خالی
-    withdrawn = "withdrawn"            # انصراف‌داده
-    transferred = "transferred"        # منتقل‌شده
-    completed = "completed"            # تکمیل‌شده
-    deleted = "deleted"                # حذف‌شده
-
-class WeekDay(enum.Enum):
-    saturday = "saturday"
-    sunday = "sunday"
-    monday = "monday"
-    tuesday = "tuesday"
-    wednesday = "wednesday"
-    thursday = "thursday"
-    friday = "friday"
     

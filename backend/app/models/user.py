@@ -22,6 +22,7 @@ class User(Base):
     last_login = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
+
     person = relationship("Person", back_populates="user", uselist=False, cascade="all, delete-orphan")
 
     user_roles = relationship("UserRole", back_populates="user", foreign_keys="UserRole.user_id", cascade="all, delete-orphan")
@@ -39,8 +40,18 @@ class User(Base):
     term_sessions = relationship("TermSession", back_populates="user", foreign_keys="TermSession.created_by")
     session_contents = relationship("SessionContent", back_populates="user", foreign_keys="SessionContent.created_by")
 
-    audit_log_creator = relationship("AuditLog", back_populates="user")
+    classroom_locations = relationship("ClassroomLocation", back_populates="user", foreign_keys="ClassroomLocation.created_by")
+    creator_classrooms = relationship("Classroom", back_populates="creator", foreign_keys="Classroom.created_by")
+    teacher_classrooms = relationship("Classroom", back_populates="teacher", foreign_keys="Classroom.teacher_id")
+    classroom_schedules = relationship("ClassroomSchedule", back_populates="user", foreign_keys="ClassroomSchedule.created_by")
+    student_enrollments = relationship("Enrollment", back_populates="student", foreign_keys="Enrollment.student_id")
+    creator_enrollments = relationship("Enrollment", back_populates="creator", foreign_keys="Enrollment.created_by")
+    teacher_classroom_sessions = relationship("ClassroomSession", back_populates="teacher", foreign_keys="ClassroomSession.teacher_id")
+    creator_classroom_sessions = relationship("ClassroomSession", back_populates="creator", foreign_keys="ClassroomSession.created_by")
+    classroom_attendances = relationship("ClassroomAttendance", back_populates="user", foreign_keys="ClassroomAttendance.created_by")
+    classroom_grades = relationship("ClassroomGrade", back_populates="user", foreign_keys="ClassroomGrade.created_by")
 
+    audit_log_creator = relationship("AuditLog", back_populates="user")
     audit_logs = relationship(
         "AuditLog",
         primaryjoin=lambda: and_(

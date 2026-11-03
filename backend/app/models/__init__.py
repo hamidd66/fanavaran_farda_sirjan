@@ -23,3 +23,10 @@ from app.models.term import Term
 from app.models.term_session import TermSession
 from app.models.session_content import SessionContent
 
+from app.models.classroom_location import ClassroomLocation
+from app.models.classroom import Classroom
+from app.models.classroom_schedule import ClassroomSchedule
+from app.models.enrollment import Enrollment
+from app.models.classroom_session import ClassroomSession
+from app.models.classroom_attendance import ClassroomAttendance
+from app.models.classroom_grade import ClassroomGrade

@@ -37,11 +37,14 @@ class Term(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now(), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
+
     user = relationship("User", back_populates="terms", foreign_keys=[created_by])
     course = relationship("Course", back_populates="terms")
     
     term_sessions = relationship("TermSession", back_populates="term")
     course_questions = relationship("CourseQuestion", back_populates="term", cascade="all, delete-orphan")
+
+    classrooms = relationship("Classroom", back_populates="term")
 
     file_attachments = relationship(
         "FileAttachment",
