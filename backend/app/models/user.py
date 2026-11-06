@@ -51,6 +51,9 @@ class User(Base):
     classroom_attendances = relationship("ClassroomAttendance", back_populates="user", foreign_keys="ClassroomAttendance.created_by")
     classroom_grades = relationship("ClassroomGrade", back_populates="user", foreign_keys="ClassroomGrade.created_by")
 
+    files = relationship("File", back_populates="user", foreign_keys="File.uploaded_by")
+    file_attachments = relationship("FileAttachment", back_populates="user", foreign_keys="FileAttachment.attached_by")
+
     audit_log_creator = relationship("AuditLog", back_populates="user")
     audit_logs = relationship(
         "AuditLog",
