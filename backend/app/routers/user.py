@@ -33,7 +33,7 @@ from app.models.user_specialty import UserSpecialty
 from app.schemas.user import UserLogin, UserUpdate, ToggleActiveStatus, ChangePassword, UserOut, ToggleDeleteStatus
 from app.schemas.staff_profile import StaffCreateByAdmin, StaffUpdate, RegisterStaffProfileSchema
 from app.schemas.person import PersonUpdate
-from app.schemas.student_profile import StudentRegister, StudentCreateByAdmin, StudentUpdate, RegisterStudentProfileSchema
+from app.schemas.student_profile import StudentRegister, StudentCreateByAdmin, StudentUpdate, RegisterStudentProfile
 from app.schemas.file_attachment import FileAttachmentCreate
 from app.enums.audit_logs import ActionTypes
 from app.enums.student_profile import StudentEducationalStatus
@@ -145,11 +145,7 @@ async def register_student(
         return response_handler(
             status=True,
             message="Student registered successfully and logged in",
-            data={
-                "user": UserOut.model_validate(new_user).model_dump(),
-                "access_token": access_token,
-                "refresh_token": refresh_token
-            },
+            data= UserOut.model_validate(new_user).model_dump(),
             status_code=201
         )
 
@@ -495,11 +491,7 @@ def login_user(
         return response_handler(
             status=True,
             message="Login successful",
-            data={
-                "user": UserOut.model_validate(db_user).model_dump(),
-                "access_token": access_token,
-                "refresh_token": refresh_token,
-            },
+            data=UserOut.model_validate(db_user).model_dump(),
             status_code=200,
         )
 
@@ -620,7 +612,7 @@ def refresh_token(
         return response_handler(
             status=True,
             message="Access token refreshed successfully",
-            data={"access_token": access_token},
+            data=None,
             status_code=200
         )
 
@@ -687,7 +679,7 @@ def register_user_as_staff(
 @router.post("/{user_id}/student-profile")
 def register_user_as_student(
     user_id: UUID,
-    data: RegisterStudentProfileSchema,
+    data: RegisterStudentProfile,
     auth: dict = Depends(require_roles("admin")),
     db: Session = Depends(get_db)
 ):

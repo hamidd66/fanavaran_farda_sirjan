@@ -1,7 +1,7 @@
 from uuid import UUID
 from datetime import datetime
 from typing import Optional, List, Literal
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, ConfigDict
 from app.schemas.role import RoleOut
 
 class UserRoleOut(BaseModel):

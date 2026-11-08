@@ -1,7 +1,7 @@
 from uuid import UUID
-from datetime import datetime, date
-from typing import Optional, List
-from pydantic import BaseModel, Field, ConfigDict, computed_field
+from datetime import datetime
+from typing import Optional
+from pydantic import BaseModel, ConfigDict, computed_field
 
 from app.config.settings import settings
 from app.enums.file import StorageProvider, StorageType

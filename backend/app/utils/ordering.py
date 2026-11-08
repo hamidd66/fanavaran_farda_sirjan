@@ -19,8 +19,6 @@ def reorder_items(
         for column in mapper.columns
     }
 
-    # Validate order field
-
     if order_field not in columns:
         raise ValueError(f"Invalid order field: {order_field}")
 
@@ -29,15 +27,11 @@ def reorder_items(
     if not isinstance(order_column.type, Integer):
         raise ValueError("Order field must be an integer column")
 
-    # Validate group field
-
     if (
         group_field is not None
         and group_field not in columns
     ):
         raise ValueError(f"Invalid group field: {group_field}")
-
-    # Validate soft delete field
 
     if soft_delete_field is not None:
 
@@ -50,8 +44,6 @@ def reorder_items(
         ):
             raise ValueError("Soft delete field must be boolean")
 
-    # Apply pending ORM changes
-
     db.flush()
 
     base_query = db.query(model)
@@ -60,10 +52,6 @@ def reorder_items(
         base_query = base_query.filter(
             columns[group_field] == group_value
         )
-
-    # --------------------
-    # Reorder deleted items
-    # --------------------
 
     if soft_delete_field is not None:
 
@@ -100,14 +88,10 @@ def reorder_items(
                 0
             )
 
-            # Temporary negative range
-
             for index, item in enumerate(deleted_items, start=1):
                 setattr(item, order_field, min_number - index)
 
             db.flush()
-
-            # Final negative range
 
             deleted_count = len(deleted_items)
 
@@ -115,10 +99,6 @@ def reorder_items(
                 setattr(item, order_field, index - deleted_count)
 
             db.flush()
-
-    # --------------------
-    # Reorder active items
-    # --------------------
 
     active_query = base_query
 
@@ -157,14 +137,10 @@ def reorder_items(
         0
     )
 
-    # Temporary positive range
-
     for index, item in enumerate(active_items, start=1):
         setattr(item, order_field, max_number + index)
 
     db.flush()
-
-    # Final positive range
 
     for index, item in enumerate(active_items, start=1):
         setattr(item, order_field, index)

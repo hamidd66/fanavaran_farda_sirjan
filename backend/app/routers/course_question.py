@@ -8,7 +8,6 @@ import math
 from app.db.session import get_db
 from app.dependencies.permissions import require_roles
 from app.middleware.exception_handler import response_handler
-from app.config.settings import settings
 
 from app.models.term import Term
 from app.models.course import Course
@@ -34,7 +33,7 @@ def create_question(
     try:
         user_id = UUID(auth["payload"]["sub"])
         user_roles = auth["roles"]
-        is_staff = x_active_role in settings.STAFF_ROLES
+        is_staff = x_active_role in {UserRoleEnum.admin.value, UserRoleEnum.teacher.value}
 
         if x_active_role not in user_roles:
             raise HTTPException(status_code=403, detail=f"You do not have the active role '{x_active_role}' or it is not assigned/enabled for you.")
@@ -66,7 +65,7 @@ def create_question(
             if parent_question.parent_id is not None:
                 raise HTTPException(status_code=400, detail="Cannot reply to a reply.")
             
-            if parent_question.sender_role not in settings.STUDENT_ROLES:
+            if parent_question.sender_role != UserRoleEnum.student:
                 raise HTTPException(status_code=400, detail="Only student questions can receive replies.")
           
             if parent_question.replies:
@@ -220,7 +219,7 @@ def update_question(
     try:
         user_id = UUID(auth["payload"]["sub"])
         user_roles = auth["roles"]
-        is_staff = x_active_role in settings.STAFF_ROLES
+        is_staff = x_active_role in {UserRoleEnum.admin.value, UserRoleEnum.teacher.value}
 
         if x_active_role not in user_roles:
             raise HTTPException(status_code=403, detail=f"You do not have the active role '{x_active_role}' or it is not assigned/enabled for you.")

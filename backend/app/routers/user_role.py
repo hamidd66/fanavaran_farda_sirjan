@@ -6,13 +6,13 @@ from app.db.session import get_db
 from app.dependencies.permissions import require_roles
 from app.middleware.exception_handler import response_handler
 from app.repositories.user_repo import get_user_data
-from app.config.settings import settings
 
 from app.models.user import User
 from app.models.role import Role
 from app.models.user_role import UserRole
 from app.models.audit_logs import AuditLog
 from app.enums.audit_logs import ActionTypes
+from app.enums.user import UserRoleEnum
 from app.schemas.user_role import BatchRolesAssignSchema, BatchRoleAccessSchema
 
 
@@ -48,15 +48,15 @@ def batch_update_user_roles(
 
         existing_roles = db.query(Role).filter(
             Role.id.in_(all_incoming_role_ids),
-            Role.is_active == True
+            Role.is_active.is_(True)
         ).all()
         name_roles = {r.name for r in existing_roles}
 
-        if bool(name_roles & settings.STAFF_ROLES):
+        if name_roles & {UserRoleEnum.admin.value, UserRoleEnum.teacher.value}:
             if not db_user.person.staff_profile:
                 raise HTTPException(status_code=400, detail="The user must first be added to the staff_profile table.")
 
-        if bool(name_roles & settings.STUDENT_ROLES):
+        if UserRoleEnum.student.value in name_roles:
             if not db_user.person.student_profile:
                 raise HTTPException(status_code=400, detail="The user must first be added to the student_profile table.")
     

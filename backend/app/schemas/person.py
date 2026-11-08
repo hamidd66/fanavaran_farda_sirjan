@@ -2,7 +2,7 @@ from uuid import UUID
 from datetime import datetime, date
 from typing import Optional, List
 from pydantic import BaseModel, Field, ConfigDict, EmailStr, model_validator
-from app.enums.user import ReferralSources, UserRoleEnum
+from app.enums.user import ReferralSources
 from app.enums.person import Gender, EducationLevel
 from app.enums.user import ReferralSources
 
