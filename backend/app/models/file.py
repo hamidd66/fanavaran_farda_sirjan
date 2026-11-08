@@ -3,7 +3,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 
 from app.db.base import Base
-from app.enums.file import StorageProvider, StorageType
+from app.enums.file import StorageProvider, StorageType, FileCategory
 
 class File(Base):
     __tablename__ = "files"
@@ -59,7 +59,7 @@ class File(Base):
     checksum = Column(String(64), nullable=False)
     checksum_algorithm = Column(String(20), nullable=False)
     
-    category = Column(String(50), nullable=False)
+    category = Column(Enum(FileCategory), nullable=False)
     description = Column(Text, nullable=True)
     
     is_public = Column(Boolean, nullable=False, server_default=false())

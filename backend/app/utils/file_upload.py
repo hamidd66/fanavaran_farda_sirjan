@@ -1,103 +1,220 @@
-from fastapi import UploadFile, HTTPException
-from typing import List, Optional
-from pathlib import PurePosixPath
-from PIL import Image
-import aiofiles
-import uuid
+import asyncio
+import logging
 import os
+import uuid
+from pathlib import Path, PurePosixPath
+from typing import List
+import aiofiles
+from fastapi import UploadFile, HTTPException
+from PIL import Image
 
 from app.config.settings import settings
-from app.utils.delete_file import delete_files
+
+
+logger = logging.getLogger(__name__)
+
+IMAGE_CHUNK_SIZE = 1024 * 1024 # 1MB
+
+IMAGE_MAX_FILES = 10
+IMAGE_MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
+IMAGE_MAX_TOTAL_SIZE = IMAGE_MAX_FILE_SIZE * IMAGE_MAX_FILES
+IMAGE_MAX_PIXELS = 25_000_000
+IMAGE_MAX_FRAMES = 100
+IMAGE_MAX_PARALLEL_CHECKS = 4
+IMAGE_ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png", "webp", "heic", "heif", "avif"]
+IMAGE_ALLOWED_CONTENT_TYPES = ["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif", "image/avif"]
+IMAGE_FORMAT_ALIASES = {
+    "jpeg": "jpg",
+    "mpo": "jpg",
+    "tif": "tiff",
+}
+
+UPLOAD_ROOT = Path("media") / "uploads"
+
+Image.MAX_IMAGE_PIXELS = IMAGE_MAX_PIXELS
+
+_image_check_semaphore = asyncio.Semaphore(IMAGE_MAX_PARALLEL_CHECKS)
+
+
+def _normalize_ext(ext: str) -> str:
+    return IMAGE_FORMAT_ALIASES.get(ext, ext)
+
+def _get_ext(file: UploadFile) -> str:
+    filename = file.filename or ""
+    return filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
+
+def _check_image(path: str, ext: str) -> None:
+    with Image.open(path) as img:
+        real_format = _normalize_ext((img.format or "").lower())
+
+        if real_format not in IMAGE_ALLOWED_EXTENSIONS:
+            raise ValueError("Unsupported image format")
+
+        if real_format != _normalize_ext(ext):
+            raise ValueError("Extension does not match content")
+
+        width, height = img.size
+        if width * height > IMAGE_MAX_PIXELS:
+            raise ValueError("Image dimensions too large")
+
+        if getattr(img, "n_frames", 1) > IMAGE_MAX_FRAMES:
+            raise ValueError("Too many image frames")
+
+        img.verify()
+
+    with Image.open(path) as img:
+        img.load()
+
+def _remove_file(path: Path) -> None:
+    try:
+        path.unlink(missing_ok=True)
+    except OSError:
+        logger.exception("Could not remove file: %s", path)
+
+async def _save_file(file: UploadFile, path: Path, max_size: int) -> int:
+    size = 0
+
+    async with aiofiles.open(path, "wb") as buffer:
+        while chunk := await file.read(IMAGE_CHUNK_SIZE):
+            size += len(chunk)
+
+            if size > max_size:
+                raise HTTPException(status_code=413, detail="File too large")
+
+            await buffer.write(chunk)
+
+    return size
+
+async def _check_image_async(path: Path, ext: str) -> None:
+    async with _image_check_semaphore:
+        task = asyncio.create_task(
+            asyncio.to_thread(_check_image, str(path), ext)
+        )
+        try:
+            await asyncio.shield(task)
+        except asyncio.CancelledError:
+            await asyncio.gather(task, return_exceptions=True)
+            raise
+
+def _safe_upload_dir(folder_name: str) -> Path:
+    root = UPLOAD_ROOT.resolve()
+    path = (UPLOAD_ROOT / folder_name).resolve()
+
+    if root not in path.parents and path != root:
+        raise HTTPException(status_code=400, detail="Invalid upload path")
+
+    return path
+
+def cleanup_temp_files() -> None:
+    if not UPLOAD_ROOT.exists():
+        return
+
+    for tmp_file in UPLOAD_ROOT.rglob("*.tmp"):
+        try:
+            tmp_file.unlink()
+        except OSError:
+            logger.exception("Could not remove temp file: %s", tmp_file)
 
 
 async def upload_files(
     folder_name: str,
     files: List[UploadFile],
-    positions: Optional[List[str]] = None
 ) -> List[dict]:
 
-    saved_paths = []
-    
+    saved_paths: List[Path] = []
+    results: List[dict] = []
+
     try:
         if folder_name not in settings.ALLOWED_FOLDERS:
             raise HTTPException(status_code=400, detail="Invalid folder")
-        
+
         if not files:
             raise HTTPException(status_code=400, detail="At least one file is required")
-        
-        if positions and len(files) != len(positions):
-            raise HTTPException(status_code=400, detail="Files and positions length mismatch")
-        
-        UPLOAD_DIR = os.path.join("media", "uploads", folder_name)
-        os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-        CHUNK_SIZE = 1024 * 1024  # 1MB
+        if len(files) > IMAGE_MAX_FILES:
+            raise HTTPException(status_code=400, detail=f"Maximum {IMAGE_MAX_FILES} files allowed")
 
-        results = []
+        extensions = []
+        declared_total = 0
 
-        for idx, file in enumerate(files):
-
-            if file.content_type not in settings.ALLOWED_CONTENT_TYPES:
+        for file in files:
+            if file.content_type not in IMAGE_ALLOWED_CONTENT_TYPES:
                 raise HTTPException(status_code=400, detail="Only image files are allowed")
 
-            file_ext = (
-                file.filename.rsplit(".", 1)[-1].lower()
-                if "." in file.filename
-                else ""
-            )
+            ext = _get_ext(file)
 
-            if file_ext not in settings.ALLOWED_EXTENSIONS:
+            if ext not in IMAGE_ALLOWED_EXTENSIONS:
                 raise HTTPException(status_code=400, detail="Invalid file extension")
 
-            file_name = f"{uuid.uuid4().hex}.{file_ext}"
-            file_path = os.path.join(UPLOAD_DIR, file_name)
+            if file.size is not None:
+                if file.size > IMAGE_MAX_FILE_SIZE:
+                    raise HTTPException(status_code=413, detail="File too large")
+                declared_total += file.size
 
-            file_size = 0
-            file_saved = False
+            extensions.append(ext)
+
+        if declared_total > IMAGE_MAX_TOTAL_SIZE:
+            raise HTTPException(status_code=413, detail="Total upload size exceeded")
+
+        upload_dir = _safe_upload_dir(folder_name)
+        await asyncio.to_thread(upload_dir.mkdir, parents=True, exist_ok=True)
+
+        total_size = 0
+
+        for idx, file in enumerate(files):
+            ext = extensions[idx]
+            file_name = f"{uuid.uuid4().hex}.{ext}"
+
+            tmp_path = upload_dir / f"{uuid.uuid4().hex}.tmp"
+            final_path = upload_dir / file_name
 
             try:
-                async with aiofiles.open(file_path, "wb") as buffer:
+                max_size = min(IMAGE_MAX_FILE_SIZE, IMAGE_MAX_TOTAL_SIZE - total_size)
 
-                    while chunk := await file.read(CHUNK_SIZE):
-
-                        file_size += len(chunk)
-
-                        if file_size > settings.MAX_FILE_SIZE:
-                            raise HTTPException(status_code=400, detail="File too large")
-
-                        await buffer.write(chunk)
-
-                    file_saved = True
+                size = await _save_file(file, tmp_path, max_size)
+                total_size += size
 
                 try:
-                    with Image.open(file_path) as img: img.verify()
-
+                    await _check_image_async(tmp_path, ext)
+                except asyncio.CancelledError:
+                    raise
                 except Exception:
-                    os.remove(file_path)
-                    raise HTTPException(status_code=400, detail="Invalid image file")
+                    raise HTTPException(status_code=400, detail="Invalid or corrupted image file")
+
+                os.replace(tmp_path, final_path)
+                saved_paths.append(final_path)
 
             finally:
-                await file.close()
-                if not file_saved and os.path.exists(file_path):
-                    os.remove(file_path)
+                _remove_file(tmp_path)
 
-            url = "/" + str(PurePosixPath("media", "uploads", folder_name, file_name))
-
-            saved_paths.append(url)
+            url = "/" + str(
+                PurePosixPath("media", "uploads", folder_name, file_name)
+            )
 
             results.append({
                 "url": url,
-                "position": positions[idx] if positions else None,
-                "file_ext": file_ext,
-                "size": file_size,
+                "path": str(final_path.resolve()),
+                "file_ext": ext,
+                "size": size,
             })
-        
+
         return results
-    
-    except HTTPException:
-        delete_files(saved_paths)
+
+    except (HTTPException, asyncio.CancelledError):
+        for path in saved_paths:
+            _remove_file(path)
         raise
-    except Exception as e:
-        delete_files(saved_paths)
-        raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
-    
+
+    except Exception:
+        logger.exception("Upload failed unexpectedly")
+        for path in saved_paths:
+            _remove_file(path)
+        raise HTTPException(status_code=500, detail="Upload failed")
+
+    finally:
+        for file in files:
+            try:
+                await file.close()
+            except Exception:
+                logger.exception("Could not close uploaded file: %s", file.filename)
+

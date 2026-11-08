@@ -10,15 +10,17 @@ import math
 from app.db.session import get_db
 from app.middleware.exception_handler import response_handler
 from app.dependencies.permissions import require_roles
-from app.repositories.file_repo import add_files, remove_files, reorder_files
+from app.repositories.file_repo import add_files, remove_files, reorder_files, confirm_pending_uploads, cleanup_pending_uploads
 from app.utils.delete_file import delete_files
 from app.utils.ordering import reorder_items
 
 from app.models.term_session import TermSession
 from app.models.session_content import SessionContent
 from app.models.audit_logs import AuditLog
+from app.enums.file import EntityType, FilePurpose
 from app.enums.audit_logs import ActionTypes
 from app.enums.term import SessionContentSort, ContentType
+from app.schemas.file_attachment import FileAttachmentCreate
 from app.schemas.session_content import SessionContentCreate, SessionContentOut, SessionContentUpdate, ToggleSessionContentActiveStatus, ToggleSessionContentDeleteStatus, SessionContentOrderItemUpdate
 
 
@@ -78,18 +80,20 @@ async def create_session_content(
         db.add(audit_log)
         
         if files:
+            attachments_data = FileAttachmentCreate.model_validate_json(data)
             await add_files(
                 db=db,
                 uploaded_by=user_id,
                 entity_id=new_content.id,
-                entity_type="session_contents",
-                purpose="file",
+                entity_type=EntityType.session_contents,
+                folder_name="session_contents",
                 files=files,
-                display_order=[i+1 for i in range(len(files))]
+                attachments=attachments_data
             )
         
         db.commit()
         db.refresh(new_content)
+        confirm_pending_uploads(db)
         
         return response_handler(
             status=True,
@@ -99,15 +103,19 @@ async def create_session_content(
         )
     except HTTPException as http_error:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise http_error
     except ValidationError as e:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=422, detail=e.errors())
     except IntegrityError:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=409, detail="Data conflicts with existing records")
     except Exception:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=500, detail="Failed to create session content")
 
 
@@ -290,7 +298,6 @@ async def update_session_content(
         # For images
 
         deleted_paths = []
-        last_display_order = 0
 
         if deleted_file_ids:
             deleted_ids_set = set(deleted_file_ids)
@@ -308,25 +315,23 @@ async def update_session_content(
 
         if deleted_file_ids or files:
             changed_fields.append("files")
-            last_display_order = reorder_files(
+            reorder_files(
                 db=db,
                 entity_id=db_content.id,
-                entity_type="session_contents",
-                purpose="file"
+                entity_type=EntityType.session_contents,
+                purpose=FilePurpose.image
             )
 
         if files:
+            attachments_data = FileAttachmentCreate.model_validate_json(data)
             await add_files(
                 db=db,
                 uploaded_by=user_id,
                 entity_id=db_content.id,
-                entity_type="session_contents",
-                purpose="file",
+                entity_type=EntityType.session_contents,
+                folder_name="session_contents",
                 files=files,
-                display_order=[
-                    last_display_order + i
-                    for i in range(1, len(files) + 1)
-                ]
+                attachments=attachments_data
             )
 
         if changed_fields:
@@ -341,6 +346,7 @@ async def update_session_content(
 
         db.commit()
         db.refresh(db_content)
+        confirm_pending_uploads(db)
 
         if deleted_file_ids and deleted_paths:
             delete_files(deleted_paths)
@@ -353,15 +359,19 @@ async def update_session_content(
         )
     except HTTPException as http_error:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise http_error
     except ValidationError as e:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=422, detail=e.errors(include_context=False))
     except IntegrityError:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=409, detail="Input data conflicts with existing records")
     except Exception:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=500, detail="Failed to update session content")
 
 

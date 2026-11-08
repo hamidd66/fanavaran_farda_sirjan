@@ -10,7 +10,7 @@ import math
 from app.db.session import get_db
 from app.dependencies.permissions import require_roles
 from app.middleware.exception_handler import response_handler
-from app.repositories.file_repo import add_files, remove_files
+from app.repositories.file_repo import add_files, remove_files, confirm_pending_uploads, cleanup_pending_uploads
 from app.utils.delete_file import delete_files
 from app.utils.ordering import reorder_items
 
@@ -18,7 +18,9 @@ from app.models.course_category import CourseCategory
 from app.models.course import Course
 from app.models.audit_logs import AuditLog
 from app.enums.audit_logs import ActionTypes
+from app.enums.file import EntityType, FilePurpose
 from app.enums.course import CategorySort
+from app.schemas.file_attachment import FileAttachmentCreate
 from app.schemas.course_category import CourseCategoryCreate, CourseCategoryUpdate, CourseCategoryOut, CourseCategoryOrderItemUpdate, BatchCategoriesStatus
 
 
@@ -69,18 +71,28 @@ async def create_course_category(
         db.add(log)
 
         if image:
+            attachments_data = FileAttachmentCreate(
+                items=[{
+                    "file_index": 0,
+                    "purpose": FilePurpose.thumbnail,
+                    "display_order": 1,
+                    "is_primary": True,
+                    "is_active": True
+                }]
+            ).model_dump()
             await add_files(
                 db=db,
                 uploaded_by=admin_id,
                 entity_id=new_category.id,
-                entity_type="course_categories",
-                purpose="image",
+                entity_type=EntityType.course_categories,
+                folder_name="course_categories",
                 files=[image],
-                display_order=[1]
+                attachments=attachments_data
             )
 
         db.commit()
         db.refresh(new_category)
+        confirm_pending_uploads(db)
 
         category_dict = CourseCategoryOut.model_validate(new_category).model_dump()
         category_dict["courses_count"] = 0
@@ -94,15 +106,19 @@ async def create_course_category(
 
     except HTTPException as http_error:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise http_error
     except ValidationError as e:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=422, detail=e.errors())
     except IntegrityError:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=409, detail="Course category data conflicts with existing records")
     except Exception:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=500, detail="Failed to create course category")
 
 
@@ -451,14 +467,23 @@ async def update_course_category(
                 result = remove_files(db=db, attachment_ids=deleted_attachment_ids)
                 deleted_paths = result["deleted_paths"]
 
+            attachments_data = FileAttachmentCreate(
+                items=[{
+                    "file_index": 0,
+                    "purpose": FilePurpose.thumbnail,
+                    "display_order": 1,
+                    "is_primary": True,
+                    "is_active": True
+                }]
+            ).model_dump()
             await add_files(
                 db=db,
                 uploaded_by=admin_id,
                 entity_id=category_id,
-                entity_type="course_categories",
-                purpose="image",
+                entity_type=EntityType.course_categories,
+                folder_name="course_categories",
                 files=[image],
-                display_order=[1]
+                attachments=attachments_data
             )
 
         if changed_fields:
@@ -473,6 +498,7 @@ async def update_course_category(
 
         db.commit()
         db.refresh(db_category)
+        confirm_pending_uploads(db)
 
         if image and deleted_paths:
             delete_files(deleted_paths)
@@ -490,15 +516,19 @@ async def update_course_category(
 
     except HTTPException as http_error:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise http_error
     except ValidationError as e:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=422, detail=e.errors())
     except IntegrityError:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=409, detail="Course category data conflicts with existing records")
     except Exception:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=500, detail="Failed to update course category")
 
 

@@ -105,16 +105,19 @@ class ToggleActiveStatus(BaseModel):
 
 class ChangePassword(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
-
     old_password: Optional[str] = Field(None, min_length=8, max_length=128)
     new_password: str = Field(..., min_length=8, max_length=128)
 
 
 class UserLogin(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
-
     national_code: str = Field(..., pattern=r"^\d{10}$")
     password: str = Field(..., min_length=8, max_length=128)
+
+
+class UserUpdate(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+    national_code: Optional[str] = Field(None, pattern=r"^\d{10}$")
 
 
 class UserOut(BaseModel):
@@ -127,9 +130,12 @@ class UserOut(BaseModel):
     last_login: Optional[datetime] = None
 
     user_roles: List[UserRoleOut]
-    person: Optional[PersonOut]
+    person: Optional[PersonOut] = None
 
-class UserUpdate(BaseModel):
-    model_config = ConfigDict(str_strip_whitespace=True)
+# class UserSummary(BaseModel):
+#     model_config = ConfigDict(from_attributes=True)
 
-    national_code: Optional[str] = Field(None, pattern=r"^\d{10}$")
+#     id: UUID
+#     user_roles: List[UserRoleOut]
+#     person: Optional[PersonOut] = None
+#     avatars: Optional[list] = None

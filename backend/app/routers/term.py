@@ -10,7 +10,7 @@ import math
 from app.db.session import get_db
 from app.middleware.exception_handler import response_handler
 from app.dependencies.permissions import require_roles
-from app.repositories.file_repo import add_files, remove_files, reorder_files
+from app.repositories.file_repo import add_files, remove_files, reorder_files, confirm_pending_uploads, cleanup_pending_uploads
 from app.utils.delete_file import delete_files
 from app.utils.ordering import reorder_items
 
@@ -18,8 +18,10 @@ from app.models.term import Term
 from app.models.course import Course
 from app.models.term_session import TermSession
 from app.models.audit_logs import AuditLog
+from app.enums.file import EntityType, FilePurpose
 from app.enums.audit_logs import ActionTypes
 from app.enums.term import TermSort
+from app.schemas.file_attachment import FileAttachmentCreate
 from app.schemas.term import TermCreate, TermOut, TermUpdate, ToggleTermActiveStatus, ToggleTermDeleteStatus, TermOrderItemUpdate
 
 
@@ -86,18 +88,20 @@ async def create_term(
         db.add(audit_log)
 
         if images:
+            attachments_data = FileAttachmentCreate.model_validate_json(data)
             await add_files(
                 db=db,
                 uploaded_by=user_id,
                 entity_id=new_term.id,
-                entity_type="terms",
-                purpose="image",
+                entity_type=EntityType.terms,
+                folder_name="terms",
                 files=images,
-                display_order=[i+1 for i in range(len(images))]
+                attachments=attachments_data
             )
 
         db.commit()
         db.refresh(new_term)
+        confirm_pending_uploads(db)
 
         return response_handler(
             status=True,
@@ -107,15 +111,19 @@ async def create_term(
         )
     except HTTPException as http_error:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise http_error
     except ValidationError as e:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=422, detail=e.errors())
     except IntegrityError:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=409, detail="Data conflicts with existing records")
     except Exception:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=500, detail="Failed to create term")
 
 
@@ -331,7 +339,6 @@ async def update_term(
         # For images
 
         deleted_paths = []
-        last_display_order = 0
 
         if deleted_image_ids:
             deleted_ids_set = set(deleted_image_ids)
@@ -349,25 +356,23 @@ async def update_term(
 
         if deleted_image_ids or images:
             changed_fields.append("images")
-            last_display_order = reorder_files(
+            reorder_files(
                 db=db,
                 entity_id=db_term.id,
-                entity_type="terms",
-                purpose="image"
+                entity_type=EntityType.terms,
+                purpose=FilePurpose.image
             )
 
         if images:
+            attachments_data = FileAttachmentCreate.model_validate_json(data)
             await add_files(
                 db=db,
                 uploaded_by=user_id,
                 entity_id=db_term.id,
-                entity_type="terms",
-                purpose="image",
+                entity_type=EntityType.terms,
+                folder_name="terms",
                 files=images,
-                display_order=[
-                    last_display_order + i
-                    for i in range(1, len(images) + 1)
-                ]
+                attachments=attachments_data
             )
 
         if changed_fields:
@@ -382,6 +387,7 @@ async def update_term(
 
         db.commit()
         db.refresh(db_term)
+        confirm_pending_uploads(db)
 
         if deleted_image_ids and deleted_paths:
             delete_files(deleted_paths)
@@ -395,15 +401,19 @@ async def update_term(
 
     except HTTPException as http_error:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise http_error
     except ValidationError as e:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=422, detail=e.errors(include_context=False))
     except IntegrityError:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=409, detail="Input data conflicts with existing records")
     except Exception:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=500, detail="Failed to update term")
 
 

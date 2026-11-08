@@ -2,10 +2,10 @@ from sqlalchemy import Column, String, Date, DateTime, ForeignKey, Text, Enum, a
 from sqlalchemy.orm import relationship, foreign
 from sqlalchemy.dialects.postgresql import UUID
 
-
 from app.db.base import Base
 from app.enums.person import Gender, EducationLevel
 from app.enums.user import ReferralSources
+from app.enums.file import EntityType
 from app.models.file_attachment import FileAttachment
 
 
@@ -39,7 +39,7 @@ class Person(Base):
         "FileAttachment",
         primaryjoin=lambda: and_(
             Person.id == foreign(FileAttachment.entity_id),
-            FileAttachment.entity_type == "persons",
+            FileAttachment.entity_type == EntityType.persons,
         ),
         viewonly=True,
     )

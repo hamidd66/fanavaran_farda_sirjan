@@ -1,11 +1,14 @@
 from pydantic_settings import BaseSettings
 from typing import ClassVar
+from pydantic import computed_field
 
-from app.schemas.user import UserRoleEnum
+# from app.schemas.user import UserRoleEnum
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
     DATABASE_URL: str
+    BASE_URL: str
 
     JWT_SECRET: str
     JWT_ALGORITHM: str
@@ -20,17 +23,19 @@ class Settings(BaseSettings):
     IP_WINDOW_MINUTES: int
     IP_LOCKOUT_MINUTES: int
 
-    ALLOWED_FOLDERS: list = ["course", "classroom", "person", "specialties", "roles", "courses", "course_categories", "terms", "session_contents"]
-    ALLOWED_EXTENSIONS: list = ["jpg", "jpeg", "png", "webp"]
-    ALLOWED_CONTENT_TYPES: list = ["image/jpg", "image/jpeg", "image/png", "image/webp"]
-    MAX_FILE_SIZE: int = 5 * 1024 * 1024  # 5MB
+    ALLOWED_FOLDERS: list[str] = ["course", "classroom", "person", "specialties", "roles", "courses", "course_categories", "terms", "session_contents"]
 
-    STAFF_ROLES: ClassVar[set[str]] = {UserRoleEnum.admin.value, UserRoleEnum.teacher.value, UserRoleEnum.owner.value}
-    STUDENT_ROLES: ClassVar[set[str]] = {UserRoleEnum.student.value, UserRoleEnum.user.value}
+    # STAFF_ROLES: ClassVar[set[str]] = {UserRoleEnum.admin.value, UserRoleEnum.teacher.value, UserRoleEnum.owner.value}
+    # STUDENT_ROLES: ClassVar[set[str]] = {UserRoleEnum.student.value, UserRoleEnum.user.value}
 
     PROJECT_TABLES: ClassVar[set[str]] = {"users", "persons", "staff_profiles", "student_profiles", "roles", "user_roles", "specialties", "user_specialties", "audit_logs", "files", "file_attachments", "course_categories", "courses", "course_questions", "terms", "term_sessions", "session_contents", "classroom_locations", "classrooms", "classroom_schedules", "enrollments", "classroom_sessions", "classroom_attendances", "classroom_grades"}
 
-    class Config:
-        env_file = ".env"
+    @computed_field
+    @property
+    def media_url(self) -> str:
+        return f"{self.BASE_URL}/media/uploads"
 
+    model_config = SettingsConfigDict(
+        env_file = ".env"
+    )
 settings = Settings()

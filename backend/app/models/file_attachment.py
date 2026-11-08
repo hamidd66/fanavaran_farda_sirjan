@@ -3,7 +3,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 
 from app.db.base import Base
-from app.enums.file import EntityType
+from app.enums.file import EntityType, FilePurpose
 
 
 class FileAttachment(Base):
@@ -33,7 +33,7 @@ class FileAttachment(Base):
     entity_id = Column(UUID(as_uuid=True), nullable=False)
     entity_type = Column(Enum(EntityType), nullable=False)
     
-    purpose = Column(String(100), nullable=False)
+    purpose = Column(Enum(FilePurpose), nullable=False)
     display_order = Column(Integer, nullable=False, server_default=text("1"))
     is_primary = Column(Boolean, nullable=False, server_default=false())
     

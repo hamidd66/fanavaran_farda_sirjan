@@ -18,7 +18,7 @@ from app.core.rate_limiters.ip_limiter import check_ip_limit
 from app.core.rate_limiters.login_limiter import is_account_locked, register_failed_login, register_successful_login
 from app.repositories.user_repo import get_user_data
 from app.repositories.role_repo import get_role_by_name
-from app.repositories.file_repo import add_files, remove_files
+from app.repositories.file_repo import add_files, remove_files, confirm_pending_uploads, cleanup_pending_uploads
 from app.dependencies.permissions import require_roles
 
 from app.models.audit_logs import AuditLog
@@ -34,9 +34,11 @@ from app.schemas.user import UserLogin, UserUpdate, ToggleActiveStatus, ChangePa
 from app.schemas.staff_profile import StaffCreateByAdmin, StaffUpdate, RegisterStaffProfileSchema
 from app.schemas.person import PersonUpdate
 from app.schemas.student_profile import StudentRegister, StudentCreateByAdmin, StudentUpdate, RegisterStudentProfileSchema
+from app.schemas.file_attachment import FileAttachmentCreate
 from app.enums.audit_logs import ActionTypes
 from app.enums.student_profile import StudentEducationalStatus
 from app.enums.user import UserRoleEnum, UserSort
+from app.enums.file import EntityType, FilePurpose
 
 
 router = APIRouter(prefix="/user", tags=["Users"])
@@ -97,7 +99,7 @@ async def register_student(
         user_role = UserRole(
             user_id=new_user.id,
             role_id=db_role_student.id,
-            assigned_by="system",
+            assigned_by=new_user.id,
             is_access=True
         )
         db.add(user_role)
@@ -112,17 +114,27 @@ async def register_student(
         db.add(log)
 
         if avatar:
+            attachments_data = FileAttachmentCreate(
+                items=[{
+                    "file_index": 0,
+                    "purpose": FilePurpose.avatar,
+                    "display_order": 1,
+                    "is_primary": True,
+                    "is_active": True
+                }]
+            ).model_dump()
             await add_files(
                 db=db,
                 uploaded_by=new_user.id,
                 entity_id=new_person.id,
-                entity_type="persons",
-                purpose="avatar",
+                entity_type=EntityType.persons,
+                folder_name="person",
                 files=[avatar],
-                display_order=[1]
+                attachments=attachments_data
             )
 
         db.commit()
+        confirm_pending_uploads(db)
 
         access_token = generate_access_token(new_user)
         refresh_token = generate_refresh_token(new_user)
@@ -143,15 +155,19 @@ async def register_student(
 
     except HTTPException as http_error:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise http_error
     except ValidationError as e:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=422, detail=e.errors())
     except IntegrityError:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=409, detail="User data conflicts with existing records")
     except Exception:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=500, detail="Student registration failed")
 
 
@@ -243,17 +259,27 @@ async def register_student_by_admin(
         db.add(log)
 
         if avatar:
+            attachments_data = FileAttachmentCreate(
+                items=[{
+                    "file_index": 0,
+                    "purpose": FilePurpose.avatar,
+                    "display_order": 1,
+                    "is_primary": True,
+                    "is_active": True
+                }]
+            ).model_dump()
             await add_files(
                 db=db,
                 uploaded_by=admin_id,
                 entity_id=new_person.id,
-                entity_type="persons",
-                purpose="avatar",
+                entity_type=EntityType.persons,
+                folder_name="person",
                 files=[avatar],
-                display_order=[1]
+                attachments=attachments_data
             )
 
         db.commit()
+        confirm_pending_uploads(db)
 
         return response_handler(
             status=True,
@@ -264,15 +290,19 @@ async def register_student_by_admin(
 
     except HTTPException as http_error:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise http_error
     except ValidationError as e:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=422, detail=e.errors())
     except IntegrityError:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=409, detail="User data conflicts with existing records")
     except Exception:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=500, detail="Student registration failed")
 
 
@@ -375,17 +405,27 @@ async def register_staff_by_admin(
         db.add(log)
 
         if avatar:
+            attachments_data = FileAttachmentCreate(
+                items=[{
+                    "file_index": 0,
+                    "purpose": FilePurpose.avatar,
+                    "display_order": 1,
+                    "is_primary": True,
+                    "is_active": True
+                }]
+            ).model_dump()
             await add_files(
                 db=db,
                 uploaded_by=admin_id,
                 entity_id=new_person.id,
-                entity_type="persons",
-                purpose="avatar",
+                entity_type=EntityType.persons,
+                folder_name="person",
                 files=[avatar],
-                display_order=[1]
+                attachments=attachments_data
             )
 
         db.commit()
+        confirm_pending_uploads(db)
 
         return response_handler(
             status=True,
@@ -396,15 +436,19 @@ async def register_staff_by_admin(
 
     except HTTPException as http_error:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise http_error
     except ValidationError as e:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=422, detail=e.errors())
     except IntegrityError:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=409, detail="User data conflicts with existing records")
     except Exception:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=500, detail="Staff registration failed")
 
 
@@ -707,6 +751,19 @@ def get_current_user_profile(
             raise HTTPException(status_code=404, detail="User not found")
         
         # roles = [ur.role.name for ur in db_user.user_roles if ur.is_access and ur.role.is_active]
+
+        # user_out = UserSummary.model_validate(db_user).model_dump()
+        # user_out["avatars"] = [
+        #     FileAttachmentSummary.model_validate(file_attachment).model_dump()
+        #     for file_attachment in db_user.person.file_attachments
+        #     if (
+        #         file_attachment.is_active 
+        #         and file_attachment.deleted_at is None 
+        #         and file_attachment.file.is_public 
+        #         and file_attachment.is_active 
+        #         and file_attachment.file.deleted_at is None
+        #     )
+        # ]
         
         return response_handler(
             status=True,
@@ -885,14 +942,24 @@ async def update_user(
                 result = remove_files(db=db, attachment_ids=deleted_attachment_ids)
                 deleted_paths = result["deleted_paths"]
 
+            attachments_data = FileAttachmentCreate(
+                items=[{
+                    "file_index": 0,
+                    "purpose": FilePurpose.avatar,
+                    "display_order": 1,
+                    "is_primary": True,
+                    "is_active": True
+                }]
+            ).model_dump()
+
             await add_files(
                 db=db,
                 uploaded_by=current_user_id,
                 entity_id=db_user.person.id,
-                entity_type="persons",
-                purpose="avatar",
+                entity_type=EntityType.persons,
+                folder_name="person",
                 files=[avatar],
-                display_order=[1]
+                attachments=attachments_data
             )
 
         if changed_keys:
@@ -907,6 +974,7 @@ async def update_user(
 
         db.commit()
         db.refresh(db_user)
+        confirm_pending_uploads(db)
 
         if avatar and deleted_paths:
             delete_files(deleted_paths)
@@ -920,15 +988,19 @@ async def update_user(
 
     except HTTPException as http_error:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise http_error
     except ValidationError as e:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=422, detail=e.errors(include_context=False))
     except IntegrityError:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=409, detail="Input data conflicts with existing records")
     except Exception:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=500, detail="Failed to update user")
 
 

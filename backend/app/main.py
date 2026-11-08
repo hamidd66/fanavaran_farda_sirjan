@@ -21,7 +21,8 @@ from fastapi.staticfiles import StaticFiles
 from .middleware.exception_handler import http_exception_handler, general_exception_handler, validation_exception_handler
 from .middleware.cors import setup_cors
 # from .utils.get_site_info import get_settings
-# from .config import logging_config
+from .config import logging_config
+from .utils.file_upload import cleanup_temp_files
 
 
 
@@ -173,7 +174,9 @@ app.include_router(session_content.router)
 # app.include_router(dashboard.router)
 
 
-
+@app.on_event("startup")
+async def startup_event(): 
+    cleanup_temp_files()
 
 app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(Exception, general_exception_handler)

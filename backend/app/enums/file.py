@@ -35,3 +35,19 @@ class EntityType(enum.Enum):
     terms = "terms"
     session_contents = "session_contents"
     classroom_locations = "classroom_locations"
+
+class FilePurpose(enum.Enum):
+    avatar = "avatar"
+    image = "image"
+    cover = "cover"
+    thumbnail = "thumbnail"
+    gallery = "gallery"
+    banner = "banner"
+    logo = "logo"
+
+class FileCategory(enum.Enum):
+    image = "image"
+    video = "video"
+    audio = "audio"
+    document = "document"
+    archive = "archive"

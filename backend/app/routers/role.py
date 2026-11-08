@@ -10,13 +10,15 @@ import math
 from app.db.session import get_db
 from app.dependencies.permissions import require_roles
 from app.middleware.exception_handler import response_handler
-from app.repositories.file_repo import add_files, remove_files
+from app.repositories.file_repo import add_files, remove_files, confirm_pending_uploads, cleanup_pending_uploads
 from app.utils.delete_file import delete_files
 
 from app.models.role import Role
 from app.models.audit_logs import AuditLog
 from app.enums.audit_logs import ActionTypes
+from app.enums.file import FilePurpose, EntityType
 from app.schemas.role import BatchRolesStatusSchema, UpdateRoleSchema, RoleOut
+from app.schemas.file_attachment import FileAttachmentCreate
 
 
 router = APIRouter(prefix="/roles", tags=["Roles"])
@@ -116,14 +118,23 @@ async def update_role_info(
                 result = remove_files(db=db, attachment_ids=deleted_attachment_ids)
                 deleted_paths = result["deleted_paths"]
 
+            attachments_data = FileAttachmentCreate(
+                items=[{
+                    "file_index": 0,
+                    "purpose": FilePurpose.thumbnail,
+                    "display_order": 1,
+                    "is_primary": True,
+                    "is_active": True
+                }]
+            ).model_dump()
             await add_files(
                 db=db,
                 uploaded_by=admin_id,
                 entity_id=role_id,
-                entity_type="roles",
-                purpose="image",
+                entity_type=EntityType.roles,
+                folder_name="roles",
                 files=[image],
-                display_order=[1]
+                attachments=attachments_data
             )
 
         if changed_fields:
@@ -138,6 +149,7 @@ async def update_role_info(
 
         db.commit()
         db.refresh(db_role)
+        confirm_pending_uploads(db)
 
         if image and deleted_paths:
             delete_files(deleted_paths)
@@ -151,15 +163,19 @@ async def update_role_info(
 
     except HTTPException as http_error:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise http_error
     except ValidationError as e:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=422, detail=e.errors())
     except IntegrityError:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=409, detail="Role data conflicts with existing records")
     except Exception:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=500, detail="Failed to update role")
 
 

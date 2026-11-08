@@ -10,7 +10,7 @@ import math
 from app.db.session import get_db
 from app.dependencies.permissions import require_roles
 from app.middleware.exception_handler import response_handler
-from app.repositories.file_repo import add_files, remove_files, reorder_files
+from app.repositories.file_repo import add_files, remove_files, reorder_files, confirm_pending_uploads, cleanup_pending_uploads
 from app.utils.delete_file import delete_files
 
 from app.models.course import Course
@@ -18,8 +18,10 @@ from app.models.term import Term
 from app.models.course_category import CourseCategory
 from app.models.audit_logs import AuditLog
 from app.enums.audit_logs import ActionTypes
-from app.schemas.course import CourseCreate, CourseUpdate, CourseOut, ToggleCourseActiveStatus, ToggleCourseDeleteStatus
 from app.enums.course import CourseSort
+from app.enums.file import EntityType, FilePurpose
+from app.schemas.file_attachment import FileAttachmentCreate
+from app.schemas.course import CourseCreate, CourseUpdate, CourseOut, ToggleCourseActiveStatus, ToggleCourseDeleteStatus
 
 
 router = APIRouter(prefix="/courses", tags=["Courses"])
@@ -65,18 +67,21 @@ async def create_course(
         db.add(log)
 
         if images:
+            attachments_data = FileAttachmentCreate.model_validate_json(data)
+
             await add_files(
                 db=db,
                 uploaded_by=user_id,
                 entity_id=new_course.id,
-                entity_type="courses",
-                purpose="image",
+                entity_type=EntityType.courses,
+                folder_name="courses",
                 files=images,
-                display_order=[i+1 for i in range(len(images))]
+                attachments=attachments_data
             )
 
         db.commit()
         db.refresh(new_course)
+        confirm_pending_uploads(db)
 
         return response_handler(
             status=True,
@@ -86,15 +91,19 @@ async def create_course(
         )
     except HTTPException as http_error:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise http_error
     except ValidationError as e:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=422, detail=e.errors())
     except IntegrityError:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=409, detail="Data conflicts with existing records")
     except Exception:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=500, detail="Failed to create course")
     
 
@@ -253,7 +262,6 @@ async def update_course(
         # For images
 
         deleted_paths = []
-        last_display_order = 0
 
         if deleted_image_ids:
             deleted_ids_set = set(deleted_image_ids)
@@ -272,25 +280,24 @@ async def update_course(
         if deleted_image_ids or images:
             changed_fields.append("images")
 
-            last_display_order = reorder_files(
+            reorder_files(
                 db=db,
                 entity_id=db_course.id,
-                entity_type="courses",
-                purpose="image"
+                entity_type=EntityType.courses,
+                purpose=FilePurpose.image
             )
 
         if images:
+            attachments_data = FileAttachmentCreate.model_validate_json(data)
+
             await add_files(
                 db=db,
                 uploaded_by=user_id,
                 entity_id=db_course.id,
-                entity_type="courses",
-                purpose="image",
+                entity_type=EntityType.courses,
+                folder_name="courses",
                 files=images,
-                display_order=[
-                    last_display_order + i
-                    for i in range(1, len(images) + 1)
-                ]
+                attachments=attachments_data
             )
 
         if changed_fields:
@@ -305,6 +312,7 @@ async def update_course(
 
         db.commit()
         db.refresh(db_course)
+        confirm_pending_uploads(db)
 
         if deleted_image_ids and deleted_paths:
             delete_files(deleted_paths)
@@ -317,15 +325,19 @@ async def update_course(
         )
     except HTTPException as http_error:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise http_error
     except ValidationError as e:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=422, detail=e.errors(include_context=False))
     except IntegrityError:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=409, detail="Input data conflicts with existing records")
     except Exception:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=500, detail="Failed to update course")
 
 

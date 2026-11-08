@@ -67,7 +67,7 @@ class Enrollment(Base):
     transferred_to = relationship("Enrollment", foreign_keys=[transferred_to_id], remote_side=[id], back_populates="transferred_from", uselist=False)
     transferred_from = relationship("Enrollment", foreign_keys=[transferred_to_id], back_populates="transferred_to", uselist=False)
 
-    student = relationship("User", back_populates="student_enrollments")
+    student = relationship("User", foreign_keys=[student_id], back_populates="student_enrollments")
     classroom = relationship("Classroom", back_populates="enrollments")
     creator = relationship("User", foreign_keys=[created_by], back_populates="creator_enrollments")
 

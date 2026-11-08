@@ -9,7 +9,7 @@ import math
 from app.db.session import get_db
 from app.dependencies.permissions import require_roles
 from app.middleware.exception_handler import response_handler
-from app.repositories.file_repo import add_files, remove_files
+from app.repositories.file_repo import add_files, remove_files, confirm_pending_uploads, cleanup_pending_uploads
 from app.utils.delete_file import delete_files
 
 from app.models.specialty import Specialty
@@ -17,6 +17,8 @@ from app.models.user_specialty import UserSpecialty
 from app.models.audit_logs import AuditLog
 from app.enums.audit_logs import ActionTypes
 from app.schemas.specialty import BatchSpecialtiesStatus, SpecialtyCreate, SpecialtyUpdate, SpecialtyOut
+from app.enums.file import EntityType, FilePurpose
+from app.schemas.file_attachment import FileAttachmentCreate
 
 
 router = APIRouter(prefix="/specialties", tags=["Specialties"])
@@ -57,18 +59,28 @@ async def create_specialty(
         db.add(log)
 
         if image:
+            attachments_data = FileAttachmentCreate(
+                items=[{
+                    "file_index": 0,
+                    "purpose": FilePurpose.thumbnail,
+                    "display_order": 1,
+                    "is_primary": True,
+                    "is_active": True
+                }]
+            ).model_dump()
             await add_files(
                 db=db,
                 uploaded_by=admin_id,
                 entity_id=new_specialty.id,
-                entity_type="specialties",
-                purpose="image",
+                entity_type=EntityType.specialties,
+                folder_name="specialties",
                 files=[image],
-                display_order=[1]
+                attachments=attachments_data
             )
 
         db.commit()
         db.refresh(new_specialty)
+        confirm_pending_uploads(db)
 
         return response_handler(
             status=True,
@@ -79,15 +91,19 @@ async def create_specialty(
 
     except HTTPException as http_error:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise http_error
     except ValidationError as e:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=422, detail=e.errors())
     except IntegrityError:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=409, detail="Specialty data conflicts with existing records")
     except Exception:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=500, detail="Failed to create specialty")
 
 
@@ -227,14 +243,23 @@ async def update_specialty(
                 result = remove_files(db=db, attachment_ids=deleted_attachment_ids)
                 deleted_paths = result["deleted_paths"]
 
+            attachments_data = FileAttachmentCreate(
+                items=[{
+                    "file_index": 0,
+                    "purpose": FilePurpose.thumbnail,
+                    "display_order": 1,
+                    "is_primary": True,
+                    "is_active": True
+                }]
+            ).model_dump()
             await add_files(
                 db=db,
                 uploaded_by=admin_id,
                 entity_id=specialty_id,
-                entity_type="specialties",
-                purpose="image",
+                entity_type=EntityType.specialties,
+                folder_name="specialties",
                 files=[image],
-                display_order=[1]
+                attachments=attachments_data
             )
 
         if changed_fields:
@@ -249,6 +274,7 @@ async def update_specialty(
 
         db.commit()
         db.refresh(db_specialty)
+        confirm_pending_uploads(db)
 
         if image and deleted_paths:
             delete_files(deleted_paths)
@@ -262,15 +288,19 @@ async def update_specialty(
 
     except HTTPException as http_error:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise http_error
     except ValidationError as e:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=422, detail=e.errors())
     except IntegrityError:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=409, detail="Specialty data conflicts with existing records")
     except Exception:
         db.rollback()
+        cleanup_pending_uploads(db)
         raise HTTPException(status_code=500, detail="Failed to update specialty")
 
 
