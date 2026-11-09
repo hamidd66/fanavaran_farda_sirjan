@@ -60,7 +60,7 @@ class CourseOut(BaseModel):
     long_description: str
     has_certificate: bool
     is_active: bool
-    is_deleted: bool
+    deleted_at: Optional[datetime] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
 

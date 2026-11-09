@@ -1,4 +1,5 @@
 from uuid import UUID
+from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File, Form
 from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.exc import IntegrityError
@@ -43,7 +44,8 @@ async def create_course_category(
             or_(
                 CourseCategory.name == category_data.name,
                 CourseCategory.slug == category_data.slug
-            )
+            ),
+            CourseCategory.deleted_at.is_(None)
         ).first()
         if existing_data:
             raise HTTPException(status_code=409, detail="Course category already exists")
@@ -135,7 +137,7 @@ def get_course_categories(
     try:
         viewer_is_admin = bool(auth["payload"]) and "admin" in auth["roles"]
 
-        query = db.query(CourseCategory).options(selectinload(CourseCategory.file_attachments))
+        query = db.query(CourseCategory).filter(CourseCategory.deleted_at.is_(None)).options(selectinload(CourseCategory.file_attachments))
 
         if viewer_is_admin:
             if is_active is not None:
@@ -218,7 +220,8 @@ def get_course_category_by_id(
                 or_(
                     CourseCategory.id == category_id,
                     CourseCategory.slug == category_id
-                )
+                ),
+                CourseCategory.deleted_at.is_(None)
             )
             .first()
         )
@@ -376,7 +379,7 @@ def batch_update_categories_status(
 
         category_ids = [item.category_id for item in data.items]
 
-        categories = db.query(CourseCategory).filter(CourseCategory.id.in_(category_ids)).all()
+        categories = db.query(CourseCategory).filter(CourseCategory.id.in_(category_ids), CourseCategory.deleted_at.is_(None)).all()
         categories_map = {c.id: c for c in categories}
         name_categories = {c.name for c in categories}
 
@@ -433,7 +436,7 @@ async def update_course_category(
         db_category = (
             db.query(CourseCategory)
             .options(selectinload(CourseCategory.file_attachments))
-            .filter(CourseCategory.id == category_id)
+            .filter(CourseCategory.id == category_id, CourseCategory.deleted_at.is_(None))
             .first()
         )
         if not db_category:
@@ -573,7 +576,8 @@ def delete_course_category(
         reorder_items(
             db=db,
             model=CourseCategory,
-            order_field="display_order"
+            order_field="display_order",
+            soft_delete_field="deleted_at"
         )
 
         log = AuditLog(

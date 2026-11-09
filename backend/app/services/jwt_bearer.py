@@ -64,7 +64,7 @@ def _validate_user(payload: dict | None, db: Session) -> bool:
     user_exists = db.query(User.id).filter(
         User.id == user_id,
         User.is_active.is_(True),
-        User.is_deleted.is_(False),
+        User.deleted_at.is_(None),
         User.token_version == token_version
     ).first()
 

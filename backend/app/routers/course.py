@@ -1,4 +1,5 @@
 from uuid import UUID
+from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File, Form
 from sqlalchemy import or_
 from sqlalchemy.exc import IntegrityError
@@ -39,7 +40,7 @@ async def create_course(
 
         course_data = CourseCreate.model_validate_json(data)
 
-        category = db.query(CourseCategory).filter(CourseCategory.id == course_data.category_id).first()
+        category = db.query(CourseCategory).filter(CourseCategory.id == course_data.category_id, CourseCategory.deleted_at.is_(None)).first()
         if not category:
             raise HTTPException(status_code=404, detail="Category not found")
 
@@ -129,14 +130,20 @@ def get_courses(
 
         if viewer_is_admin:
             if is_deleted is not None:  
-                query = query.filter(Course.is_deleted == is_deleted)
+                if is_deleted:
+                    query = query.filter(Course.deleted_at.is_not(None))
+                else:
+                    query = query.filter(Course.deleted_at.is_(None))
         else:
-            query = query.filter(Course.is_deleted.is_(False))
+            query = query.filter(Course.deleted_at.is_(None))
 
         if is_active:
             query = query.filter(Course.is_active == is_active)
 
         if category_id:
+            category = db.query(CourseCategory).filter(CourseCategory.id == category_id, CourseCategory.deleted_at.is_(None)).first()
+            if not category:
+                raise HTTPException(status_code=404, detail="Category not found")
             query = query.filter(Course.category_id == category_id)
 
         if search:
@@ -204,7 +211,7 @@ def get_course_by_id(
         if not db_course:
             raise HTTPException(status_code=404, detail="Course not found")
         
-        if not viewer_is_admin and not db_course.is_deleted:
+        if not viewer_is_admin and db_course.deleted_at is None:
             raise HTTPException(status_code=404, detail="Course not found")
 
         course_dict = CourseOut.model_validate(db_course).model_dump()
@@ -244,7 +251,7 @@ async def update_course(
 
         db_course = (
             db.query(Course)
-            .filter(Course.id == course_id, Course.is_deleted == False)
+            .filter(Course.id == course_id, Course.deleted_at.is_(None))
             .options(selectinload(Course.file_attachments))
             .first()
         )
@@ -351,7 +358,7 @@ def toggle_course_active_status(
     try:
         admin_id = UUID(auth["payload"]["sub"])
 
-        db_course = db.query(Course).filter(Course.id == course_id, Course.is_deleted == False).first()
+        db_course = db.query(Course).filter(Course.id == course_id, Course.deleted_at.is_(None)).first()
         if not db_course:
             raise HTTPException(status_code=404, detail="Course not found")
 
@@ -398,17 +405,17 @@ def toggle_soft_delete_course(
         if not db_course:
             raise HTTPException(status_code=404, detail="Course not found")
 
-        if db_course.is_deleted == data.is_deleted:
+        if (db_course.deleted_at is not None) == data.is_deleted:
             raise HTTPException(status_code=409, detail=f"Course delete is already set to {data.is_deleted}")
 
-        db_course.is_deleted = data.is_deleted
+        db_course.deleted_at = datetime.now(timezone.utc) if data.is_deleted else None
 
         log = AuditLog(
             user_id=admin_id,
             entity_id=db_course.id,
             entity_type="Course",
             action=ActionTypes.update,
-            changed_fields=["is_deleted"],
+            changed_fields=["deleted_at"],
         )
         db.add(log)
 
@@ -417,7 +424,7 @@ def toggle_soft_delete_course(
         return response_handler(
             status=True,
             message=f"Course {'soft-deleted' if data.is_deleted else 'restored'} successfully",
-            data={"course_id": db_course.id, "is_deleted": data.is_deleted},
+            data={"course_id": db_course.id, "deleted_at": db_course.deleted_at},
             status_code=200
         )
     except HTTPException as http_error:

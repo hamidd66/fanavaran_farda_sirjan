@@ -30,6 +30,7 @@ class QuestionOut(BaseModel):
     parent_id: Optional[UUID] = None
     message: str
     is_approved: bool
+    deleted_at: Optional[datetime] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
     

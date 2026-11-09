@@ -28,7 +28,7 @@ def batch_update_user_specialties(
     try:
         admin_id = UUID(auth["payload"]["sub"])
 
-        db_user = get_user_data(db, User.id == user_id, User.is_deleted.is_(False))
+        db_user = get_user_data(db, User.id == user_id, User.deleted_at.is_(None))
         if not db_user:
             raise HTTPException(status_code=404, detail="User not found")
 
@@ -46,7 +46,8 @@ def batch_update_user_specialties(
 
         existing_specialties = db.query(Specialty).filter(
             Specialty.id.in_(all_incoming_specialty_ids),
-            Specialty.is_active == True
+            Specialty.is_active == True,
+            Specialty.deleted_at.is_(None)
         ).all()
         name_specialties = {r.name for r in existing_specialties}
         

@@ -36,7 +36,7 @@ async def create_specialty(
 
         specialty_data = SpecialtyCreate.model_validate_json(data)
 
-        existing_specialty = db.query(Specialty).filter(Specialty.name == specialty_data.name).first()
+        existing_specialty = db.query(Specialty).filter(Specialty.name == specialty_data.name, Specialty.deleted_at.is_(None)).first()
         if existing_specialty:
             raise HTTPException(status_code=409, detail="Specialty with this name already exists")
 
@@ -115,7 +115,7 @@ def get_specialties_list(
     is_active: Optional[bool] = None,
 ):
     try:
-        query = db.query(Specialty)
+        query = db.query(Specialty).filter(Specialty.deleted_at.is_(None))
 
         if is_active is not None:
             query = query.filter(Specialty.is_active == is_active)
@@ -213,9 +213,10 @@ async def update_specialty(
     try:
         admin_id = auth["payload"]["sub"]
 
-        db_specialty = db.query(Specialty).filter(Specialty.id == specialty_id).first()
+        db_specialty = db.query(Specialty).filter(Specialty.id == specialty_id, Specialty.deleted_at.is_(None)).first()
         if not db_specialty:
             raise HTTPException(status_code=404, detail="Specialty not found")
+
 
         specialty_data = SpecialtyUpdate.model_validate_json(data).model_dump(exclude_unset=True)
 
@@ -223,7 +224,7 @@ async def update_specialty(
             raise HTTPException(status_code=400, detail="No fields to update")
 
         if "name" in specialty_data and specialty_data["name"] != db_specialty.name:
-            existing = db.query(Specialty).filter(Specialty.name == specialty_data["name"]).first()
+            existing = db.query(Specialty).filter(Specialty.name == specialty_data["name"], Specialty.deleted_at.is_(None)).first()
             if existing:
                 raise HTTPException(status_code=409, detail="Specialty with this name already exists")
 

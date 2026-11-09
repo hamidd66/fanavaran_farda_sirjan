@@ -65,7 +65,7 @@ class TermSessionOut(BaseModel):
     description: Optional[str] = None
     is_free_preview: bool
     is_active: bool
-    is_deleted: bool
+    deleted_at: Optional[datetime] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
 

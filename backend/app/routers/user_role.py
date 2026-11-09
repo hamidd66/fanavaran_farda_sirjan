@@ -32,7 +32,7 @@ def batch_update_user_roles(
         if admin_id == user_id:
             raise HTTPException(status_code=400, detail="You cannot change your roles")
 
-        db_user = get_user_data(db, User.id == user_id, User.is_deleted.is_(False))
+        db_user = get_user_data(db, User.id == user_id, User.deleted_at.is_(None))
         if not db_user:
             raise HTTPException(status_code=404, detail="User not found")
 
@@ -144,7 +144,7 @@ def batch_update_role_access(
         if admin_id == user_id:
             raise HTTPException(status_code=400, detail="You cannot change your roles access status")
 
-        db_user = get_user_data(db, User.id == user_id, User.is_deleted.is_(False))
+        db_user = get_user_data(db, User.id == user_id, User.deleted_at.is_(None))
         if not db_user:
             raise HTTPException(status_code=404, detail="User not found")
 

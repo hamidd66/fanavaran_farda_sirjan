@@ -2,6 +2,8 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query, Header
 from sqlalchemy.orm import Session, selectinload, joinedload
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import func
+from datetime import datetime, timezone
 from typing import Optional
 import math
 
@@ -38,12 +40,12 @@ def create_question(
         if x_active_role not in user_roles:
             raise HTTPException(status_code=403, detail=f"You do not have the active role '{x_active_role}' or it is not assigned/enabled for you.")
 
-        course = db.query(Course).filter(Course.id == course_id, Course.is_deleted == False).first()
+        course = db.query(Course).filter(Course.id == course_id, Course.deleted_at.is_(None)).first()
         if not course:
             raise HTTPException(status_code=404, detail="Course not found")
 
         if data.term_id:
-            term = db.query(Term).filter(Term.id == data.term_id, Term.is_deleted == False).first()
+            term = db.query(Term).filter(Term.id == data.term_id, Term.deleted_at.is_(None)).first()
             if not term:
                 raise HTTPException(status_code=404, detail="Term not found or inactive")
 
@@ -55,7 +57,7 @@ def create_question(
                 CourseQuestion.id == data.parent_id,
                 CourseQuestion.course_id == course_id,
                 CourseQuestion.is_approved == True,
-                CourseQuestion.is_deleted == False
+                CourseQuestion.deleted_at.is_(None)
             ).options(
                 selectinload(CourseQuestion.replies)
             ).first()
@@ -82,7 +84,7 @@ def create_question(
             sender_role=UserRoleEnum[x_active_role],
             message=data.message,
             is_approved=is_staff,
-            is_deleted=False
+            deleted_at=None
         )
         db.add(new_question)
         db.flush()
@@ -134,12 +136,12 @@ def get_questions(
     try:
         viewer_is_staff = bool(auth["payload"]) and bool({"admin", 'teacher'} & set(auth["roles"]))
 
-        db_course = db.query(Course).filter(Course.id == course_id, Course.is_deleted == False).first()
+        db_course = db.query(Course).filter(Course.id == course_id, Course.deleted_at.is_(None)).first()
         if not db_course:
             raise HTTPException(status_code=404, detail="Course not found")
 
         if term_id:
-            db_term = db.query(Term).filter(Term.id == term_id, Term.is_deleted == False).first()
+            db_term = db.query(Term).filter(Term.id == term_id, Term.deleted_at.is_(None)).first()
             if not db_term:
                 raise HTTPException(status_code=404, detail="Term not found")
 
@@ -155,9 +157,12 @@ def get_questions(
             if is_approved is not None:
                 query = query.filter(CourseQuestion.is_approved == is_approved)
             if is_deleted is not None:
-                query = query.filter(CourseQuestion.is_deleted == is_deleted)
+                if is_deleted:
+                    query = query.filter(CourseQuestion.deleted_at.isnot(None))
+                else:
+                    query = query.filter(CourseQuestion.deleted_at.is_(None))
         else:
-            query = query.filter(CourseQuestion.is_approved == True, CourseQuestion.is_deleted == False)
+            query = query.filter(CourseQuestion.is_approved == True, CourseQuestion.deleted_at.is_(None))
 
         if sort == QuestionSort.newest:
             query = query.order_by(CourseQuestion.created_at.desc())
@@ -171,24 +176,26 @@ def get_questions(
 
         question_data = []
         for question in db_questions:
-            question_obj = QuestionOut.model_validate(question)
-
             if viewer_is_staff:
-                filtered_replies = []
-                for q in question_obj.replies:
-
+                filtered_sql_replies = []
+                for q in question.replies:
                     approved_cond = (q.is_approved == is_approved) if is_approved is not None else True
-                    deleted_cond = (q.is_deleted == is_deleted) if is_deleted is not None else (q.is_deleted == False)
+                    
+                    if is_deleted is True:
+                        deleted_cond = (q.deleted_at is not None)
+                    elif is_deleted is False:
+                        deleted_cond = (q.deleted_at is None)
+                    else:
+                        deleted_cond = (q.deleted_at is None)
                     
                     if approved_cond and deleted_cond:
-                        filtered_replies.append(q)
+                        filtered_sql_replies.append(q)
 
-                question_obj.replies = filtered_replies
-
+                question.replies = filtered_sql_replies
             else:
-                question_obj.replies = [q for q in question_obj.replies if q.is_approved and not q.is_deleted]
+                question.replies = [q for q in question.replies if q.is_approved and q.deleted_at is None]
 
-            question_data.append(question_obj.model_dump())
+            question_data.append(QuestionOut.model_validate(question).model_dump())
 
         return response_handler(
             status=True, 
@@ -224,7 +231,7 @@ def update_question(
         if x_active_role not in user_roles:
             raise HTTPException(status_code=403, detail=f"You do not have the active role '{x_active_role}' or it is not assigned/enabled for you.")
 
-        db_question = db.query(CourseQuestion).filter(CourseQuestion.id == question_id, CourseQuestion.is_deleted == False).options(
+        db_question = db.query(CourseQuestion).filter(CourseQuestion.id == question_id, CourseQuestion.deleted_at.is_(None)).options(
             selectinload(CourseQuestion.replies)
         ).first()
         if not db_question:
@@ -285,7 +292,7 @@ def toggle_approval_question(
     try:
         user_id = UUID(auth["payload"]["sub"])
 
-        db_question = db.query(CourseQuestion).filter(CourseQuestion.id == question_id, CourseQuestion.is_deleted == False).first()
+        db_question = db.query(CourseQuestion).filter(CourseQuestion.id == question_id, CourseQuestion.deleted_at.is_(None)).first()
         if not db_question:
             raise HTTPException(status_code=404, detail="Question not found")
 
@@ -334,17 +341,17 @@ def toggle_delete_status_question(
         if not db_question:
             raise HTTPException(status_code=404, detail="Question not found")
 
-        if db_question.is_deleted == data.is_deleted:
+        if (db_question.deleted_at is not None) == data.is_deleted:
             raise HTTPException(status_code=409, detail=f"Question is already {"deleted" if data.is_deleted else "restored"}")
 
-        db_question.is_deleted = data.is_deleted
+        db_question.deleted_at = datetime.now(timezone.utc) if data.is_deleted else None
 
         new_log = AuditLog(
             user_id=user_id,
             entity_id=db_question.id,
             entity_type="course_questions",
             action=ActionTypes.update,
-            changed_fields=["is_deleted"]
+            changed_fields=["deleted_at"]
         )
         db.add(new_log)
 

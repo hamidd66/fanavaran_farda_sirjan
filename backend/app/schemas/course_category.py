@@ -65,6 +65,7 @@ class CourseCategoryOut(BaseModel):
     description: Optional[str] = None
     display_order: int
     is_active: bool
+    deleted_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
     created_at: datetime
 

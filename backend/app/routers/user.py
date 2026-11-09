@@ -65,7 +65,7 @@ async def register_student(
             token_version=1,
             failed_login_count=0,
             locked_until=None,
-            is_deleted=False
+            deleted_at=None
         )
         db.add(new_user)
         db.flush()
@@ -197,7 +197,7 @@ async def register_student_by_admin(
             token_version=1,
             failed_login_count=0,
             locked_until=None,
-            is_deleted=False
+            deleted_at=None
         )
         db.add(new_user)
         db.flush()
@@ -339,7 +339,7 @@ async def register_staff_by_admin(
             token_version=1,
             failed_login_count=0,
             locked_until=None,
-            is_deleted=False
+            deleted_at=None
         )
         db.add(new_user)
         db.flush()
@@ -473,8 +473,8 @@ def login_user(
         if not db_user.is_active:
             raise HTTPException(status_code=403, detail="Account is inactive")
 
-        if db_user.is_deleted:
-            db_user.is_deleted = False
+        if db_user.deleted_at is not None:
+            db_user.deleted_at = None
 
         register_successful_login(db, db_user)
         
@@ -596,7 +596,7 @@ def refresh_token(
         db_user = get_user_data(
             db,
             User.id == user_id,
-            User.is_deleted.is_(False),
+            User.deleted_at.is_(None),
             User.is_active.is_(True)
         )
 
@@ -756,6 +756,7 @@ def get_current_user_profile(
         #         and file_attachment.file.deleted_at is None
         #     )
         # ]
+
         
         return response_handler(
             status=True,
@@ -779,7 +780,7 @@ def get_users(
     limit: int = Query(20, ge=1, le=100),
     search: Optional[str] = Query(None),
     is_active: Optional[bool] = Query(True),
-    is_deleted: Optional[bool] = Query(False),
+    deleted_at: Optional[bool] = Query(None),
     sort: Optional[UserSort] = Query(None),
 ):
     try:
@@ -797,8 +798,11 @@ def get_users(
             
         if is_active is not None:
             query = query.filter(User.is_active == is_active)
-        if is_deleted is not None:
-            query = query.filter(User.is_deleted == is_deleted)
+        if deleted_at is not None:
+            if deleted_at:
+                query = query.filter(User.deleted_at.is_not(None))
+            else:
+                query = query.filter(User.deleted_at.is_(None))
             
         if search:
             search_term = f"%{search}%"
@@ -853,8 +857,8 @@ def get_user_by_id(
 ):
     try:
         
-        db_user = get_user_data(db, User.id == user_id, User.is_deleted.is_(False))
-        
+        db_user = get_user_data(db, User.id == user_id, User.deleted_at.is_(None))
+
         if not db_user:
             raise HTTPException(status_code=404, detail="User not found")
         
@@ -1126,12 +1130,12 @@ def toggle_user_soft_delete(
         if not db_user:
             raise HTTPException(status_code=404, detail="User not found")
 
-        if db_user.is_deleted == data.is_deleted:
-            raise HTTPException(status_code=409, detail=f"User is already {"deleted" if data.is_deleted else "restored"}")
+        if (db_user.deleted_at is not None) == data.deleted_at:
+            raise HTTPException(status_code=409, detail=f"User is already {'deleted' if data.deleted_at else 'restored'}")
 
-        db_user.is_deleted = data.is_deleted
+        db_user.deleted_at = datetime.now(timezone.utc) if data.deleted_at else None
         
-        if data.is_deleted:
+        if data.deleted_at:
             db_user.token_version += 1
 
         log = AuditLog(
@@ -1139,7 +1143,7 @@ def toggle_user_soft_delete(
             entity_id=db_user.id,
             entity_type="Users",
             action=ActionTypes.update,
-            changed_fields=["is_deleted"] + (["token_version"] if data.is_deleted else []),
+            changed_fields=["deleted_at"] + (["token_version"] if data.deleted_at else []),
         )
         db.add(log)
 
@@ -1147,8 +1151,8 @@ def toggle_user_soft_delete(
 
         return response_handler(
             status=True,
-            message="User soft-deleted successfully" if data.is_deleted else "User restored successfully",
-            data={"user_id": user_id, "is_deleted": data.is_deleted},
+            message="User soft-deleted successfully" if data.deleted_at else "User restored successfully",
+            data={"user_id": user_id, "deleted_at": data.deleted_at},
             status_code=200
         )
 

@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File, Form
 from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import or_, func, update, case
+from sqlalchemy import func, or_, update, case
+from datetime import datetime, timezone
 from pydantic import ValidationError
 from typing import Optional, List
 from uuid import UUID
@@ -41,7 +42,7 @@ async def create_session_content(
         
         db_session = db.query(TermSession).filter(
             TermSession.id == session_id,
-            TermSession.is_deleted == False
+            TermSession.deleted_at.is_(None)
         ).first()
         if not db_session:
             raise HTTPException(status_code=404, detail="Session not found")
@@ -50,7 +51,7 @@ async def create_session_content(
             db.query(func.max(SessionContent.display_order))
             .filter(
                 SessionContent.term_session_id == session_id,
-                SessionContent.is_deleted.is_(False)
+                SessionContent.deleted_at.is_(None)
             )
             .scalar() or 0
         ) + 1
@@ -65,7 +66,7 @@ async def create_session_content(
             display_order=display_order,
             is_free_preview=content_data.is_free_preview,
             is_active=content_data.is_active,
-            is_deleted=False
+            deleted_at=None
         )
         db.add(new_content)
         db.flush()
@@ -139,7 +140,7 @@ def get_session_contents(
         db_session = db.query(TermSession).filter(TermSession.id == session_id).first()
         if not db_session:
             raise HTTPException(status_code=404, detail="Session not found")
-        if not viewer_is_admin and db_session.is_deleted:
+        if not viewer_is_admin and db_session.deleted_at is not None:
             raise HTTPException(status_code=404, detail="Session not found")
         
         query = db.query(SessionContent).filter(SessionContent.term_session_id == session_id).options(
@@ -149,9 +150,12 @@ def get_session_contents(
         
         if viewer_is_admin:
             if is_deleted is not None:
-                query = query.filter(SessionContent.is_deleted == is_deleted)
+                if is_deleted:
+                    query = query.filter(SessionContent.deleted_at.isnot(None))
+                else:
+                    query = query.filter(SessionContent.deleted_at.is_(None))
         else:
-            query = query.filter(SessionContent.is_deleted.is_(False))
+            query = query.filter(SessionContent.deleted_at.is_(None))
             
         if is_active is not None:
             query = query.filter(SessionContent.is_active == is_active)
@@ -218,7 +222,7 @@ def get_session_content_by_id(
         db_session = db.query(TermSession).filter(TermSession.id == session_id).first()
         if not db_session:
             raise HTTPException(status_code=404, detail="Session not found")
-        if not viewer_is_admin and db_session.is_deleted:
+        if not viewer_is_admin and db_session.deleted_at is not None:
             raise HTTPException(status_code=404, detail="Session not found")
             
         db_content = (
@@ -237,7 +241,7 @@ def get_session_content_by_id(
         if not db_content:
             raise HTTPException(status_code=404, detail="Content not found in this session")
             
-        if not viewer_is_admin and db_content.is_deleted:
+        if not viewer_is_admin and db_content.deleted_at is not None:
             raise HTTPException(status_code=404, detail="Content not found")
             
         if not viewer_is_admin and not db_content.is_active:
@@ -280,7 +284,7 @@ async def update_session_content(
 
         db_content = (
             db.query(SessionContent)
-            .filter(SessionContent.id == content_id, SessionContent.is_deleted == False)
+            .filter(SessionContent.id == content_id, SessionContent.deleted_at.is_(None))
             .options(selectinload(SessionContent.file_attachments))
             .first()
         )
@@ -396,7 +400,7 @@ def reorder_session_contents(
             
         session = (
             db.query(TermSession.id)
-            .filter(TermSession.id == session_id, TermSession.is_deleted.is_(False))
+            .filter(TermSession.id == session_id, TermSession.deleted_at.is_(None))
             .with_for_update()
             .first()
         )
@@ -405,7 +409,7 @@ def reorder_session_contents(
             
         current = dict(
             db.query(SessionContent.id, SessionContent.display_order)
-            .filter(SessionContent.term_session_id == session_id, SessionContent.is_deleted.is_(False))
+            .filter(SessionContent.term_session_id == session_id, SessionContent.deleted_at.is_(None))
             .order_by(SessionContent.id)
             .with_for_update()
             .all()
@@ -472,7 +476,7 @@ def toggle_session_content_active_status(
         user_id = UUID(auth["payload"]["sub"])
         db_content = db.query(SessionContent).filter(
             SessionContent.id == content_id,
-            SessionContent.is_deleted == False
+            SessionContent.deleted_at.is_(None)
         ).first()
         if not db_content:
             raise HTTPException(status_code=404, detail="Content not found")
@@ -520,10 +524,10 @@ def toggle_soft_delete_session_content(
         if not db_content:
             raise HTTPException(status_code=404, detail="Content not found")
 
-        if db_content.is_deleted == data.is_deleted:
+        if (db_content.deleted_at is not None) == data.is_deleted:
             raise HTTPException(status_code=409, detail=f"Content delete status is already set to {data.is_deleted}")
 
-        db_content.is_deleted = data.is_deleted
+        db_content.deleted_at = datetime.now(timezone.utc) if data.is_deleted else None
         db.flush()
 
         reorder_items(
@@ -532,7 +536,7 @@ def toggle_soft_delete_session_content(
             order_field="display_order",
             group_field="term_session_id",
             group_value=db_content.term_session_id,
-            soft_delete_field="is_deleted"
+            soft_delete_field="deleted_at"
         )
 
         log = AuditLog(
@@ -540,7 +544,7 @@ def toggle_soft_delete_session_content(
             entity_id=db_content.id,
             entity_type="SessionContent",
             action=ActionTypes.update,
-            changed_fields=["is_deleted"],
+            changed_fields=["deleted_at"],
         )
         db.add(log)
         db.commit()
@@ -597,7 +601,7 @@ def hard_delete_session_content(
             order_field="display_order",
             group_field="term_session_id",
             group_value=session_id,
-            soft_delete_field="is_deleted"
+            soft_delete_field="deleted_at"
         )
 
         log = AuditLog(

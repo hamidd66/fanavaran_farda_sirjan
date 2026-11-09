@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import or_, func, case, update
 from pydantic import ValidationError
+from datetime import datetime, timezone
 from typing import Optional, List
 from uuid import UUID
 import math
@@ -40,14 +41,14 @@ async def create_term(
         user_id = UUID(auth["payload"]["sub"])
         term_data = TermCreate.model_validate_json(data)
 
-        db_course = db.query(Course).filter(Course.id == course_id, Course.is_deleted == False).first()
+        db_course = db.query(Course).filter(Course.id == course_id, Course.deleted_at.is_(None)).first()
         if not db_course:
             raise HTTPException(status_code=404, detail="Course not found")
 
         existing_term = db.query(Term).filter(
             Term.course_id == course_id,
             Term.title == term_data.title,
-            Term.is_deleted.is_(False)
+            Term.deleted_at.is_(None)
         ).first()
         if existing_term:
             raise HTTPException(status_code=409, detail=f"A term already exists for this course.")
@@ -56,7 +57,7 @@ async def create_term(
             db.query(func.max(Term.term_number))
             .filter(
                 Term.course_id == course_id,
-                Term.is_deleted.is_(False)
+                Term.deleted_at.is_(None)
             )
             .scalar() or 0
         ) + 1
@@ -73,7 +74,7 @@ async def create_term(
             sessions_count=term_data.sessions_count,
             duration_hours=term_data.duration_hours,
             is_active=term_data.is_active,
-            is_deleted=False
+            deleted_at=None
         )
         db.add(new_term)
         db.flush()
@@ -146,7 +147,7 @@ def get_terms_by_course(
         if not db_course:
             raise HTTPException(status_code=404, detail="Course not found")
         
-        if not viewer_is_admin and db_course.is_deleted:
+        if not viewer_is_admin and db_course.deleted_at is not None:
             raise HTTPException(status_code=404, detail="Course not found")
 
         query = db.query(Term).filter(Term.course_id == course_id).options(
@@ -158,9 +159,12 @@ def get_terms_by_course(
 
         if viewer_is_admin:
             if is_deleted is not None:  
-                query = query.filter(Term.is_deleted == is_deleted)
+                if is_deleted:
+                    query = query.filter(Term.deleted_at.isnot(None))
+                else:
+                    query = query.filter(Term.deleted_at.is_(None))
         else:
-            query = query.filter(Term.is_deleted.is_(False))
+            query = query.filter(Term.deleted_at.is_(None))
 
         if is_active is not None:
             query = query.filter(Term.is_active == is_active)
@@ -194,7 +198,7 @@ def get_terms_by_course(
 
             sessions = [
                 session for session in term.term_sessions
-                if not session.is_deleted
+                if session.deleted_at is None
             ]
             term_dict["sessions_count"] = len(sessions)
 
@@ -206,7 +210,7 @@ def get_terms_by_course(
 
             questions = [
                 question for question in term.course_questions
-                if not question.is_deleted
+                if question.deleted_at is None
             ]
             term_dict["questions_count"] = len(questions) if term.course_questions else 0
 
@@ -245,7 +249,7 @@ def get_term_by_id(
         if not db_course:
             raise HTTPException(status_code=404, detail="Course not found")
         
-        if not viewer_is_admin and db_course.is_deleted:
+        if not viewer_is_admin and db_course.deleted_at is not None:
             raise HTTPException(status_code=404, detail="Course not found")
 
         db_term = (
@@ -262,7 +266,7 @@ def get_term_by_id(
         if not db_term:
             raise HTTPException(status_code=404, detail="Term not found in this course")
 
-        if not viewer_is_admin and db_term.is_deleted:
+        if not viewer_is_admin and db_term.deleted_at is not None:
             raise HTTPException(status_code=404, detail="Term not found")
     
         if not viewer_is_admin and not db_term.is_active:
@@ -272,7 +276,7 @@ def get_term_by_id(
         
         sessions = [
             session for session in db_term.term_sessions
-            if not session.is_deleted
+            if session.deleted_at is None
         ]
         term_data["sessions_count"] = len(sessions)
 
@@ -284,7 +288,7 @@ def get_term_by_id(
 
         questions = [
             question for question in db_term.course_questions
-            if not question.is_deleted
+            if question.deleted_at is None
         ]
         term_data["questions_count"] = len(questions) if db_term.course_questions else 0
 
@@ -321,7 +325,7 @@ async def update_term(
 
         db_term = (
             db.query(Term)
-            .filter(Term.id == term_id, Term.is_deleted == False)
+            .filter(Term.id == term_id, Term.deleted_at.is_(None))
             .options(selectinload(Term.file_attachments))
             .first()
         )
@@ -439,7 +443,7 @@ def reorder_course_terms(
 
         course = (
             db.query(Course.id)
-            .filter(Course.id == course_id, Course.is_deleted.is_(False))
+            .filter(Course.id == course_id, Course.deleted_at.is_(None))
             .with_for_update()
             .first()
         )
@@ -448,7 +452,7 @@ def reorder_course_terms(
 
         current = dict(
             db.query(Term.id, Term.term_number)
-            .filter(Term.course_id == course_id, Term.is_deleted.is_(False))
+            .filter(Term.course_id == course_id, Term.deleted_at.is_(None))
             .order_by(Term.id)
             .with_for_update()
             .all()
@@ -522,7 +526,7 @@ def toggle_term_active_status(
     try:
         user_id = UUID(auth["payload"]["sub"])
 
-        db_term = db.query(Term).filter(Term.id == term_id, Term.is_deleted == False).first()
+        db_term = db.query(Term).filter(Term.id == term_id, Term.deleted_at.is_(None)).first()
         if not db_term:
             raise HTTPException(status_code=404, detail="Term not found")
 
@@ -569,10 +573,10 @@ def toggle_soft_delete_term(
         if not db_term:
             raise HTTPException(status_code=404, detail="Term not found")
 
-        if db_term.is_deleted == data.is_deleted:
+        if (db_term.deleted_at is not None) == data.is_deleted:
             raise HTTPException(status_code=409, detail=f"Term delete status is already set to {data.is_deleted}")
 
-        db_term.is_deleted = data.is_deleted
+        db_term.deleted_at = datetime.now(timezone.utc) if data.is_deleted else None
         db.flush()
 
         reorder_items(
@@ -581,7 +585,7 @@ def toggle_soft_delete_term(
             order_field="term_number",
             group_field="course_id",
             group_value=db_term.course_id,
-            soft_delete_field="is_deleted"
+            soft_delete_field="deleted_at"
         )
 
         log = AuditLog(
@@ -589,7 +593,7 @@ def toggle_soft_delete_term(
             entity_id=db_term.id,
             entity_type="Term",
             action=ActionTypes.update,
-            changed_fields=["is_deleted"],
+            changed_fields=["deleted_at"],
         )
         db.add(log)
         db.commit()
@@ -650,7 +654,7 @@ def hard_delete_term(
             order_field="term_number",
             group_field="course_id",
             group_value=course_id,
-            soft_delete_field="is_deleted"
+            soft_delete_field="deleted_at"
         )
 
         log = AuditLog(

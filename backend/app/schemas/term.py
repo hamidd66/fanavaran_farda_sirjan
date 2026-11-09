@@ -70,9 +70,9 @@ class TermOut(BaseModel):
     prerequisites: str
     tuition: int
     is_active: bool
-    is_deleted: bool
-    created_at: datetime
+    deleted_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
+    created_at: datetime
 
     sessions_count: int = 0
     duration_hours: int = 0

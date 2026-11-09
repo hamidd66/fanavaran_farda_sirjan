@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Integer, func, inspect
+from sqlalchemy import DateTime, Integer, func, inspect
 from sqlalchemy.orm import Session
 from typing import Any
 
@@ -9,7 +9,7 @@ def reorder_items(
     order_field: str,                     # نام فیلد ترتیب (مثل display_order)
     group_field: str | None = None,       # نام فیلد گروه‌بندی (مثل course_id)
     group_value: Any = None,              # مقدار گروه (مثل UUID دوره)
-    soft_delete_field: str | None = None, # نام فیلد حذف نرم (مثل is_deleted)
+    soft_delete_field: str | None = None, # نام فیلد حذف نرم (مثل deleted_at)
 ) -> int:                                 # تعداد آیتم‌های فعال مرتب‌شده
 
     mapper = inspect(model)
@@ -40,9 +40,9 @@ def reorder_items(
 
         if not isinstance(
             columns[soft_delete_field].type,
-            Boolean
+            DateTime
         ):
-            raise ValueError("Soft delete field must be boolean")
+            raise ValueError("Soft delete field must be datetime")
 
     db.flush()
 
@@ -56,7 +56,7 @@ def reorder_items(
     if soft_delete_field is not None:
 
         deleted_query = base_query.filter(
-            columns[soft_delete_field].is_(True)
+            columns[soft_delete_field].is_not(None)
         )
 
         deleted_items = (
@@ -104,7 +104,7 @@ def reorder_items(
 
     if soft_delete_field is not None:
         active_query = active_query.filter(
-            columns[soft_delete_field].is_(False)
+            columns[soft_delete_field].is_(None)
         )
 
     active_items = (

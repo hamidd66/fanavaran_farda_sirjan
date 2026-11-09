@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import func, or_, update, case
+from datetime import datetime, timezone
 from pydantic import ValidationError
 from typing import Optional
 from uuid import UUID
@@ -34,7 +35,7 @@ async def create_term_session(
     try:
         user_id = UUID(auth["payload"]["sub"])
         
-        db_term = db.query(Term).filter(Term.id == term_id, Term.is_deleted == False).first()
+        db_term = db.query(Term).filter(Term.id == term_id, Term.deleted_at.is_(None)).first()
         if not db_term:
             raise HTTPException(status_code=404, detail="Term not found")
             
@@ -42,7 +43,7 @@ async def create_term_session(
             db.query(func.max(TermSession.session_number))
             .filter(
                 TermSession.term_id == term_id,
-                TermSession.is_deleted.is_(False)
+                TermSession.deleted_at.is_(None)
             )
             .scalar() or 0
         ) + 1
@@ -57,7 +58,7 @@ async def create_term_session(
             description=data.description,
             is_free_preview=data.is_free_preview,
             is_active=data.is_active,
-            is_deleted=False
+            deleted_at=None
         )
         db.add(new_session)
         db.flush()
@@ -110,7 +111,7 @@ def get_term_sessions(
     try:
         viewer_is_admin = bool(auth.get("payload")) and bool("admin" in auth.get("roles", []))
         
-        db_term = db.query(Term).filter(Term.id == term_id, Term.is_deleted == False).first()
+        db_term = db.query(Term).filter(Term.id == term_id, Term.deleted_at.is_(None)).first()
         if not db_term:
             raise HTTPException(status_code=404, detail="Term not found")
             
@@ -121,9 +122,12 @@ def get_term_sessions(
         
         if viewer_is_admin:
             if is_deleted is not None:
-                query = query.filter(TermSession.is_deleted == is_deleted)
+                if is_deleted:
+                    query = query.filter(TermSession.deleted_at.isnot(None))
+                else:
+                    query = query.filter(TermSession.deleted_at.is_(None))
         else:
-            query = query.filter(TermSession.is_deleted.is_(False))
+            query = query.filter(TermSession.deleted_at.is_(None))
             
         if is_active is not None:
             query = query.filter(TermSession.is_active == is_active)
@@ -160,7 +164,7 @@ def get_term_sessions(
         sessions_data = []
         for session in sessions:
             session_dict = TermSessionOut.model_validate(session).model_dump()
-            session_dict["contents_count"] = len(session.session_contents) if session.session_contents else 0
+            session_dict["contents_count"] = len([c for c in session.session_contents if c.deleted_at is None]) if session.session_contents else 0
             sessions_data.append(session_dict)
         
         return response_handler(
@@ -194,7 +198,7 @@ def get_term_session_by_id(
         db_term = db.query(Term).filter(Term.id == term_id).first()
         if not db_term:
             raise HTTPException(status_code=404, detail="Term not found")
-        if not viewer_is_admin and db_term.is_deleted:
+        if not viewer_is_admin and db_term.deleted_at is not None:
             raise HTTPException(status_code=404, detail="Term not found")
             
         db_session = (
@@ -210,7 +214,7 @@ def get_term_session_by_id(
         if not db_session:
             raise HTTPException(status_code=404, detail="Session not found in this term")
             
-        if not viewer_is_admin and db_session.is_deleted:
+        if not viewer_is_admin and db_session.deleted_at is not None:
             raise HTTPException(status_code=404, detail="Session not found")
             
         if not viewer_is_admin and not db_session.is_active:
@@ -220,7 +224,7 @@ def get_term_session_by_id(
             raise HTTPException(status_code=403, detail="Only authenticated users can view this session")
             
         session_data = TermSessionOut.model_validate(db_session).model_dump()
-        session_data["contents_count"] = len(db_session.session_contents) if db_session.session_contents else 0
+        session_data["contents_count"] = len([c for c in db_session.session_contents if c.deleted_at is None]) if db_session.session_contents else 0
         
         return response_handler(
             status=True,
@@ -248,7 +252,7 @@ def update_term_session(
             db.query(TermSession)
             .filter(
                 TermSession.id == session_id, 
-                TermSession.is_deleted == False
+                TermSession.deleted_at.is_(None)
             )
             .first()
         )
@@ -316,7 +320,7 @@ def reorder_term_sessions(
             
         term = (
             db.query(Term.id)
-            .filter(Term.id == term_id, Term.is_deleted.is_(False))
+            .filter(Term.id == term_id, Term.deleted_at.is_(None))
             .with_for_update()
             .first()
         )
@@ -325,7 +329,7 @@ def reorder_term_sessions(
             
         current = dict(
             db.query(TermSession.id, TermSession.session_number)
-            .filter(TermSession.term_id == term_id, TermSession.is_deleted.is_(False))
+            .filter(TermSession.term_id == term_id, TermSession.deleted_at.is_(None))
             .order_by(TermSession.id)
             .with_for_update()
             .all()
@@ -393,7 +397,7 @@ def toggle_term_session_active_status(
         user_id = UUID(auth["payload"]["sub"])
         db_session = db.query(TermSession).filter(
             TermSession.id == session_id, 
-            TermSession.is_deleted == False
+            TermSession.deleted_at.is_(None)
         ).first()
         if not db_session:
             raise HTTPException(status_code=404, detail="Session not found")
@@ -442,10 +446,10 @@ def toggle_soft_delete_term_session(
         if not db_session:
             raise HTTPException(status_code=404, detail="Session not found")
             
-        if db_session.is_deleted == data.is_deleted:
+        if (db_session.deleted_at is not None) == data.is_deleted:
             raise HTTPException(status_code=409, detail=f"Session delete status is already set to {data.is_deleted}")
             
-        db_session.is_deleted = data.is_deleted
+        db_session.deleted_at = datetime.now(timezone.utc) if data.is_deleted else None
         db.flush()
 
         reorder_items(
@@ -454,7 +458,7 @@ def toggle_soft_delete_term_session(
             order_field="session_number",
             group_field="term_id",
             group_value=db_session.term_id,
-            soft_delete_field="is_deleted"
+            soft_delete_field="deleted_at"
         )
 
         log = AuditLog(
@@ -462,7 +466,7 @@ def toggle_soft_delete_term_session(
             entity_id=db_session.id,
             entity_type="TermSession",
             action=ActionTypes.update,
-            changed_fields=["is_deleted"],
+            changed_fields=["deleted_at"],
         )
         db.add(log)
         db.commit()
@@ -511,7 +515,7 @@ def hard_delete_term_session(
             order_field="session_number",
             group_field="term_id",
             group_value=term_id_value,
-            soft_delete_field="is_deleted"
+            soft_delete_field="deleted_at"
         )
 
         log = AuditLog(
