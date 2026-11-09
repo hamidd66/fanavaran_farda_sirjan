@@ -14,8 +14,6 @@ class FileAttachment(Base):
         Index(None, "attached_by", postgresql_where=text("attached_by IS NOT NULL")),
         Index(None, "deleted_at", postgresql_where=text("deleted_at IS NOT NULL")),
 
-        CheckConstraint("length(btrim(entity_type)) > 0", name="file_attachments_entity_type_not_blank"),
-        CheckConstraint("length(btrim(purpose)) > 0", name="file_attachments_purpose_not_blank"),
         CheckConstraint("display_order >= 0", name="file_attachments_display_order_nonneg"),
         # CheckConstraint("NOT is_primary OR is_active", name="file_attachments_primary_active"),
         CheckConstraint("updated_at IS NULL OR updated_at >= created_at", name="file_attachments_updated_after_created"),

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, text, func, and_
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, CheckConstraint, Index, text, func, and_, true
 from sqlalchemy.orm import relationship, foreign
 from sqlalchemy.dialects.postgresql import UUID
 
@@ -8,17 +8,30 @@ from app.models.audit_logs import AuditLog
 
 class User(Base):
     __tablename__ = "users"
+    __table_args__ = (
+        Index(None, "created_at", postgresql_where=text("deleted_at IS NULL")),
+
+        CheckConstraint("national_code ~ '^[0-9]{10}$'", name="users_national_code_format"),
+        CheckConstraint(r"national_code !~ '^(.)\1{9}$'", name="users_national_code_not_repeated"),
+        CheckConstraint("length(password) >= 20", name="users_password_hash_len"),
+        CheckConstraint("token_version >= 1", name="users_token_version_pos"),
+        CheckConstraint("failed_login_count >= 0", name="users_failed_login_nonneg"),
+        # CheckConstraint("NOT deleted_at IS NULL OR NOT is_active", name="users_deleted_not_active"),
+    )
 
     id = Column(UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"))
 
     national_code = Column(String(10), unique=True, index=True, nullable=False)
-    password = Column(String(255), nullable=False)
-    is_active = Column(Boolean, nullable=False, default=True)
-    token_version = Column(Integer, nullable=False, default=1)
-    locked_until = Column(DateTime(timezone=True), nullable=True)
-    failed_login_count = Column(Integer, nullable=False, default=0)
-    is_deleted = Column(Boolean, nullable=False, default=False)
 
+    password = Column(String(255), nullable=False)
+
+    is_active = Column(Boolean, nullable=False, server_default=true())
+    token_version = Column(Integer, nullable=False, server_default=text("1"))
+    
+    locked_until = Column(DateTime(timezone=True), nullable=True)
+    failed_login_count = Column(Integer, nullable=False, server_default=text("0"))
+
+    deleted_at = Column(DateTime(timezone=True), nullable=True)
     last_login = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 

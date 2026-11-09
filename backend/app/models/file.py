@@ -21,12 +21,9 @@ class File(Base):
         CheckConstraint("mime_type ~* '^[a-z0-9][a-z0-9!#$&^_.+-]*/[a-z0-9][a-z0-9!#$&^_.+-]*$'", name="files_mime_type_format"),
         CheckConstraint("(checksum_algorithm = 'md5' AND length(checksum) = 32) OR (checksum_algorithm = 'sha1' AND length(checksum) = 40) OR (checksum_algorithm = 'sha256' AND length(checksum) = 64)", name="files_checksum_length"),
         CheckConstraint("checksum ~ '^[0-9a-f]+$'", name="files_checksum_hex"),
-        CheckConstraint("storage_type ~ '^[a-z0-9_]+$'", name="files_storage_type_format"),
-        CheckConstraint("storage_provider ~ '^[a-z0-9_]+$'", name="files_storage_provider_format"),
         CheckConstraint("bucket_name IS NULL OR length(btrim(bucket_name)) > 0", name="files_bucket_name_not_blank"),
         CheckConstraint("storage_provider = 'local' OR bucket_name IS NOT NULL", name="files_bucket_required_for_cloud"),
         CheckConstraint("length(btrim(storage_path)) > 0 AND position('..' in storage_path) = 0", name="files_storage_path_safe"),
-        CheckConstraint("length(btrim(category)) > 0", name="files_category_not_blank"),
         CheckConstraint("updated_at IS NULL OR updated_at >= created_at", name="files_updated_after_created"),
         # CheckConstraint("deleted_at IS NULL OR is_active = false", name="files_deleted_not_active"),
 
@@ -34,13 +31,6 @@ class File(Base):
         Index("uq_files_checksum_alive", "checksum_algorithm", "checksum", "file_size", unique=True, postgresql_where=text("deleted_at IS NULL")),
     )
 
-    # uploaded_by = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT"), nullable=False)
-    # file_path = Column(String(500), nullable=False)
-    # extension = Column(String(20), nullable=False)
-    # size_bytes = Column(Integer, nullable=False)
-    # created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-    # attachments = relationship("FileAttachment", back_populates="file", cascade="all, delete-orphan")
-    
     id = Column(UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"))
     uploaded_by = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
 

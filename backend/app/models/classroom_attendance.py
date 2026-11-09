@@ -12,9 +12,9 @@ class ClassroomAttendance(Base):
     __table_args__ = (
         Index(None, "classroom_session_id"),
 
-        CheckConstraint("late_minutes >= 0", name="classroom_attendances_late_nonneg"),
-        CheckConstraint("left_early_minutes >= 0", name="classroom_attendances_left_early_nonneg"),
-        CheckConstraint("status NOT IN ('absent', 'excused') OR (late_minutes = 0 AND left_early_minutes = 0)", name="attendance_absent_minutes_zero"),
+        CheckConstraint("late_minutes >= 0", name="late_nonneg"),
+        CheckConstraint("left_early_minutes >= 0", name="left_early_nonneg"),
+        CheckConstraint("status NOT IN ('absent', 'excused') OR (late_minutes = 0 AND left_early_minutes = 0)", name="absent_minutes_zero"),
         
         UniqueConstraint("enrollment_id", "classroom_session_id"),
     )

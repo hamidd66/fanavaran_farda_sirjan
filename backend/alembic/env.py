@@ -248,6 +248,10 @@ def common_context_options() -> dict:
         # TODO: uncomment if you keep tables in a non-default schema
         # "include_schemas": True,
         # "version_table_schema": "public",
+        "autogenerate_plugins": [
+            "alembic.autogenerate.*",
+            "alembic.ext.checkconstraint_byname",
+        ],
     }
 
 
