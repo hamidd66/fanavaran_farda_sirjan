@@ -14,6 +14,10 @@ class Term(Base):
         # CheckConstraint("term_number > 0", name="terms_term_number_positive"),
         CheckConstraint("tuition >= 0", name="terms_tuition_nonnegative"),
         CheckConstraint("length(btrim(title)) > 0", name="terms_title_not_empty"),
+        CheckConstraint("length(btrim(short_description)) > 0", name="terms_short_description_not_empty"),
+        CheckConstraint("length(btrim(long_description)) > 0", name="terms_long_description_not_empty"),
+        CheckConstraint("updated_at IS NULL OR updated_at >= created_at", name="terms_updated_after_created"),
+        # CheckConstraint("deleted_at IS NULL OR is_active = false", name="terms_deleted_not_active"),
 
         Index("uq_terms_course_term_number_alive", "course_id", "term_number", unique=True, postgresql_where=text("deleted_at IS NULL")),
     )

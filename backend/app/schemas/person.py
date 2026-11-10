@@ -1,10 +1,9 @@
 from uuid import UUID
 from datetime import datetime, date
-from typing import Optional, List
-from pydantic import BaseModel, Field, ConfigDict, EmailStr, model_validator
+from typing import Optional
+from pydantic import BaseModel, Field, ConfigDict, model_validator
 from app.enums.user import ReferralSources
 from app.enums.person import Gender, EducationLevel
-from app.enums.user import ReferralSources
 
 from app.schemas.student_profile import StudentProfileOut
 from app.schemas.staff_profile import StaffProfileOut
@@ -12,22 +11,41 @@ from app.schemas.user_specialty import UserSpecialtyOut
 from app.schemas.file_attachment import FileAttachmentOut
 
 NULLABLE_FIELDS = {
-    "description",
+    "admin_note",
+    "bio",
     "field_of_study"
 }
+
+class PersonSelfCreate(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    first_name: str = Field(..., min_length=2, max_length=100)
+    last_name: str = Field(..., min_length=2, max_length=100)
+    father_name: str = Field(..., min_length=3, max_length=80)
+    birth_date: date = Field(...)
+    gender: Gender
+    address: str = Field(..., min_length=3, max_length=300)
+    bio: Optional[str] = None
+    field_of_study: Optional[str] = Field(None, max_length=255)
+    education_level: EducationLevel
+    referral_source: ReferralSources
+
+class PersonAdminCreate(PersonSelfCreate):
+    admin_note: Optional[str] = None
+
 
 class PersonUpdate(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
 
-    full_name: Optional[str] = Field(None, min_length=2)
-    father_name: Optional[str] = Field(None, min_length=2)
+    first_name: Optional[str] = Field(None, min_length=2, max_length=100)
+    last_name: Optional[str] = Field(None, min_length=2, max_length=100)
+    father_name: Optional[str] = Field(None, min_length=2, max_length=80)
     birth_date: Optional[date] = None
     gender: Optional[Gender] = None
-    phone: Optional[str] = Field(None, min_length=2)
-    email: Optional[EmailStr] = None
-    address: Optional[str] = Field(None, min_length=2)
-    description: Optional[str] = Field(None, min_length=0)
-    field_of_study: Optional[str] = Field(None, min_length=0)
+    address: Optional[str] = Field(None, min_length=2, max_length=300)
+    admin_note: Optional[str] = None
+    bio: Optional[str] = None
+    field_of_study: Optional[str] = Field(None, max_length=255)
     education_level: Optional[EducationLevel] = None
     referral_source: Optional[ReferralSources] = None
 
@@ -45,14 +63,14 @@ class PersonOut(BaseModel):
 
     id: UUID
     user_id: UUID
-    full_name: str
+    first_name: str
+    last_name: str
     father_name: str
     birth_date: date
     gender: Gender
-    phone: str
-    email: EmailStr
     address: str
-    description: Optional[str] = None
+    admin_note: Optional[str] = None
+    bio: Optional[str] = None
     field_of_study: Optional[str] = None
     education_level: EducationLevel
     referral_source: ReferralSources
@@ -61,5 +79,5 @@ class PersonOut(BaseModel):
 
     staff_profile: Optional[StaffProfileOut] = None
     student_profile: Optional[StudentProfileOut] = None
-    user_specialties: Optional[List[UserSpecialtyOut]] = None
-    file_attachments: Optional[List[FileAttachmentOut]] = None
+    user_specialties: Optional[list[UserSpecialtyOut]] = None
+    file_attachments: Optional[list[FileAttachmentOut]] = None

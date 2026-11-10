@@ -1,9 +1,18 @@
 from uuid import UUID
 from datetime import datetime
-from typing import List, Literal
-from pydantic import BaseModel, ConfigDict
+from typing import Literal
+from pydantic import BaseModel, ConfigDict, Field
 from app.schemas.specialty import SpecialtyOut
 
+
+class UserSpecialtyActionItem(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+    specialty_id: UUID
+    action: Literal["assign", "remove"]
+
+class UserSpecialtyUpdate(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+    specialties: list[UserSpecialtyActionItem] = Field(..., min_length=1)
 
 class UserSpecialtyOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -15,13 +24,3 @@ class UserSpecialtyOut(BaseModel):
     assigned_at: datetime
 
     specialty: SpecialtyOut
-
-
-class SpecialtyActionItem(BaseModel):
-    model_config = ConfigDict(str_strip_whitespace=True)
-    specialty_id: UUID
-    action: Literal["assign", "remove"]
-
-class BatchSpecialtiesAssignSchema(BaseModel):
-    model_config = ConfigDict(str_strip_whitespace=True)
-    specialties: List[SpecialtyActionItem]

@@ -49,5 +49,5 @@ class CourseQuestion(Base):
     term = relationship("Term", back_populates="course_questions")
     sender = relationship("User", back_populates="course_questions", foreign_keys=[sender_id])
 
-    parent = relationship("CourseQuestion", remote_side=[id], back_populates="replies")
-    replies = relationship("CourseQuestion", back_populates="parent", cascade="all, delete-orphan")
+    parent = relationship("CourseQuestion", remote_side=[id], back_populates="replies", overlaps="course,course_questions")
+    replies = relationship("CourseQuestion", back_populates="parent", cascade="all, delete-orphan", overlaps="course,course_questions")

@@ -30,7 +30,7 @@ class FileAttachmentOut(BaseModel):
     id: UUID
     file_id: UUID
     entity_id: UUID
-    attached_by: UUID
+    attached_by: Optional[UUID] = None
     entity_type: EntityType
     purpose: FilePurpose
     display_order: int

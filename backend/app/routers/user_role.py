@@ -13,7 +13,7 @@ from app.models.user_role import UserRole
 from app.models.audit_logs import AuditLog
 from app.enums.audit_logs import ActionTypes
 from app.enums.user import UserRoleEnum
-from app.schemas.user_role import BatchRolesAssignSchema, BatchRoleAccessSchema
+from app.schemas.user_role import UserRolesActionUpdate, UserRolesAccessUpdate
 
 
 router = APIRouter(prefix="/user-roles", tags=["User Roles"])
@@ -22,7 +22,7 @@ router = APIRouter(prefix="/user-roles", tags=["User Roles"])
 @router.patch("/{user_id}/batch-roles")
 def batch_update_user_roles(
     user_id: UUID,
-    data: BatchRolesAssignSchema,
+    data: UserRolesActionUpdate,
     auth: dict = Depends(require_roles("admin")),
     db: Session = Depends(get_db)
 ):
@@ -105,15 +105,6 @@ def batch_update_user_roles(
 
         db_user.token_version += 1
 
-        log = AuditLog(
-            user_id=admin_id,
-            entity_id=db_user.id,
-            entity_type="UserRole",
-            action=ActionTypes.update,
-            changed_fields=["batch_roles_update", list(name_roles), "token_version"],
-        )
-        db.add(log)
-
         db.commit()
 
         return response_handler(
@@ -134,7 +125,7 @@ def batch_update_user_roles(
 @router.patch("/{user_id}/batch-roles-access")
 def batch_update_role_access(
     user_id: UUID,
-    data: BatchRoleAccessSchema,
+    data: UserRolesAccessUpdate,
     auth: dict = Depends(require_roles("admin")),
     db: Session = Depends(get_db)
 ):

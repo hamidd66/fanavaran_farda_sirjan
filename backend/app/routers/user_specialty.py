@@ -12,7 +12,7 @@ from app.models.specialty import Specialty
 from app.models.user_specialty import UserSpecialty
 from app.models.audit_logs import AuditLog
 from app.enums.audit_logs import ActionTypes
-from app.schemas.user_specialty import BatchSpecialtiesAssignSchema
+from app.schemas.user_specialty import UserSpecialtyUpdate
 
 
 router = APIRouter(prefix="/user-specialties", tags=["User Specialties"])
@@ -21,7 +21,7 @@ router = APIRouter(prefix="/user-specialties", tags=["User Specialties"])
 @router.patch("/{user_id}")
 def batch_update_user_specialties(
     user_id: UUID,
-    data: BatchSpecialtiesAssignSchema,
+    data: UserSpecialtyUpdate,
     auth: dict = Depends(require_roles("admin")),
     db: Session = Depends(get_db)
 ):

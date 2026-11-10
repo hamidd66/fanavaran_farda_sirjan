@@ -1,10 +1,11 @@
 import enum
 
 class UserRoleEnum(enum.Enum):
+    owner = "owner"
     admin = "admin"
     teacher = "teacher"
     student = "student"
-    owner = "owner"
+    parent = "parent"
     user = "user"
 
 class UserSort(enum.Enum):

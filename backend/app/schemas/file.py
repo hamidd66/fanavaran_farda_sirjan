@@ -10,7 +10,7 @@ class FileOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: UUID
-    uploaded_by: UUID
+    uploaded_by: Optional[UUID] = None
     original_name: str
     stored_name: str
     extension: str

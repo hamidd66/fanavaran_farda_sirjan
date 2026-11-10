@@ -13,6 +13,9 @@ class TermSession(Base):
 
         # CheckConstraint("session_number > 0", name="term_sessions_number_positive"),
         CheckConstraint("estimated_duration >= 0", name="term_sessions_duration_nonnegative"),
+        CheckConstraint("length(btrim(title)) > 0", name="term_sessions_title_not_empty"),
+        CheckConstraint("updated_at IS NULL OR updated_at >= created_at", name="term_sessions_updated_after_created"),
+        # CheckConstraint("deleted_at IS NULL OR is_active = false", name="term_sessions_deleted_not_active"),
 
         Index("uq_term_sessions_term_session_number_alive", "term_id", "session_number", unique=True, postgresql_where=text("deleted_at IS NULL")),
     )

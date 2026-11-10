@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from typing import Optional, List
 from pydantic import ValidationError
 import math
+import json
 
 from app.db.session import get_db
 from app.services.cookies import set_auth_cookie, delete_auth_cookie
@@ -21,22 +22,19 @@ from app.repositories.role_repo import get_role_by_name
 from app.repositories.file_repo import add_files, remove_files, confirm_pending_uploads, cleanup_pending_uploads
 from app.dependencies.permissions import require_roles
 
-from app.models.audit_logs import AuditLog
 from app.models.person import Person
 from app.models.staff_profile import StaffProfile
 from app.models.user import User
 from app.models.user_role import UserRole
 from app.models.role import Role
 from app.models.student_profile import StudentProfile
-from app.models.specialty import Specialty
-from app.models.user_specialty import UserSpecialty
-from app.schemas.user import UserLogin, UserUpdate, ToggleActiveStatus, ChangePassword, UserOut, ToggleDeleteStatus
-from app.schemas.staff_profile import StaffCreateByAdmin, StaffUpdate, RegisterStaffProfileSchema
-from app.schemas.person import PersonUpdate
-from app.schemas.student_profile import StudentRegister, StudentCreateByAdmin, StudentUpdate, RegisterStudentProfile
+from app.schemas.user import UserLogin, UserUpdate, ToggleActiveStatus, ChangePassword, UserOut, ToggleDeleteStatus, UserCreate
+from app.schemas.staff_profile import StaffUpdate, StaffCreate
+from app.schemas.person import PersonSelfCreate, PersonUpdate, PersonAdminCreate
+from app.schemas.student_profile import StudentCreate, StudentUpdate
 from app.schemas.file_attachment import FileAttachmentCreate
-from app.enums.audit_logs import ActionTypes
 from app.enums.student_profile import StudentEducationalStatus
+from app.enums.staff_profile import StaffEmploymentStatus
 from app.enums.user import UserRoleEnum, UserSort
 from app.enums.file import EntityType, FilePurpose
 
@@ -52,50 +50,52 @@ async def register_student(
     db: Session = Depends(get_db),
 ):
     try:
-        student_data = StudentRegister.model_validate_json(data)
+        full_data = json.loads(data)
 
-        existing_user = get_user_data(db, User.national_code == student_data.national_code)
+        user_data = UserCreate.model_validate(full_data).model_dump(exclude_unset=True, exclude_none=True)
+        existing_user = db.query(User).filter(
+            or_(
+                User.username == user_data.get("username"),
+                User.national_code == user_data.get("national_code"),
+                User.phone == user_data.get("phone"),
+                User.email == user_data.get("email")
+            )
+        ).first()
         if existing_user:
-            raise HTTPException(status_code=409, detail="User with this national code already exists")
+            raise HTTPException(status_code=409, detail="User already exists")
 
+        user_data["password"] = hash_password(user_data["password"])
         new_user = User(
-            national_code=student_data.national_code,
-            password=hash_password(student_data.password),
+            **user_data,
             is_active=True,
             token_version=1,
             failed_login_count=0,
             locked_until=None,
-            deleted_at=None
         )
         db.add(new_user)
         db.flush()
 
+        person_data = PersonSelfCreate.model_validate(full_data).model_dump(exclude_unset=True, exclude_none=True)
         new_person = Person(
+            **person_data,
             user_id=new_user.id,
-            full_name=student_data.full_name,
-            father_name=student_data.father_name,
-            birth_date=student_data.birth_date,
-            gender=student_data.gender,
-            phone=student_data.phone,
-            email=student_data.email,
-            address=student_data.address,
-            description=student_data.description,
-            field_of_study=student_data.field_of_study,
-            education_level=student_data.education_level,
-            referral_source=student_data.referral_source
         )
         db.add(new_person)
         db.flush()
 
+        student_profile_data = StudentCreate.model_validate(full_data).model_dump(exclude_unset=True, exclude_none=True)
         new_student_profile = StudentProfile(
+            **student_profile_data,
             person_id=new_person.id,
             educational_status=StudentEducationalStatus.suspended,
-            parent_phone=student_data.parent_phone
         )
         db.add(new_student_profile)
         db.flush()
 
         db_role_student = get_role_by_name(db, UserRoleEnum.student)
+        if not db_role_student:
+            raise HTTPException(status_code=500, detail="Student role not found")
+        
         user_role = UserRole(
             user_id=new_user.id,
             role_id=db_role_student.id,
@@ -103,15 +103,6 @@ async def register_student(
             is_access=True
         )
         db.add(user_role)
-
-        log = AuditLog(
-            user_id=new_user.id,
-            entity_id=new_user.id,
-            entity_type="Users",
-            action=ActionTypes.create,
-            changed_fields=["national_code", "password"],
-        )
-        db.add(log)
 
         if avatar:
             attachments_data = FileAttachmentCreate(
@@ -176,58 +167,52 @@ async def register_student_by_admin(
 ):
     try:
         admin_id = UUID(auth["payload"]["sub"])
-        student_data = StudentCreateByAdmin.model_validate_json(data)
+        full_data = json.loads(data)
 
-        existing_user = get_user_data(db, User.national_code == student_data.national_code)
+        user_data = UserCreate.model_validate(full_data).model_dump(exclude_unset=True, exclude_none=True)
+        existing_user = db.query(User).filter(
+            or_(
+                User.username == user_data.get("username"),
+                User.national_code == user_data.get("national_code"),
+                User.phone == user_data.get("phone"),
+                User.email == user_data.get("email")
+            )
+        ).first()
         if existing_user:
-            raise HTTPException(status_code=409, detail="User with this national code already exists")
+            raise HTTPException(status_code=409, detail="User already exists")
 
-        if student_data.specialty_ids:
-            specialties = db.query(Specialty).filter(
-                Specialty.id.in_(student_data.specialty_ids),
-                Specialty.is_active == True
-            ).all()
-            if len(specialties) != len(student_data.specialty_ids):
-                raise HTTPException(status_code=400, detail="One or more specialties not found")
-
+        user_data["password"] = hash_password(user_data["password"])
         new_user = User(
-            national_code=student_data.national_code,
-            password=hash_password(student_data.password),
-            is_active=student_data.is_active,
+            **user_data,
+            is_active=True,
             token_version=1,
             failed_login_count=0,
             locked_until=None,
-            deleted_at=None
         )
         db.add(new_user)
         db.flush()
 
+        person_data = PersonAdminCreate.model_validate(full_data).model_dump(exclude_unset=True, exclude_none=True)
         new_person = Person(
+            **person_data,
             user_id=new_user.id,
-            full_name=student_data.full_name,
-            father_name=student_data.father_name,
-            birth_date=student_data.birth_date,
-            gender=student_data.gender,
-            phone=student_data.phone,
-            email=student_data.email,
-            address=student_data.address,
-            description=student_data.description,
-            field_of_study=student_data.field_of_study,
-            education_level=student_data.education_level,
-            referral_source=student_data.referral_source
         )
         db.add(new_person)
         db.flush()
 
+        student_profile_data = StudentCreate.model_validate(full_data).model_dump(exclude_unset=True, exclude_none=True)
         new_student_profile = StudentProfile(
+            **student_profile_data,
             person_id=new_person.id,
-            educational_status=StudentEducationalStatus[student_data.educational_status],
-            parent_phone=student_data.parent_phone
+            educational_status=StudentEducationalStatus.suspended,
         )
         db.add(new_student_profile)
         db.flush()
 
         db_role_student = get_role_by_name(db, UserRoleEnum.student)
+        if not db_role_student:
+            raise HTTPException(status_code=500, detail="Student role not found")
+        
         user_role = UserRole(
             user_id=new_user.id,
             role_id=db_role_student.id,
@@ -235,24 +220,6 @@ async def register_student_by_admin(
             is_access=True
         )
         db.add(user_role)
-
-        if student_data.specialty_ids:
-            for specialty_id in student_data.specialty_ids:
-                user_specialty = UserSpecialty(
-                    person_id=new_person.id,
-                    specialty_id=specialty_id,
-                    assigned_by=admin_id
-                )
-                db.add(user_specialty)
-
-        log = AuditLog(
-            user_id=admin_id,
-            entity_id=new_user.id,
-            entity_type="Users",
-            action=ActionTypes.create,
-            changed_fields=["national_code", "password", "is_active"],
-        )
-        db.add(log)
 
         if avatar:
             attachments_data = FileAttachmentCreate(
@@ -311,94 +278,47 @@ async def register_staff_by_admin(
 ):
     try:
         admin_id = UUID(auth["payload"]["sub"])
-        staff_data = StaffCreateByAdmin.model_validate_json(data)
+        full_data = json.loads(data)
 
-        existing_user = get_user_data(db, User.national_code == staff_data.national_code)
+        user_data = UserCreate.model_validate(full_data).model_dump(exclude_unset=True, exclude_none=True)
+        existing_user = db.query(User).filter(
+            or_(
+                User.username == user_data.get("username"),
+                User.national_code == user_data.get("national_code"),
+                User.phone == user_data.get("phone"),
+                User.email == user_data.get("email")
+            )
+        ).first()
         if existing_user:
-            raise HTTPException(status_code=409, detail="User with this national code already exists")
+            raise HTTPException(status_code=409, detail="User already exists")
 
-        roles = db.query(Role).filter(
-            Role.id.in_(staff_data.role_ids),
-            Role.is_active == True
-        ).all()
-        if len(roles) != len(staff_data.role_ids):
-            raise HTTPException(status_code=400, detail="One or more roles not found")
-
-        if staff_data.specialty_ids:
-            specialties = db.query(Specialty).filter(
-                Specialty.id.in_(staff_data.specialty_ids),
-                Specialty.is_active == True
-            ).all()
-            if len(specialties) != len(staff_data.specialty_ids):
-                raise HTTPException(status_code=400, detail="One or more specialties not found")
-
+        user_data["password"] = hash_password(user_data["password"])
         new_user = User(
-            national_code=staff_data.national_code,
-            password=hash_password(staff_data.password),
-            is_active=staff_data.is_active,
+            **user_data,
+            is_active=True,
             token_version=1,
             failed_login_count=0,
             locked_until=None,
-            deleted_at=None
         )
         db.add(new_user)
         db.flush()
 
+        person_data = PersonAdminCreate.model_validate(full_data).model_dump(exclude_unset=True, exclude_none=True)
         new_person = Person(
+            **person_data,
             user_id=new_user.id,
-            full_name=staff_data.full_name,
-            father_name=staff_data.father_name,
-            birth_date=staff_data.birth_date,
-            gender=staff_data.gender,
-            phone=staff_data.phone,
-            email=staff_data.email,
-            address=staff_data.address,
-            description=staff_data.description,
-            field_of_study=staff_data.field_of_study,
-            education_level=staff_data.education_level,
-            referral_source=staff_data.referral_source
         )
         db.add(new_person)
         db.flush()
 
+        staff_profile_data = StaffCreate.model_validate(full_data).model_dump(exclude_unset=True, exclude_none=True)
         new_staff_profile = StaffProfile(
+            **staff_profile_data,
             person_id=new_person.id,
-            employment_status=staff_data.employment_status,
-            employment_type=staff_data.employment_type,
-            job_title=staff_data.job_title,
-            card_number=staff_data.card_number,
-            sheba_number=staff_data.sheba_number,
-            hire_date=staff_data.hire_date
+            employment_status=StaffEmploymentStatus.suspended,
         )
         db.add(new_staff_profile)
         db.flush()
-
-        for role in roles:
-            user_role = UserRole(
-                user_id=new_user.id,
-                role_id=role.id,
-                assigned_by=admin_id,
-                is_access=True
-            )
-            db.add(user_role)
-
-        if staff_data.specialty_ids:
-            for specialty_id in staff_data.specialty_ids:
-                user_specialty = UserSpecialty(
-                    person_id=new_person.id,
-                    specialty_id=specialty_id,
-                    assigned_by=admin_id
-                )
-                db.add(user_specialty)
-
-        log = AuditLog(
-            user_id=admin_id,
-            entity_id=new_user.id,
-            entity_type="Users",
-            action=ActionTypes.create,
-            changed_fields=["national_code", "password", "is_active"],
-        )
-        db.add(log)
 
         if avatar:
             attachments_data = FileAttachmentCreate(
@@ -448,8 +368,8 @@ async def register_staff_by_admin(
         raise HTTPException(status_code=500, detail="Staff registration failed")
 
 
-@router.post("/login")
-def login_user(
+@router.post("/login/national-code-password")
+def login_national_code_password(
     request: Request,
     response: Response,
     data: UserLogin,
@@ -523,15 +443,6 @@ def logout_user(
 
         if updated_rows == 0:
             raise HTTPException(status_code=404, detail="User not found")
-        
-        log = AuditLog(
-            user_id=user_id,
-            entity_id=user_id,
-            entity_type="Users",
-            action=ActionTypes.update,
-            changed_fields=["token_version"],
-        )
-        db.add(log)
 
         db.commit()
 
@@ -627,14 +538,12 @@ def refresh_token(
 @router.post("/{user_id}/staff-profile")
 def register_user_as_staff(
     user_id: UUID,
-    data: RegisterStaffProfileSchema,
+    data: StaffCreate,
     auth: dict = Depends(require_roles("admin")),
     db: Session = Depends(get_db)
 ):
     try:
-        admin_id = UUID(auth["payload"]["sub"])
-
-        db_user = get_user_data(db, User.id == user_id, User.is_deleted.is_(False))
+        db_user = get_user_data(db, User.id == user_id, User.deleted_at.is_(None))
         if not db_user:
             raise HTTPException(status_code=404, detail="User not found")
 
@@ -648,18 +557,12 @@ def register_user_as_staff(
 
         create_data = data.model_dump(exclude_none=True)
 
-        new_staff_profile = StaffProfile(**create_data, person_id=person_id)
-        db.add(new_staff_profile)
-
-        log = AuditLog(
-            user_id=admin_id,
-            entity_id=db_user.id,
-            entity_type="StaffProfile",
-            action=ActionTypes.create,
-            changed_fields=["staff_profile_creation"],
+        new_staff_profile = StaffProfile(
+            **create_data, 
+            person_id=person_id,
+            employment_status=StaffEmploymentStatus.suspended,
         )
-        db.add(log)
-
+        db.add(new_staff_profile)
         db.commit()
 
         return response_handler(
@@ -679,14 +582,12 @@ def register_user_as_staff(
 @router.post("/{user_id}/student-profile")
 def register_user_as_student(
     user_id: UUID,
-    data: RegisterStudentProfile,
+    data: StudentCreate,
     auth: dict = Depends(require_roles("admin")),
     db: Session = Depends(get_db)
 ):
     try:
-        admin_id = UUID(auth["payload"]["sub"])
-
-        db_user = get_user_data(db, User.id == user_id, User.is_deleted.is_(False))
+        db_user = get_user_data(db, User.id == user_id, User.deleted_at.is_(None))
         if not db_user:
             raise HTTPException(status_code=404, detail="User not found")
 
@@ -699,19 +600,12 @@ def register_user_as_student(
             raise HTTPException(status_code=409, detail="User is already registered as a student.")
 
         create_data = data.model_dump(exclude_none=True)
-
-        new_student_profile = StudentProfile(**create_data, person_id=person_id)
-        db.add(new_student_profile)
-
-        log = AuditLog(
-            user_id=admin_id,
-            entity_id=db_user.id,
-            entity_type="StudentProfile",
-            action=ActionTypes.create,
-            changed_fields=["student_profile_creation"],
+        new_student_profile = StudentProfile(
+            **create_data, 
+            person_id=person_id,
+            educational_status=StudentEducationalStatus.suspended
         )
-        db.add(log)
-
+        db.add(new_student_profile)
         db.commit()
 
         return response_handler(
@@ -780,11 +674,10 @@ def get_users(
     limit: int = Query(20, ge=1, le=100),
     search: Optional[str] = Query(None),
     is_active: Optional[bool] = Query(True),
-    deleted_at: Optional[bool] = Query(None),
+    is_deleted: Optional[bool] = Query(None),
     sort: Optional[UserSort] = Query(None),
 ):
     try:
-        
         query = db.query(User).options(
             joinedload(User.person).joinedload(Person.student_profile),
             joinedload(User.person).joinedload(Person.staff_profile),
@@ -798,8 +691,8 @@ def get_users(
             
         if is_active is not None:
             query = query.filter(User.is_active == is_active)
-        if deleted_at is not None:
-            if deleted_at:
+        if is_deleted is not None:
+            if is_deleted:
                 query = query.filter(User.deleted_at.is_not(None))
             else:
                 query = query.filter(User.deleted_at.is_(None))
@@ -809,9 +702,11 @@ def get_users(
             query = query.join(User.person).filter(
                 or_(
                     User.national_code.ilike(search_term),
-                    Person.full_name.ilike(search_term),
-                    Person.phone.ilike(search_term),
-                    Person.email.ilike(search_term),
+                    User.username.ilike(search_term),
+                    User.phone.ilike(search_term),
+                    User.email.ilike(search_term),
+                    Person.first_name.ilike(search_term),
+                    Person.last_name.ilike(search_term),
                 )
             )
             
@@ -856,7 +751,6 @@ def get_user_by_id(
     db: Session = Depends(get_db)
 ):
     try:
-        
         db_user = get_user_data(db, User.id == user_id, User.deleted_at.is_(None))
 
         if not db_user:
@@ -891,7 +785,7 @@ async def update_user(
         if not is_admin and current_user_id != user_id:
             raise HTTPException(status_code=403, detail="Access denied")
 
-        db_user = get_user_data(db, User.id == user_id, User.is_deleted.is_(False))
+        db_user = get_user_data(db, User.id == user_id, User.deleted_at.is_(None))
 
         if not db_user:
             raise HTTPException(status_code=404, detail="User not found")
@@ -913,15 +807,13 @@ async def update_user(
         if db_user.person.student_profile:
             student_profile_data = StudentUpdate.model_validate_json(data).model_dump(exclude_unset=True)
             for key, value in student_profile_data.items():
-                if key in ["educational_status"] and not is_admin:
-                    raise HTTPException(status_code=403, detail="Access denied")
                 changed_keys.append(key)
                 setattr(db_user.person.student_profile, key, value)
 
         if db_user.person.staff_profile:
             staff_profile_data = StaffUpdate.model_validate_json(data).model_dump(exclude_unset=True)
             for key, value in staff_profile_data.items():
-                if key in ["employment_status", "employment_type", "hire_date"] and not is_admin:
+                if key in ["employment_type", "hire_date"] and not is_admin:
                     raise HTTPException(status_code=403, detail="Access denied")
                 changed_keys.append(key)
                 setattr(db_user.person.staff_profile, key, value)
@@ -957,16 +849,6 @@ async def update_user(
                 files=[avatar],
                 attachments=attachments_data
             )
-
-        if changed_keys:
-            log = AuditLog(
-                user_id=current_user_id,
-                entity_id=db_user.id,
-                entity_type="Users",
-                action=ActionTypes.update,
-                changed_fields=changed_keys,
-            )
-            db.add(log)
 
         db.commit()
         db.refresh(db_user)
@@ -1023,15 +905,6 @@ def toggle_active_status(
         db_user.is_active = data.is_active
         db_user.token_version += 1
 
-        log = AuditLog(
-            user_id=current_user_id,
-            entity_id=db_user.id,
-            entity_type="Users",
-            action=ActionTypes.update,
-            changed_fields=["is_active", "token_version"],
-        )
-        db.add(log)
-
         db.commit()
 
         return response_handler(
@@ -1080,15 +953,6 @@ def change_password(
         db_user.password = hash_password(data.new_password)
         db_user.token_version += 1
 
-        log = AuditLog(
-            user_id=current_user_id,
-            entity_id=db_user.id,
-            entity_type="Users",
-            action=ActionTypes.update,
-            changed_fields=["password", "token_version"],
-        )
-        db.add(log)
-
         db.commit()
         db.refresh(db_user)
 
@@ -1130,29 +994,18 @@ def toggle_user_soft_delete(
         if not db_user:
             raise HTTPException(status_code=404, detail="User not found")
 
-        if (db_user.deleted_at is not None) == data.deleted_at:
-            raise HTTPException(status_code=409, detail=f"User is already {'deleted' if data.deleted_at else 'restored'}")
+        if (db_user.deleted_at is not None) == data.is_deleted:
+            raise HTTPException(status_code=409, detail=f"User is already {'deleted' if data.is_deleted else 'restored'}")
 
-        db_user.deleted_at = datetime.now(timezone.utc) if data.deleted_at else None
-        
-        if data.deleted_at:
-            db_user.token_version += 1
-
-        log = AuditLog(
-            user_id=current_admin_id,
-            entity_id=db_user.id,
-            entity_type="Users",
-            action=ActionTypes.update,
-            changed_fields=["deleted_at"] + (["token_version"] if data.deleted_at else []),
-        )
-        db.add(log)
+        db_user.deleted_at = datetime.now(timezone.utc) if data.is_deleted else None        
+        db_user.token_version += 1
 
         db.commit()
 
         return response_handler(
             status=True,
-            message="User soft-deleted successfully" if data.deleted_at else "User restored successfully",
-            data={"user_id": user_id, "deleted_at": data.deleted_at},
+            message="User soft-deleted successfully" if data.is_deleted else "User restored successfully",
+            data={"user_id": user_id, "deleted_at": data.is_deleted},
             status_code=200
         )
 

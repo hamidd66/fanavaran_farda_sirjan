@@ -13,11 +13,15 @@ class SessionContent(Base):
         Index(None, "term_session_id", "content_type", postgresql_where=text("deleted_at IS NULL")),
         Index(None, "term_session_id", "is_active", "display_order", postgresql_where=text("deleted_at IS NULL")),
 
-        # CheckConstraint("display_order >= 0", name="ck_session_contents_display_order_nonnegative"),
-        CheckConstraint("length(btrim(title)) > 0", name="ck_session_contents_title_not_empty"),
+        # CheckConstraint("display_order >= 0", name="session_contents_display_order_nonnegative"),
+        CheckConstraint("length(btrim(title)) > 0", name="session_contents_title_not_empty"),
+        CheckConstraint("content_type <> 'text' OR body IS NOT NULL", name="session_contents_text_has_body"),
+        CheckConstraint("updated_at IS NULL OR updated_at >= created_at", name="session_contents_updated_after_created"),
+        # CheckConstraint("deleted_at IS NULL OR is_active = false", name="session_contents_deleted_not_active"),
 
         Index("uq_session_contents_term_session_display_order_alive", "term_session_id", "display_order", unique=True, postgresql_where=text("deleted_at IS NULL")),
     )
+
     id = Column(UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"))
 
     term_session_id = Column(UUID(as_uuid=True), ForeignKey("term_sessions.id", ondelete="RESTRICT"), nullable=False)
