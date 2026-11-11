@@ -251,13 +251,21 @@ async def add_files(
         entity_type = _parse_enum(EntityType, entity_type, "entity_type")
         parsed = _parse_attachments(attachments, len(files))
 
-        purposes = sorted({item["purpose"] for item in parsed}, key=lambda p: p.value)
+        # purposes = sorted({item["purpose"] for item in parsed}, key=lambda p: p.value)
 
+        purposes_by_file = [None] * len(files)
+
+        for item in parsed:
+            purposes_by_file[item["file_index"]] = item["purpose"].value
+
+        purposes = sorted(
+            {item["purpose"] for item in parsed},
+            key=lambda p: p.value,
+        )
 
         await _run_blocking(_check_conflicts, db, entity_id, entity_type, parsed)
 
-
-        uploaded = await upload_files(folder_name=folder_name, files=files)
+        uploaded = await upload_files(folder_name=folder_name, files=files, purposes_by_file=purposes_by_file)
 
         saved_paths = [item["path"] for item in uploaded]
 

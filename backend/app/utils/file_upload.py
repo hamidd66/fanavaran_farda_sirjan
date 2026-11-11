@@ -29,6 +29,47 @@ IMAGE_FORMAT_ALIASES = {
     "tif": "tiff",
 }
 
+# Image dimension rules by FilePurpose.
+# ratio:
+#   None       -> Any aspect ratio is allowed.
+#   (1, 1)     -> Square image.
+#   (16, 9)    -> 16:9 image.
+# min_size: Minimum (width, height).
+# tolerance: Allowed relative ratio difference.
+IMAGE_PURPOSE_RULES = {
+    "avatar": {
+        "ratio": (1, 1),
+        "min_size": (256, 256),
+    },
+    "thumbnail": {
+        "ratio": (1, 1),
+        "min_size": (128, 128),
+    },
+    "cover": {
+        "ratio": (16, 9),
+        "min_size": None,
+        "tolerance": 0.01,
+    },
+    "banner": {
+        "ratio": (16, 9),
+        "min_size": None,
+        "tolerance": 0.01,
+    },
+    "image": {
+        "ratio": None,
+        "min_size": None,
+    },
+    "gallery": {
+        "ratio": None,
+        "min_size": None,
+    },
+    "logo": {
+        "ratio": None,
+        "min_size": None,
+    },
+}
+
+
 UPLOAD_ROOT = Path("media") / "uploads"
 
 Image.MAX_IMAGE_PIXELS = IMAGE_MAX_PIXELS
@@ -43,7 +84,56 @@ def _get_ext(file: UploadFile) -> str:
     filename = file.filename or ""
     return filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
 
-def _check_image(path: str, ext: str) -> None:
+def _validate_image_dimensions(
+    width: int,
+    height: int,
+    purpose: str,
+) -> None:
+    rule = IMAGE_PURPOSE_RULES.get(purpose)
+
+    # No dimension rule means unrestricted dimensions.
+    if rule is None:
+        raise ValueError(f"No image dimension rule configured for purpose '{purpose}'")
+
+    min_size = rule.get("min_size")
+
+    if min_size:
+        min_width, min_height = min_size
+
+        if width < min_width or height < min_height:
+            raise ValueError(f"Image must be at least {min_width}x{min_height} for purpose '{purpose}'")
+
+    expected_ratio = rule.get("ratio")
+
+    if expected_ratio is None:
+        return
+
+    ratio_width, ratio_height = expected_ratio
+
+    # Exact square ratio.
+    if ratio_width == ratio_height:
+        if width != height:
+            raise ValueError(
+                f"Image must have a 1:1 aspect ratio "
+                f"for purpose '{purpose}'"
+            )
+        return
+
+    tolerance = rule.get("tolerance", 0.0)
+
+    expected = ratio_width / ratio_height
+    actual = width / height
+
+    difference = abs(actual - expected) / expected
+
+    if difference > tolerance:
+        raise ValueError(
+            f"Image must have an approximately "
+            f"{ratio_width}:{ratio_height} aspect ratio "
+            f"for purpose '{purpose}'"
+        )
+
+def _check_image(path: str, ext: str, purpose: str) -> None:
     with Image.open(path) as img:
         real_format = _normalize_ext((img.format or "").lower())
 
@@ -54,8 +144,14 @@ def _check_image(path: str, ext: str) -> None:
             raise ValueError("Extension does not match content")
 
         width, height = img.size
+
+        if width <= 0 or height <= 0:
+            raise ValueError("Invalid image dimensions")
+
         if width * height > IMAGE_MAX_PIXELS:
             raise ValueError("Image dimensions too large")
+
+        _validate_image_dimensions(width, height, purpose)
 
         if getattr(img, "n_frames", 1) > IMAGE_MAX_FRAMES:
             raise ValueError("Too many image frames")
@@ -85,10 +181,15 @@ async def _save_file(file: UploadFile, path: Path, max_size: int) -> int:
 
     return size
 
-async def _check_image_async(path: Path, ext: str) -> None:
+async def _check_image_async(path: Path, ext: str, purpose: str) -> None:
     async with _image_check_semaphore:
         task = asyncio.create_task(
-            asyncio.to_thread(_check_image, str(path), ext)
+            asyncio.to_thread(
+                _check_image,
+                str(path),
+                ext,
+                purpose,
+            )
         )
         try:
             await asyncio.shield(task)
@@ -119,6 +220,7 @@ def cleanup_temp_files() -> None:
 async def upload_files(
     folder_name: str,
     files: List[UploadFile],
+    purposes_by_file: List[str],
 ) -> List[dict]:
 
     saved_paths: List[Path] = []
@@ -130,6 +232,9 @@ async def upload_files(
 
         if not files:
             raise HTTPException(status_code=400, detail="At least one file is required")
+
+        if len(purposes_by_file) != len(files):
+            raise HTTPException(status_code=400, detail="Each file must have exactly one purpose")
 
         if len(files) > IMAGE_MAX_FILES:
             raise HTTPException(status_code=400, detail=f"Maximum {IMAGE_MAX_FILES} files allowed")
@@ -163,6 +268,7 @@ async def upload_files(
 
         for idx, file in enumerate(files):
             ext = extensions[idx]
+            purpose = purposes_by_file[idx]
             file_name = f"{uuid.uuid4().hex}.{ext}"
 
             tmp_path = upload_dir / f"{uuid.uuid4().hex}.tmp"
@@ -175,7 +281,7 @@ async def upload_files(
                 total_size += size
 
                 try:
-                    await _check_image_async(tmp_path, ext)
+                    await _check_image_async(tmp_path, ext, purpose)
                 except asyncio.CancelledError:
                     raise
                 except Exception:
