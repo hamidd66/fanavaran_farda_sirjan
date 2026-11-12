@@ -2,6 +2,8 @@ from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.staticfiles import StaticFiles
 
+# from .db.database import engine
+# from .db.base import Base
 from .middleware.exception_handler import http_exception_handler, general_exception_handler, validation_exception_handler
 from .middleware.cors import setup_cors
 from .config import logging_config
@@ -20,6 +22,8 @@ from app.routers import (
     term_session, 
     session_content,
 )
+
+# Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Fanavaran farda")
 
