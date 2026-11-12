@@ -16,9 +16,9 @@ class ClassroomSession(Base):
         Index(None, "location_id", "start_at", postgresql_where=text("deleted_at IS NULL AND location_id IS NOT NULL")),
         Index(None, "start_at", postgresql_where=text("deleted_at IS NULL")),
 
-        CheckConstraint("end_at > start_at", name="classroom_sessions_time"),
-        CheckConstraint("assignment_deadline IS NULL OR assignment_deadline >= start_at", name="classroom_sessions_deadline"),
-        CheckConstraint("status <> 'cancelled' OR status_change_reason IS NOT NULL", name="classroom_sessions_cancel_reason"),
+        CheckConstraint("end_at > start_at", name="time"),
+        CheckConstraint("assignment_deadline IS NULL OR assignment_deadline >= start_at", name="deadline"),
+        CheckConstraint("status <> 'cancelled' OR status_change_reason IS NOT NULL", name="cancel_reason"),
 
         Index("uq_classroom_sessions_classroom_start", "classroom_id", "start_at", unique=True, postgresql_where=text("deleted_at IS NULL AND status IN ('scheduled','in_progress','held')")),
         Index("uq_classroom_sessions_classroom_term_session", "classroom_id", "term_session_id", unique=True, postgresql_where=text("deleted_at IS NULL AND term_session_id IS NOT NULL " "AND status IN ('scheduled','in_progress','held')")),

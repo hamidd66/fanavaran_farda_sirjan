@@ -15,11 +15,11 @@ class CourseQuestion(Base):
         Index(None, "parent_id", "created_at", postgresql_where=text("parent_id IS NOT NULL")),
         Index(None, "created_at", postgresql_where=text("is_approved = false AND deleted_at IS NULL")),
 
-        CheckConstraint("length(btrim(message)) > 0 AND length(message) <= 5000", name="course_questions_message_length"),
-        CheckConstraint("parent_id IS NULL OR parent_id <> id", name="course_questions_no_self_parent"),
-        CheckConstraint("updated_at IS NULL OR updated_at >= created_at", name="course_questions_updated_after_created"),
+        CheckConstraint("length(btrim(message)) > 0 AND length(message) <= 5000", name="message_length"),
+        CheckConstraint("parent_id IS NULL OR parent_id <> id", name="no_self_parent"),
+        CheckConstraint("updated_at IS NULL OR updated_at >= created_at", name="updated_after_created"),
 
-        UniqueConstraint("id", "course_id", name="uq_course_questions_id_course"),
+        UniqueConstraint("id", "course_id"),
         ForeignKeyConstraint(
             ["parent_id", "course_id"],
             ["course_questions.id", "course_questions.course_id"],

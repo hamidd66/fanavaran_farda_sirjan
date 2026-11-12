@@ -9,10 +9,10 @@ from app.models.file_attachment import FileAttachment
 class CourseCategory(Base):
     __tablename__ = "course_categories"
     __table_args__ = (
-        CheckConstraint("name = btrim(name) AND length(name) > 0", name="course_categories_name_trimmed"),
-        CheckConstraint("slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$'", name="course_categories_slug_format"),
-        # CheckConstraint("display_order >= 0", name="course_categories_display_order_nonneg"),
-        CheckConstraint("updated_at IS NULL OR updated_at >= created_at", name="course_categories_updated_after_created"),
+        CheckConstraint("name = btrim(name) AND length(name) > 0", name="name_trimmed"),
+        CheckConstraint("slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$'", name="slug_format"),
+        # CheckConstraint("display_order >= 0", name="display_order_nonneg"),
+        CheckConstraint("updated_at IS NULL OR updated_at >= created_at", name="updated_after_created"),
 
         Index("uq_course_categories_display_order_alive", "display_order", unique=True, postgresql_where=text("deleted_at IS NULL")),
     )

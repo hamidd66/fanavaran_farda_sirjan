@@ -9,7 +9,7 @@ from app.models.file_attachment import FileAttachment
 class ClassroomLocation(Base):
     __tablename__ = "classroom_locations"
     __table_args__ = (
-        CheckConstraint("capacity > 0", name="classroom_locations_capacity_positive"),
+        CheckConstraint("capacity > 0", name="capacity_positive"),
         Index(None, "is_active", "deleted_at"),
         Index("uq_classroom_locations_name_alive", "name", unique=True, postgresql_where=text("deleted_at IS NULL")),
     )

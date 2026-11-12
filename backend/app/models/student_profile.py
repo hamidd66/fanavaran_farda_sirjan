@@ -12,8 +12,8 @@ class StudentProfile(Base):
     __table_args__ = (
         Index(None, "parent_phone"),
 
-        CheckConstraint("parent_phone ~ '^09[0-9]{9}$'", name="student_profiles_parent_phone_format"),
-        CheckConstraint("updated_at IS NULL OR updated_at >= created_at", name="student_profiles_updated_after_created"),
+        CheckConstraint("parent_phone ~ '^09[0-9]{9}$'", name="parent_phone_format"),
+        CheckConstraint("updated_at IS NULL OR updated_at >= created_at", name="updated_after_created"),
     )
 
     id = Column(UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"))

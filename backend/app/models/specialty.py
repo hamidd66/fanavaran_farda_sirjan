@@ -10,8 +10,8 @@ from app.enums.file import EntityType
 class Specialty(Base):
     __tablename__ = "specialties"
     __table_args__ = (
-        CheckConstraint("name = btrim(name) AND length(name) > 0", name="specialties_name_trimmed"),
-        CheckConstraint("updated_at IS NULL OR updated_at >= created_at", name="specialties_updated_after_created"),
+        CheckConstraint("name = btrim(name) AND length(name) > 0", name="name_trimmed"),
+        CheckConstraint("updated_at IS NULL OR updated_at >= created_at", name="updated_after_created"),
 
         Index("uq_specialties_name_lower", text("lower(name)"), unique=True, postgresql_where=text("deleted_at IS NULL")),
     )

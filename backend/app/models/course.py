@@ -12,13 +12,12 @@ class Course(Base):
     __table_args__ = (
         Index(None, "category_id", text("created_at DESC")),
         Index(None, text("created_at DESC"), postgresql_where=text("deleted_at IS NULL AND is_active = true")),
-        Index(None, "title"),
 
-        CheckConstraint("title = btrim(title) AND length(title) > 0", name="courses_title_trimmed"),
-        CheckConstraint("length(btrim(short_description)) > 0", name="courses_short_description_not_blank"),
-        CheckConstraint("length(btrim(long_description)) > 0", name="courses_long_description_not_blank"),
-        CheckConstraint("updated_at IS NULL OR updated_at >= created_at", name="courses_updated_after_created"),
-        # CheckConstraint("NOT deleted_at IS NULL OR NOT is_active", name="courses_deleted_not_active"),
+        CheckConstraint("title = btrim(title) AND length(title) > 0", name="title_trimmed"),
+        CheckConstraint("length(btrim(short_description)) > 0", name="short_description_not_blank"),
+        CheckConstraint("length(btrim(long_description)) > 0", name="long_description_not_blank"),
+        CheckConstraint("updated_at IS NULL OR updated_at >= created_at", name="updated_after_created"),
+        # CheckConstraint("NOT deleted_at IS NULL OR NOT is_active", name="deleted_not_active"),
 
         Index("uq_courses_category_title_alive", "category_id", text("lower(title)"), unique=True, postgresql_where=text("deleted_at IS NULL AND is_active = true")),
     )

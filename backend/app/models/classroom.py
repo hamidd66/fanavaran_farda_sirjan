@@ -10,21 +10,18 @@ class Classroom(Base):
     __tablename__ = "classrooms"
     __table_args__ = (
         Index(None, "status", postgresql_where=text("deleted_at IS NULL")),
-        Index(None, "term_id"),
-        Index(None, "teacher_id"),
-        Index(None, "location_id"),
         Index(None, "start_date", postgresql_where=text("deleted_at IS NULL")),
 
-        CheckConstraint("capacity > 0", name="classrooms_capacity_pos"),
-        CheckConstraint("min_capacity IS NULL OR (min_capacity > 0 AND min_capacity <= capacity)", name="classrooms_min_capacity"),
-        CheckConstraint("tuition >= 0", name="classrooms_tuition_nonneg"),
-        CheckConstraint("sessions_count >= 0", name="classrooms_sessions_count_pos"),
-        CheckConstraint("duration_hours >= 0", name="classrooms_duration_pos"),
-        CheckConstraint("end_date >= start_date", name="classrooms_dates"),
-        CheckConstraint("registration_end >= registration_start", name="classrooms_reg_dates"),
-        CheckConstraint("registration_end <= end_date", name="classrooms_reg_end_before_end"),
-        CheckConstraint("holding_type <> 'in_person' OR location_id IS NOT NULL", name="classrooms_inperson_location"),
-        CheckConstraint("holding_type <> 'online' OR meeting_link IS NOT NULL", name="classrooms_online_meeting_link"),
+        CheckConstraint("capacity > 0", name="capacity_pos"),
+        CheckConstraint("min_capacity IS NULL OR (min_capacity > 0 AND min_capacity <= capacity)", name="min_capacity"),
+        CheckConstraint("tuition >= 0", name="tuition_nonneg"),
+        CheckConstraint("sessions_count >= 0", name="sessions_count_pos"),
+        CheckConstraint("duration_hours >= 0", name="duration_pos"),
+        CheckConstraint("end_date >= start_date", name="dates"),
+        CheckConstraint("registration_end >= registration_start", name="reg_dates"),
+        CheckConstraint("registration_end <= end_date", name="reg_end_before_end"),
+        CheckConstraint("holding_type <> 'in_person' OR location_id IS NOT NULL", name="inperson_location"),
+        CheckConstraint("holding_type <> 'online' OR meeting_link IS NOT NULL", name="online_meeting_link"),
     )
 
     id = Column(UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"))

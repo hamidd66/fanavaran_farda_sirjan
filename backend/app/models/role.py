@@ -10,9 +10,9 @@ from app.enums.file import EntityType
 class Role(Base):
     __tablename__ = "roles"
     __table_args__ = (
-        CheckConstraint("name ~ '^[a-z][a-z0-9_]{1,49}$'", name="roles_name_format"),
-        CheckConstraint("length(btrim(title)) > 0", name="roles_title_not_blank"),
-        CheckConstraint("updated_at IS NULL OR updated_at >= created_at", name="roles_updated_after_created"),
+        CheckConstraint("name ~ '^[a-z][a-z0-9_]{1,49}$'", name="name_format"),
+        CheckConstraint("length(btrim(title)) > 0", name="title_not_blank"),
+        CheckConstraint("updated_at IS NULL OR updated_at >= created_at", name="updated_after_created"),
     )
 
     id = Column(UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"))

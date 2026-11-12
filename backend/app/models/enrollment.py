@@ -12,8 +12,8 @@ class Enrollment(Base):
         Index(None, "classroom_id", "status", postgresql_where=text("deleted_at IS NULL")),
         Index(None, "student_id", postgresql_where=text("deleted_at IS NULL")),
 
-        CheckConstraint("(status = 'transferred') = (transferred_to_id IS NOT NULL)", name="enrollments_transfer_target"),
-        CheckConstraint("transferred_to_id IS NULL OR transferred_to_id <> id", name="enrollments_no_self_transfer"),
+        CheckConstraint("(status = 'transferred') = (transferred_to_id IS NOT NULL)", name="transfer_target"),
+        CheckConstraint("transferred_to_id IS NULL OR transferred_to_id <> id", name="no_self_transfer"),
 
         Index("uq_enrollments_student_classroom_live", "student_id", "classroom_id", unique=True, postgresql_where=text("deleted_at IS NULL AND status IN ('pending','active','waitlisted')")),
     )
@@ -25,7 +25,7 @@ class Enrollment(Base):
     transferred_to_id = Column(UUID(as_uuid=True), ForeignKey("enrollments.id", ondelete="RESTRICT"), nullable=True, unique=True)
     created_by = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
 
-    status = Column(Enum(EnrollmentStatus), nullable=False, server_default="'pending'")
+    status = Column(Enum(EnrollmentStatus), nullable=False, server_default=text("'pending'"))
     status_changed_at = Column(DateTime(timezone=True), nullable=True)
     status_change_reason = Column(String(255), nullable=True)
 

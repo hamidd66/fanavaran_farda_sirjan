@@ -13,7 +13,7 @@ class ClassroomSchedule(Base):
         Index(None, "classroom_id", "day"),
         Index(None, "location_id", "day", "start_time", postgresql_where=text("location_id IS NOT NULL")),
 
-        CheckConstraint("end_time > start_time", name="classroom_schedules_time"),
+        CheckConstraint("end_time > start_time", name="time"),
         UniqueConstraint("classroom_id", "day", "start_time"),
     )
 

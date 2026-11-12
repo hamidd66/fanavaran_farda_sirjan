@@ -9,8 +9,7 @@ class ClassroomGrade(Base):
     __tablename__ = "classroom_grades"
 
     __table_args__ = (
-        Index(None, "classroom_session_id"),
-        CheckConstraint("grade >= 0 AND grade <= 100", name="classroom_grades_grade_nonneg"),
+        CheckConstraint("grade >= 0 AND grade <= 100", name="grade_nonneg"),
         UniqueConstraint("enrollment_id", "classroom_session_id"),
     )
 
