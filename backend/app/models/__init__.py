@@ -10,8 +10,6 @@ from app.models.user_role import UserRole
 from app.models.specialty import Specialty
 from app.models.user_specialty import UserSpecialty
 
-from app.models.audit_logs import AuditLog
-
 from app.models.file_attachment import FileAttachment
 from app.models.file import File
 

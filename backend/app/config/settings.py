@@ -24,7 +24,7 @@ class Settings(BaseSettings):
 
     ALLOWED_FOLDERS: list[str] = ["course", "classroom", "person", "specialties", "roles", "courses", "course_categories", "terms", "session_contents"]
 
-    PROJECT_TABLES: ClassVar[set[str]] = {"users", "persons", "staff_profiles", "student_profiles", "roles", "user_roles", "specialties", "user_specialties", "audit_logs", "files", "file_attachments", "course_categories", "courses", "course_questions", "terms", "term_sessions", "session_contents", "classroom_locations", "classrooms", "classroom_schedules", "enrollments", "classroom_sessions", "classroom_attendances", "classroom_grades"}
+    PROJECT_TABLES: ClassVar[set[str]] = {"users", "persons", "staff_profiles", "student_profiles", "roles", "user_roles", "specialties", "user_specialties", "files", "file_attachments", "course_categories", "courses", "course_questions", "terms", "term_sessions", "session_contents", "classroom_locations", "classrooms", "classroom_schedules", "enrollments", "classroom_sessions", "classroom_attendances", "classroom_grades"}
 
     @computed_field
     @property

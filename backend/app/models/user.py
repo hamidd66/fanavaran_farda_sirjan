@@ -1,9 +1,8 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, CheckConstraint, Index, text, func, and_, true
-from sqlalchemy.orm import relationship, foreign
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, CheckConstraint, Index, text, func, true
+from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 
 from app.db.base import Base
-from app.models.audit_logs import AuditLog
 
 
 class User(Base):
@@ -80,12 +79,3 @@ class User(Base):
     files = relationship("File", back_populates="user", foreign_keys="File.uploaded_by")
     file_attachments = relationship("FileAttachment", back_populates="user", foreign_keys="FileAttachment.attached_by")
 
-    audit_log_creator = relationship("AuditLog", back_populates="user")
-    audit_logs = relationship(
-        "AuditLog",
-        primaryjoin=lambda: and_(
-            User.id == foreign(AuditLog.entity_id),
-            AuditLog.entity_type == "Users",
-        ),
-        viewonly=True,
-    )

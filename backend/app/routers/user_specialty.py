@@ -10,8 +10,6 @@ from app.repositories.user_repo import get_user_data
 from app.models.user import User
 from app.models.specialty import Specialty
 from app.models.user_specialty import UserSpecialty
-from app.models.audit_logs import AuditLog
-from app.enums.audit_logs import ActionTypes
 from app.schemas.user_specialty import UserSpecialtyUpdate
 
 
@@ -49,7 +47,6 @@ def batch_update_user_specialties(
             Specialty.is_active == True,
             Specialty.deleted_at.is_(None)
         ).all()
-        name_specialties = {r.name for r in existing_specialties}
         
         valid_specialty_ids = {s.id for s in existing_specialties}
         for s_id in all_incoming_specialty_ids:
@@ -91,15 +88,6 @@ def batch_update_user_specialties(
                 UserSpecialty.person_id == person_id,
                 UserSpecialty.specialty_id.in_(specialty_ids_to_remove)
             ).delete(synchronize_session=False)
-
-        log = AuditLog(
-            user_id=admin_id,
-            entity_id=db_user.id,
-            entity_type="UserSpecialty",
-            action=ActionTypes.update,
-            changed_fields=["batch_specialties_update", list(name_specialties)],
-        )
-        db.add(log)
 
         db.commit()
 

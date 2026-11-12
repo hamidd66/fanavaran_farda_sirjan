@@ -17,8 +17,6 @@ from app.utils.delete_file import delete_files
 from app.models.course import Course
 from app.models.term import Term
 from app.models.course_category import CourseCategory
-from app.models.audit_logs import AuditLog
-from app.enums.audit_logs import ActionTypes
 from app.enums.course import CourseSort
 from app.enums.file import EntityType, FilePurpose
 from app.schemas.file_attachment import FileAttachmentCreate
@@ -57,15 +55,6 @@ async def create_course(
 
         db.add(new_course)
         db.flush()
-
-        log = AuditLog(
-            user_id=user_id,
-            entity_id=new_course.id,
-            entity_type="Course",
-            action=ActionTypes.create,
-            changed_fields=["created"],
-        )
-        db.add(log)
 
         if images:
             attachments_data = FileAttachmentCreate.model_validate_json(data)
@@ -261,10 +250,8 @@ async def update_course(
         if not update_data and not images and not deleted_image_ids:
             raise HTTPException(status_code=400, detail="No fields to update")
 
-        changed_fields = []
         for key, value in update_data.items():
             setattr(db_course, key, value)
-            changed_fields.append(key)
 
         # For images
 
@@ -285,8 +272,6 @@ async def update_course(
                 deleted_paths = result["deleted_paths"]
 
         if deleted_image_ids or images:
-            changed_fields.append("images")
-
             reorder_files(
                 db=db,
                 entity_id=db_course.id,
@@ -306,16 +291,6 @@ async def update_course(
                 files=images,
                 attachments=attachments_data
             )
-
-        if changed_fields:
-            log = AuditLog(
-                user_id=user_id,
-                entity_id=db_course.id,
-                entity_type="Course",
-                action=ActionTypes.update,
-                changed_fields=changed_fields,
-            )
-            db.add(log)
 
         db.commit()
         db.refresh(db_course)
@@ -356,8 +331,6 @@ def toggle_course_active_status(
     db: Session = Depends(get_db),
 ):
     try:
-        admin_id = UUID(auth["payload"]["sub"])
-
         db_course = db.query(Course).filter(Course.id == course_id, Course.deleted_at.is_(None)).first()
         if not db_course:
             raise HTTPException(status_code=404, detail="Course not found")
@@ -366,14 +339,6 @@ def toggle_course_active_status(
             raise HTTPException(status_code=409, detail=f"Course status is already set to {data.is_active}")
 
         db_course.is_active = data.is_active
-        log = AuditLog(
-            user_id=admin_id,
-            entity_id=db_course.id,
-            entity_type="Course",
-            action=ActionTypes.update,
-            changed_fields=["is_active"],
-        )
-        db.add(log)
 
         db.commit()
 
@@ -399,8 +364,6 @@ def toggle_soft_delete_course(
     db: Session = Depends(get_db),
 ):
     try:
-        admin_id = UUID(auth["payload"]["sub"])
-
         db_course = db.query(Course).filter(Course.id == course_id).first()
         if not db_course:
             raise HTTPException(status_code=404, detail="Course not found")
@@ -409,15 +372,6 @@ def toggle_soft_delete_course(
             raise HTTPException(status_code=409, detail=f"Course delete is already set to {data.is_deleted}")
 
         db_course.deleted_at = datetime.now(timezone.utc) if data.is_deleted else None
-
-        log = AuditLog(
-            user_id=admin_id,
-            entity_id=db_course.id,
-            entity_type="Course",
-            action=ActionTypes.update,
-            changed_fields=["deleted_at"],
-        )
-        db.add(log)
 
         db.commit()
 
@@ -442,8 +396,6 @@ def hard_delete_course(
     db: Session = Depends(get_db),
 ):
     try:
-        admin_id = UUID(auth["payload"]["sub"])
-
         db_course = db.query(Course).filter(Course.id == course_id).first()
         if not db_course:
             raise HTTPException(status_code=404, detail="Course not found")
@@ -463,18 +415,7 @@ def hard_delete_course(
             result = remove_files(db=db, attachment_ids=deleted_attachment_ids)
             deleted_paths = result["deleted_paths"]
 
-        course_title = db_course.title
-
         db.delete(db_course)
-
-        log = AuditLog(
-            user_id=admin_id,
-            entity_id=db_course,
-            entity_type="Specialty",
-            action=ActionTypes.delete,
-            changed_fields=["hard_delete", course_title],
-        )
-        db.add(log)
         db.commit()
 
         # if len(deleted_paths) > 0:

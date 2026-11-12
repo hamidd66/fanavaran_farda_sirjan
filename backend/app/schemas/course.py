@@ -53,7 +53,7 @@ class CourseOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: UUID
-    created_by: UUID
+    created_by: Optional[UUID]
     title: str
     prerequisites: str
     short_description: str

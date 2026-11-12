@@ -10,8 +10,6 @@ from app.repositories.user_repo import get_user_data
 from app.models.user import User
 from app.models.role import Role
 from app.models.user_role import UserRole
-from app.models.audit_logs import AuditLog
-from app.enums.audit_logs import ActionTypes
 from app.enums.user import UserRoleEnum
 from app.schemas.user_role import UserRolesActionUpdate, UserRolesAccessUpdate
 
@@ -148,7 +146,6 @@ def batch_update_role_access(
             UserRole.user_id == user_id,
             UserRole.role_id.in_(role_ids)
         ).all()
-        name_roles = {r.role.name for r in user_roles}
 
         user_roles_map = {ur.role_id: ur for ur in user_roles}
 
@@ -168,15 +165,6 @@ def batch_update_role_access(
 
         if updated_count > 0:
             db_user.token_version += 1
-
-            log = AuditLog(
-                user_id=admin_id,
-                entity_id=db_user.id,
-                entity_type="UserRole",
-                action=ActionTypes.update,
-                changed_fields=["is_access", list(name_roles), "token_version"],
-            )
-            db.add(log)
 
             db.commit()
 

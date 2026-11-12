@@ -14,8 +14,6 @@ from app.utils.delete_file import delete_files
 
 from app.models.specialty import Specialty
 from app.models.user_specialty import UserSpecialty
-from app.models.audit_logs import AuditLog
-from app.enums.audit_logs import ActionTypes
 from app.schemas.specialty import BatchSpecialtiesStatus, SpecialtyCreate, SpecialtyUpdate, SpecialtyOut
 from app.enums.file import EntityType, FilePurpose
 from app.schemas.file_attachment import FileAttachmentCreate
@@ -48,15 +46,6 @@ async def create_specialty(
         )
         db.add(new_specialty)
         db.flush()
-
-        log = AuditLog(
-            user_id=admin_id,
-            entity_id=new_specialty.id,
-            entity_type="Specialty",
-            action=ActionTypes.create,
-            changed_fields=["name", "description", "is_active"],
-        )
-        db.add(log)
 
         if image:
             attachments_data = FileAttachmentCreate(
@@ -152,8 +141,6 @@ def batch_update_specialties_status(
     db: Session = Depends(get_db)
 ):
     try:
-        admin_id = UUID(auth["payload"]["sub"])
-
         if not data.items:
             raise HTTPException(status_code=400, detail="Items list cannot be empty")
 
@@ -161,7 +148,6 @@ def batch_update_specialties_status(
 
         specialties = db.query(Specialty).filter(Specialty.id.in_(specialty_ids)).all()
         specialties_map = {s.id: s for s in specialties}
-        name_specialties = {s.name for s in specialties}
 
         for s_id in specialty_ids:
             if s_id not in specialties_map:
@@ -177,14 +163,6 @@ def batch_update_specialties_status(
                 updated_count += 1
 
         if updated_count > 0:
-            log = AuditLog(
-                user_id=admin_id,
-                entity_id=0,
-                entity_type="Specialty",
-                action=ActionTypes.update,
-                changed_fields=["batch_is_active_update", list(name_specialties)],
-            )
-            db.add(log)
             db.commit()
 
         return response_handler(
@@ -228,17 +206,12 @@ async def update_specialty(
             if existing:
                 raise HTTPException(status_code=409, detail="Specialty with this name already exists")
 
-        changed_fields = []
-
         for field, value in specialty_data.items():
             setattr(db_specialty, field, value)
-            changed_fields.append(field)
 
         deleted_paths = []
 
         if image:
-            changed_fields.append("image")
-
             deleted_attachment_ids = [file_att.id for file_att in db_specialty.file_attachments if file_att.purpose == "image"]
             if deleted_attachment_ids:
                 result = remove_files(db=db, attachment_ids=deleted_attachment_ids)
@@ -262,16 +235,6 @@ async def update_specialty(
                 files=[image],
                 attachments=attachments_data
             )
-
-        if changed_fields:
-            log = AuditLog(
-                user_id=admin_id,
-                entity_id=db_specialty.id,
-                entity_type="Specialty",
-                action=ActionTypes.update,
-                changed_fields=changed_fields,
-            )
-            db.add(log)
 
         db.commit()
         db.refresh(db_specialty)
@@ -312,8 +275,6 @@ def delete_specialty(
     db: Session = Depends(get_db)
 ):
     try:
-        admin_id = auth["payload"]["sub"]
-
         db_specialty = db.query(Specialty).filter(Specialty.id == specialty_id).first()
         if not db_specialty:
             raise HTTPException(status_code=404, detail="Specialty not found")
@@ -333,19 +294,7 @@ def delete_specialty(
                 result = remove_files(db=db, attachment_ids=deleted_attachment_ids)
                 deleted_paths = result["deleted_paths"]
 
-        specialty_name = db_specialty.name
-
         db.delete(db_specialty)
-
-        log = AuditLog(
-            user_id=admin_id,
-            entity_id=specialty_id,
-            entity_type="Specialty",
-            action=ActionTypes.delete,
-            changed_fields=["hard_delete", specialty_name],
-        )
-        db.add(log)
-
         db.commit()
 
         if is_image and deleted_paths:

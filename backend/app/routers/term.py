@@ -18,9 +18,7 @@ from app.utils.ordering import reorder_items
 from app.models.term import Term
 from app.models.course import Course
 from app.models.term_session import TermSession
-from app.models.audit_logs import AuditLog
 from app.enums.file import EntityType, FilePurpose
-from app.enums.audit_logs import ActionTypes
 from app.enums.term import TermSort
 from app.schemas.file_attachment import FileAttachmentCreate
 from app.schemas.term import TermCreate, TermOut, TermUpdate, ToggleTermActiveStatus, ToggleTermDeleteStatus, TermOrderItemUpdate
@@ -71,22 +69,11 @@ async def create_term(
             term_number=term_number,
             prerequisites=term_data.prerequisites,
             tuition=term_data.tuition,
-            sessions_count=term_data.sessions_count,
-            duration_hours=term_data.duration_hours,
             is_active=term_data.is_active,
             deleted_at=None
         )
         db.add(new_term)
         db.flush()
-
-        audit_log = AuditLog(
-            user_id=user_id,
-            entity_id=new_term.id,
-            entity_type="Term",
-            action=ActionTypes.create,
-            changed_fields=["created"],
-        )
-        db.add(audit_log)
 
         if images:
             attachments_data = FileAttachmentCreate.model_validate_json(data)
@@ -335,10 +322,8 @@ async def update_term(
         if not update_data and not images and not deleted_image_ids:
             raise HTTPException(status_code=400, detail="No fields to update")
 
-        changed_fields = []
         for key, value in update_data.items():
             setattr(db_term, key, value)
-            changed_fields.append(key)
 
         # For images
 
@@ -359,7 +344,6 @@ async def update_term(
                 deleted_paths = result["deleted_paths"]
 
         if deleted_image_ids or images:
-            changed_fields.append("images")
             reorder_files(
                 db=db,
                 entity_id=db_term.id,
@@ -378,16 +362,6 @@ async def update_term(
                 files=images,
                 attachments=attachments_data
             )
-
-        if changed_fields:
-            log = AuditLog(
-                user_id=user_id,
-                entity_id=db_term.id,
-                entity_type="Term",
-                action=ActionTypes.update,
-                changed_fields=changed_fields,
-            )
-            db.add(log)
 
         db.commit()
         db.refresh(db_term)
@@ -524,8 +498,6 @@ def toggle_term_active_status(
     db: Session = Depends(get_db),
 ):
     try:
-        user_id = UUID(auth["payload"]["sub"])
-
         db_term = db.query(Term).filter(Term.id == term_id, Term.deleted_at.is_(None)).first()
         if not db_term:
             raise HTTPException(status_code=404, detail="Term not found")
@@ -535,14 +507,6 @@ def toggle_term_active_status(
 
         db_term.is_active = data.is_active
 
-        log = AuditLog(
-            user_id=user_id,
-            entity_id=db_term.id,
-            entity_type="Term",
-            action=ActionTypes.update,
-            changed_fields=["is_active"],
-        )
-        db.add(log)
         db.commit()
 
         return response_handler(
@@ -567,8 +531,6 @@ def toggle_soft_delete_term(
     db: Session = Depends(get_db),
 ):
     try:
-        user_id = UUID(auth["payload"]["sub"])
-
         db_term = db.query(Term).filter(Term.id == term_id).first()
         if not db_term:
             raise HTTPException(status_code=404, detail="Term not found")
@@ -588,14 +550,6 @@ def toggle_soft_delete_term(
             soft_delete_field="deleted_at"
         )
 
-        log = AuditLog(
-            user_id=user_id,
-            entity_id=db_term.id,
-            entity_type="Term",
-            action=ActionTypes.update,
-            changed_fields=["deleted_at"],
-        )
-        db.add(log)
         db.commit()
 
         return response_handler(
@@ -619,14 +573,11 @@ def hard_delete_term(
     db: Session = Depends(get_db),
 ):
     try:
-        admin_id = UUID(auth["payload"]["sub"])
-
         db_term = db.query(Term).filter(Term.id == term_id).first()
         if not db_term:
             raise HTTPException(status_code=404, detail="Term not found")
 
         course_id = db_term.course_id
-        term_title = db_term.title
 
         has_sessions = db.query(TermSession.id).filter(TermSession.term_id == term_id).first()
         if has_sessions:
@@ -657,14 +608,6 @@ def hard_delete_term(
             soft_delete_field="deleted_at"
         )
 
-        log = AuditLog(
-            user_id=admin_id,
-            entity_id=term_id,
-            entity_type="Term",
-            action=ActionTypes.delete,
-            changed_fields=["hard_delete", term_title],
-        )
-        db.add(log)
         db.commit()
 
         # if len(deleted_paths) > 0:

@@ -17,9 +17,7 @@ from app.utils.ordering import reorder_items
 
 from app.models.term_session import TermSession
 from app.models.session_content import SessionContent
-from app.models.audit_logs import AuditLog
 from app.enums.file import EntityType, FilePurpose
-from app.enums.audit_logs import ActionTypes
 from app.enums.term import SessionContentSort, ContentType
 from app.schemas.file_attachment import FileAttachmentCreate
 from app.schemas.session_content import SessionContentCreate, SessionContentOut, SessionContentUpdate, ToggleSessionContentActiveStatus, ToggleSessionContentDeleteStatus, SessionContentOrderItemUpdate
@@ -70,15 +68,6 @@ async def create_session_content(
         )
         db.add(new_content)
         db.flush()
-        
-        audit_log = AuditLog(
-            user_id=user_id,
-            entity_id=new_content.id,
-            entity_type="SessionContent",
-            action=ActionTypes.create,
-            changed_fields=["created"],
-        )
-        db.add(audit_log)
         
         if files:
             attachments_data = FileAttachmentCreate.model_validate_json(data)
@@ -294,10 +283,8 @@ async def update_session_content(
         if not update_data and not files and not deleted_file_ids:
             raise HTTPException(status_code=400, detail="No fields to update")
 
-        changed_fields = []
         for key, value in update_data.items():
             setattr(db_content, key, value)
-            changed_fields.append(key)
 
         # For images
 
@@ -318,7 +305,6 @@ async def update_session_content(
                 deleted_paths = result["deleted_paths"]
 
         if deleted_file_ids or files:
-            changed_fields.append("files")
             reorder_files(
                 db=db,
                 entity_id=db_content.id,
@@ -337,16 +323,6 @@ async def update_session_content(
                 files=files,
                 attachments=attachments_data
             )
-
-        if changed_fields:
-            log = AuditLog(
-                user_id=user_id,
-                entity_id=db_content.id,
-                entity_type="SessionContent",
-                action=ActionTypes.update,
-                changed_fields=changed_fields,
-            )
-            db.add(log)
 
         db.commit()
         db.refresh(db_content)
@@ -473,7 +449,6 @@ def toggle_session_content_active_status(
     db: Session = Depends(get_db),
 ):
     try:
-        user_id = UUID(auth["payload"]["sub"])
         db_content = db.query(SessionContent).filter(
             SessionContent.id == content_id,
             SessionContent.deleted_at.is_(None)
@@ -486,14 +461,6 @@ def toggle_session_content_active_status(
 
         db_content.is_active = data.is_active
 
-        log = AuditLog(
-            user_id=user_id,
-            entity_id=db_content.id,
-            entity_type="SessionContent",
-            action=ActionTypes.update,
-            changed_fields=["is_active"],
-        )
-        db.add(log)
         db.commit()
 
         return response_handler(
@@ -518,8 +485,6 @@ def toggle_soft_delete_session_content(
     db: Session = Depends(get_db),
 ):
     try:
-        user_id = UUID(auth["payload"]["sub"])
-
         db_content = db.query(SessionContent).filter(SessionContent.id == content_id).first()
         if not db_content:
             raise HTTPException(status_code=404, detail="Content not found")
@@ -539,14 +504,6 @@ def toggle_soft_delete_session_content(
             soft_delete_field="deleted_at"
         )
 
-        log = AuditLog(
-            user_id=user_id,
-            entity_id=db_content.id,
-            entity_type="SessionContent",
-            action=ActionTypes.update,
-            changed_fields=["deleted_at"],
-        )
-        db.add(log)
         db.commit()
 
         return response_handler(
@@ -570,7 +527,6 @@ def hard_delete_session_content(
     db: Session = Depends(get_db),
 ):
     try:
-        user_id = UUID(auth["payload"]["sub"])
         db_content = (
             db.query(SessionContent)
             .filter(SessionContent.id == content_id)
@@ -581,7 +537,6 @@ def hard_delete_session_content(
             raise HTTPException(status_code=404, detail="Content not found")
 
         session_id = db_content.term_session_id
-        content_title = db_content.title
 
         deleted_paths = []
         attachments = [
@@ -604,14 +559,6 @@ def hard_delete_session_content(
             soft_delete_field="deleted_at"
         )
 
-        log = AuditLog(
-            user_id=user_id,
-            entity_id=content_id,
-            entity_type="SessionContent",
-            action=ActionTypes.delete,
-            changed_fields=["hard_delete", content_title],
-        )
-        db.add(log)
         db.commit()
 
         if deleted_paths:

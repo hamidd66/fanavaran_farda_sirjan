@@ -17,8 +17,6 @@ from app.utils.ordering import reorder_items
 
 from app.models.course_category import CourseCategory
 from app.models.course import Course
-from app.models.audit_logs import AuditLog
-from app.enums.audit_logs import ActionTypes
 from app.enums.file import EntityType, FilePurpose
 from app.enums.course import CategorySort
 from app.schemas.file_attachment import FileAttachmentCreate
@@ -62,15 +60,6 @@ async def create_course_category(
         )
         db.add(new_category)
         db.flush()
-
-        log = AuditLog(
-            user_id=admin_id,
-            entity_id=new_category.id,
-            entity_type="CourseCategory",
-            action=ActionTypes.create,
-            changed_fields=["name", "slug", "description", "is_active"],
-        )
-        db.add(log)
 
         if image:
             attachments_data = FileAttachmentCreate(
@@ -397,14 +386,6 @@ def batch_update_categories_status(
                 updated_count += 1
 
         if updated_count > 0:
-            log = AuditLog(
-                user_id=admin_id,
-                entity_id=0,
-                entity_type="CourseCategory",
-                action=ActionTypes.update,
-                changed_fields=["batch_is_active_update", list(name_categories)],
-            )
-            db.add(log)
             db.commit()
 
         return response_handler(
@@ -456,15 +437,11 @@ async def update_course_category(
                 if existing_data:
                     raise HTTPException(status_code=409, detail=f"Course category with this {name_field} already exists")
 
-        changed_fields = []
         for key, value in update_data.items():
             setattr(db_category, key, value)
-            changed_fields.append(key)
 
         deleted_paths = []
         if image:
-            changed_fields.append("image")
-
             deleted_attachment_ids = [attachment.id for attachment in db_category.file_attachments if attachment.purpose == "image"]
             if deleted_attachment_ids:
                 result = remove_files(db=db, attachment_ids=deleted_attachment_ids)
@@ -488,16 +465,6 @@ async def update_course_category(
                 files=[image],
                 attachments=attachments_data
             )
-
-        if changed_fields:
-            log = AuditLog(
-                user_id=admin_id,
-                entity_id=db_category.id,
-                entity_type="CourseCategory",
-                action=ActionTypes.update,
-                changed_fields=changed_fields,
-            )
-            db.add(log)
 
         db.commit()
         db.refresh(db_category)
@@ -542,8 +509,6 @@ def delete_course_category(
     db: Session = Depends(get_db)
 ):
     try:
-        admin_id = auth["payload"]["sub"]
-
         db_category = (
             db.query(CourseCategory)
             .options(selectinload(CourseCategory.file_attachments))
@@ -568,8 +533,6 @@ def delete_course_category(
                 result = remove_files(db=db, attachment_ids=deleted_attachment_ids)
                 deleted_paths = result["deleted_paths"]
 
-        category_name = db_category.name
-
         db.delete(db_category)
         db.flush()
 
@@ -579,15 +542,6 @@ def delete_course_category(
             order_field="display_order",
             soft_delete_field="deleted_at"
         )
-
-        log = AuditLog(
-            user_id=admin_id,
-            entity_id=category_id,
-            entity_type="CourseCategory",
-            action=ActionTypes.delete,
-            changed_fields=["deleted", category_name],
-        )
-        db.add(log)
 
         db.commit()
 

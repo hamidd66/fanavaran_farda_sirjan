@@ -14,10 +14,8 @@ from app.middleware.exception_handler import response_handler
 from app.models.term import Term
 from app.models.course import Course
 from app.models.course_question import CourseQuestion
-from app.models.audit_logs import AuditLog
 from app.schemas.course_question import QuestionCreate, QuestionUpdate, ToggleQuestionApproveStatus, QuestionOut, ToggleQuestionDeleteStatus
 from app.enums.course import QuestionSort
-from app.enums.audit_logs import ActionTypes
 from app.enums.user import UserRoleEnum
 
 
@@ -87,17 +85,6 @@ def create_question(
             deleted_at=None
         )
         db.add(new_question)
-        db.flush()
-
-        new_log = AuditLog(
-            user_id=user_id, 
-            entity_id=new_question.id, 
-            entity_type="course_questions",
-            action=ActionTypes.create, 
-            changed_fields=["message"]
-        )
-        db.add(new_log)
-
         db.commit()
         db.refresh(new_question)
 
@@ -253,15 +240,6 @@ def update_question(
         if not is_staff:
             db_question.is_approved = False
 
-        new_log = AuditLog(
-            user_id=user_id,
-            entity_id=db_question.id,
-            entity_type="course_questions",
-            action=ActionTypes.update,
-            changed_fields=list(update_data.keys())
-        )
-        db.add(new_log)
-
         db.commit()
         db.refresh(db_question)
 
@@ -301,15 +279,6 @@ def toggle_approval_question(
 
         db_question.is_approved = data.is_approved
 
-        new_log = AuditLog(
-            user_id=user_id,
-            entity_id=db_question.id,
-            entity_type="course_questions",
-            action=ActionTypes.update,
-            changed_fields=["is_approved"]
-        )
-        db.add(new_log)
-
         db.commit()
         db.refresh(db_question)
 
@@ -346,15 +315,6 @@ def toggle_delete_status_question(
 
         db_question.deleted_at = datetime.now(timezone.utc) if data.is_deleted else None
 
-        new_log = AuditLog(
-            user_id=user_id,
-            entity_id=db_question.id,
-            entity_type="course_questions",
-            action=ActionTypes.update,
-            changed_fields=["deleted_at"]
-        )
-        db.add(new_log)
-
         db.commit()
         db.refresh(db_question)
 
@@ -379,8 +339,6 @@ def delete_question(
     db: Session = Depends(get_db)
 ):
     try:
-        user_id = UUID(auth["payload"]["sub"])
-
         db_question = db.query(CourseQuestion).filter(CourseQuestion.id == question_id).options(
             selectinload(CourseQuestion.replies)
         ).first()
@@ -390,16 +348,6 @@ def delete_question(
         replies_count = len(db_question.replies)
 
         db.delete(db_question)
-
-        new_log = AuditLog(
-            user_id=user_id,
-            entity_id=question_id,
-            entity_type="course_questions",
-            action=ActionTypes.delete,
-            changed_fields=["deleted"]
-        )
-        db.add(new_log)
-
         db.commit()
 
         return response_handler(

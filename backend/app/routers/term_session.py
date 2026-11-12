@@ -16,8 +16,6 @@ from app.utils.ordering import reorder_items
 from app.models.term import Term
 from app.models.term_session import TermSession
 from app.models.session_content import SessionContent
-from app.models.audit_logs import AuditLog
-from app.enums.audit_logs import ActionTypes
 from app.enums.term import SessionType, TermSessionSort
 from app.schemas.term_session import TermSessionCreate, TermSessionOut, TermSessionUpdate, ToggleTermSessionActiveStatus, ToggleTermSessionDeleteStatus, TermSessionOrderItemUpdate
 
@@ -61,16 +59,6 @@ async def create_term_session(
             deleted_at=None
         )
         db.add(new_session)
-        db.flush()
-        
-        audit_log = AuditLog(
-            user_id=user_id,
-            entity_id=new_session.id,
-            entity_type="TermSession",
-            action=ActionTypes.create,
-            changed_fields=["created"],
-        )
-        db.add(audit_log)
         db.commit()
         db.refresh(new_session)
         
@@ -268,14 +256,6 @@ def update_term_session(
             setattr(db_session, key, value)
             changed_fields.append(key)
             
-        log = AuditLog(
-            user_id=user_id,
-            entity_id=db_session.id,
-            entity_type="TermSession",
-            action=ActionTypes.update,
-            changed_fields=changed_fields,
-        )
-        db.add(log)
         db.commit()
         db.refresh(db_session)
         
@@ -394,7 +374,6 @@ def toggle_term_session_active_status(
     db: Session = Depends(get_db),
 ):
     try:
-        user_id = UUID(auth["payload"]["sub"])
         db_session = db.query(TermSession).filter(
             TermSession.id == session_id, 
             TermSession.deleted_at.is_(None)
@@ -407,14 +386,6 @@ def toggle_term_session_active_status(
             
         db_session.is_active = data.is_active
 
-        log = AuditLog(
-            user_id=user_id,
-            entity_id=db_session.id,
-            entity_type="TermSession",
-            action=ActionTypes.update,
-            changed_fields=["is_active"],
-        )
-        db.add(log)
         db.commit()
         
         return response_handler(
@@ -439,7 +410,6 @@ def toggle_soft_delete_term_session(
     db: Session = Depends(get_db),
 ):
     try:
-        user_id = UUID(auth["payload"]["sub"])
         db_session = db.query(TermSession).filter(
             TermSession.id == session_id, 
         ).first()
@@ -461,14 +431,6 @@ def toggle_soft_delete_term_session(
             soft_delete_field="deleted_at"
         )
 
-        log = AuditLog(
-            user_id=user_id,
-            entity_id=db_session.id,
-            entity_type="TermSession",
-            action=ActionTypes.update,
-            changed_fields=["deleted_at"],
-        )
-        db.add(log)
         db.commit()
         
         return response_handler(
@@ -504,7 +466,6 @@ def hard_delete_term_session(
             raise HTTPException(status_code=400, detail="Cannot hard-delete session. Active contents are associated with this session.")
             
         term_id_value = db_session.term_id
-        session_title = db_session.title
         
         db.delete(db_session)
         db.flush()
@@ -518,14 +479,6 @@ def hard_delete_term_session(
             soft_delete_field="deleted_at"
         )
 
-        log = AuditLog(
-            user_id=user_id,
-            entity_id=session_id,
-            entity_type="TermSession",
-            action=ActionTypes.delete,
-            changed_fields=["hard_delete", session_title],
-        )
-        db.add(log)
         db.commit()
         
         return response_handler(

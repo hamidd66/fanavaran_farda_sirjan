@@ -14,8 +14,6 @@ from app.repositories.file_repo import add_files, remove_files, confirm_pending_
 from app.utils.delete_file import delete_files
 
 from app.models.role import Role
-from app.models.audit_logs import AuditLog
-from app.enums.audit_logs import ActionTypes
 from app.enums.file import FilePurpose, EntityType
 from app.schemas.role import BatchRolesStatusSchema, UpdateRoleSchema, RoleOut
 from app.schemas.file_attachment import FileAttachmentCreate
@@ -31,8 +29,6 @@ def batch_update_roles_status(
     db: Session = Depends(get_db)
 ):
     try:
-        admin_id = auth["payload"]["sub"]
-
         if not data.items:
             raise HTTPException(status_code=400, detail="Items list cannot be empty")
 
@@ -55,15 +51,6 @@ def batch_update_roles_status(
                 updated_count += 1
 
         if updated_count > 0:
-            log = AuditLog(
-                user_id=admin_id,
-                entity_id=0,
-                entity_type="Role",
-                action=ActionTypes.update,
-                changed_fields=["batch_is_active_update"],
-            )
-            db.add(log)
-
             db.commit()
 
         return response_handler(
@@ -101,18 +88,14 @@ async def update_role_info(
         if not update_data and not image:
             raise HTTPException(status_code=400, detail="No fields to update")
 
-        changed_fields = []
 
         for field, value in update_data.items():
             if hasattr(db_role, field):
                 setattr(db_role, field, value)
-                changed_fields.append(field)
 
         deleted_paths = []
 
         if image:
-            changed_fields.append("image")
-
             deleted_attachment_ids = [file_att.id for file_att in db_role.file_attachments if file_att.purpose == "image"]
             if deleted_attachment_ids:
                 result = remove_files(db=db, attachment_ids=deleted_attachment_ids)
@@ -136,16 +119,6 @@ async def update_role_info(
                 files=[image],
                 attachments=attachments_data
             )
-
-        if changed_fields:
-            log = AuditLog(
-                user_id=admin_id,
-                entity_id=db_role.id,
-                entity_type="Role",
-                action=ActionTypes.update,
-                changed_fields=changed_fields,
-            )
-            db.add(log)
 
         db.commit()
         db.refresh(db_role)
