@@ -1,6 +1,6 @@
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, Cookie, Request, File, UploadFile, Form
-from sqlalchemy import or_
+from sqlalchemy import or_, exists
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
 from datetime import datetime, timezone
@@ -53,16 +53,15 @@ async def register_student(
         full_data = json.loads(data)
 
         user_data = UserCreate.model_validate(full_data).model_dump(exclude_unset=True, exclude_none=True)
-        existing_user = db.query(User).filter(
-            or_(
-                User.username == user_data.get("username"),
-                User.national_code == user_data.get("national_code"),
-                User.phone == user_data.get("phone"),
-                User.email == user_data.get("email")
-            )
-        ).first()
-        if existing_user:
-            raise HTTPException(status_code=409, detail="User already exists")
+        filters = [
+            getattr(User, field) == user_data.get(field)
+            for field in ["username", "national_code", "phone", "email"]
+            if user_data.get(field)
+        ]
+        if filters:
+            user_exists = db.query(exists().where(or_(*filters))).scalar()
+            if user_exists:
+                raise HTTPException(status_code=409, detail="User already exists")
 
         user_data["password"] = hash_password(user_data["password"])
         new_user = User(
@@ -170,16 +169,15 @@ async def register_student_by_admin(
         full_data = json.loads(data)
 
         user_data = UserCreate.model_validate(full_data).model_dump(exclude_unset=True, exclude_none=True)
-        existing_user = db.query(User).filter(
-            or_(
-                User.username == user_data.get("username"),
-                User.national_code == user_data.get("national_code"),
-                User.phone == user_data.get("phone"),
-                User.email == user_data.get("email")
-            )
-        ).first()
-        if existing_user:
-            raise HTTPException(status_code=409, detail="User already exists")
+        filters = [
+            getattr(User, field) == user_data.get(field)
+            for field in ["username", "national_code", "phone", "email"]
+            if user_data.get(field)
+        ]
+        if filters:
+            user_exists = db.query(exists().where(or_(*filters))).scalar()
+            if user_exists:
+                raise HTTPException(status_code=409, detail="User already exists")
 
         user_data["password"] = hash_password(user_data["password"])
         new_user = User(
@@ -281,16 +279,15 @@ async def register_staff_by_admin(
         full_data = json.loads(data)
 
         user_data = UserCreate.model_validate(full_data).model_dump(exclude_unset=True, exclude_none=True)
-        existing_user = db.query(User).filter(
-            or_(
-                User.username == user_data.get("username"),
-                User.national_code == user_data.get("national_code"),
-                User.phone == user_data.get("phone"),
-                User.email == user_data.get("email")
-            )
-        ).first()
-        if existing_user:
-            raise HTTPException(status_code=409, detail="User already exists")
+        filters = [
+            getattr(User, field) == user_data.get(field)
+            for field in ["username", "national_code", "phone", "email"]
+            if user_data.get(field)
+        ]
+        if filters:
+            user_exists = db.query(exists().where(or_(*filters))).scalar()
+            if user_exists:
+                raise HTTPException(status_code=409, detail="User already exists")
 
         user_data["password"] = hash_password(user_data["password"])
         new_user = User(
