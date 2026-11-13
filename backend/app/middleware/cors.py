@@ -6,7 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 def setup_cors(app: FastAPI):
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],
+        # allow_origins=["*"],
+        allow_origins=["http://localhost:5173"],
         # allow_origins=["http://localhost:3000"],
         # allow_origins=["http://localhost:5500"],
         # allow_origins=["http://127.0.0.1:5500"],

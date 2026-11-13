@@ -1,5 +1,5 @@
 from pydantic_settings import BaseSettings
-from typing import ClassVar
+from typing import ClassVar, Literal
 from pydantic import computed_field
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -21,6 +21,9 @@ class Settings(BaseSettings):
     MAX_IP_ATTEMPTS: int
     IP_WINDOW_MINUTES: int
     IP_LOCKOUT_MINUTES: int
+
+    COOKIE_SECURE: bool = False
+    COOKIE_SAMESITE: Literal["lax", "strict", "none"] = "lax"
 
     ALLOWED_FOLDERS: list[str] = ["course", "classroom", "person", "specialties", "roles", "courses", "course_categories", "terms", "session_contents"]
 
