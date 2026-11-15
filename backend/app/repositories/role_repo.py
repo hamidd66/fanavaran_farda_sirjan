@@ -1,27 +1,33 @@
-from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from uuid import UUID
+import logging
 
 from app.models.role import Role
 from app.models.user_role import UserRole
 from app.enums.user import UserRoleEnum
+from app.core.exceptions.custom_exceptions import AppException
+from app.enums.response_codes import ResponseCode
+
+logger = logging.getLogger(__name__)
+
 
 def get_role_by_name(db: Session, role: UserRoleEnum) -> Role:
     try:
         db_role = db.query(Role).filter(Role.name == role.value).first()
 
         if not db_role:
-            raise HTTPException(status_code=404, detail="Role not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Role not found")
 
         if not db_role.is_active:
-            raise HTTPException(status_code=403, detail="Role is inactive")
+            raise AppException(code=ResponseCode.ACCESS_DENIED, message="Role is inactive")
 
         return db_role
 
-    except HTTPException:
+    except AppException:
         raise
-    except Exception:
-        raise HTTPException(status_code=500, detail="An unexpected error occurred while retrieving the role")
+    except Exception as e:
+        logger.exception("An unexpected error occurred while retrieving the role")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="An unexpected error occurred while retrieving the role") from e
 
 
 def get_active_roles(db: Session, user_id: UUID) -> list[str]:
@@ -40,7 +46,8 @@ def get_active_roles(db: Session, user_id: UUID) -> list[str]:
 
         return [role.name for role in active_roles]
 
-    except HTTPException:
+    except AppException:
         raise
-    except Exception:
-        raise HTTPException(status_code=500, detail="An unexpected error occurred while retrieving the role")
+    except Exception as e:
+        logger.exception("An unexpected error occurred while retrieving the role")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="An unexpected error occurred while retrieving the role") from e

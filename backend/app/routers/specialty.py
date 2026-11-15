@@ -1,14 +1,17 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, Form, File
+from fastapi import APIRouter, Depends, Query, UploadFile, Form, File
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from pydantic import ValidationError
 from typing import Optional
 import math
+import logging
 
 from app.db.session import get_db
 from app.dependencies.permissions import require_roles
-from app.middleware.exception_handler import response_handler
+from app.core.exceptions.custom_exceptions import AppException
+from app.core.responses.response_builder import success_response
+from app.enums.response_codes import ResponseCode
 from app.repositories.file_repo import add_files, remove_files, confirm_pending_uploads, cleanup_pending_uploads
 from app.utils.delete_file import delete_files
 
@@ -17,6 +20,8 @@ from app.models.user_specialty import UserSpecialty
 from app.schemas.specialty import BatchSpecialtiesStatus, SpecialtyCreate, SpecialtyUpdate, SpecialtyOut
 from app.enums.file import EntityType, FilePurpose
 from app.schemas.file_attachment import FileAttachmentCreate
+
+logger = logging.getLogger(__name__)
 
 
 router = APIRouter(prefix="/specialties", tags=["Specialties"])
@@ -36,7 +41,7 @@ async def create_specialty(
 
         existing_specialty = db.query(Specialty).filter(Specialty.name == specialty_data.name, Specialty.deleted_at.is_(None)).first()
         if existing_specialty:
-            raise HTTPException(status_code=409, detail="Specialty with this name already exists")
+            raise AppException(code=ResponseCode.RESOURCE_ALREADY_EXISTS, message="Specialty with this name already exists")
 
         new_specialty = Specialty(
             name=specialty_data.name,
@@ -71,29 +76,29 @@ async def create_specialty(
         db.refresh(new_specialty)
         confirm_pending_uploads(db)
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.CREATED,
             message="Specialty successfully created",
             data=SpecialtyOut.model_validate(new_specialty).model_dump(),
-            status_code=201
         )
 
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise http_error
+        raise
     except ValidationError as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=422, detail=e.errors())
-    except IntegrityError:
+        raise AppException(code=ResponseCode.VALIDATION_ERROR, data=e.errors()) from e
+    except IntegrityError as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=409, detail="Specialty data conflicts with existing records")
-    except Exception:
+        raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message="Specialty data conflicts with existing records") from e
+    except Exception as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=500, detail="Failed to create specialty")
+        logger.exception("Failed to create specialty")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to create specialty") from e
 
 
 @router.get("/")
@@ -112,8 +117,8 @@ def get_specialties_list(
         total_count = query.count()
         specialties = query.offset((page - 1) * limit).limit(limit).all()
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.RETRIEVED,
             message="Specialties retrieved successfully",
             data={
                 "items": [
@@ -125,13 +130,13 @@ def get_specialties_list(
                 "total": total_count,
                 "pages": math.ceil(total_count / limit)
             },
-            status_code=200
         )
 
-    except HTTPException as http_error:
-        raise http_error
-    except Exception:
-        raise HTTPException(status_code=500, detail="Failed to retrieve specialties list")
+    except AppException:
+        raise
+    except Exception as e:
+        logger.exception("Failed to retrieve specialties list")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to retrieve specialties list") from e
 
 
 @router.patch("/batch-active")
@@ -142,7 +147,7 @@ def batch_update_specialties_status(
 ):
     try:
         if not data.items:
-            raise HTTPException(status_code=400, detail="Items list cannot be empty")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="Items list cannot be empty")
 
         specialty_ids = [item.specialty_id for item in data.items]
 
@@ -151,7 +156,7 @@ def batch_update_specialties_status(
 
         for s_id in specialty_ids:
             if s_id not in specialties_map:
-                raise HTTPException(status_code=404, detail=f"Specialty with ID '{s_id}' not found")
+                raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message=f"Specialty with ID '{s_id}' not found")
 
         updated_count = 0
         status_dict = {item.specialty_id: item.is_active for item in data.items}
@@ -165,19 +170,19 @@ def batch_update_specialties_status(
         if updated_count > 0:
             db.commit()
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.UPDATED,
             message="Specialties status successfully updated in batch",
             data={"updated_count": updated_count},
-            status_code=200
         )
 
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
-        raise http_error
-    except Exception:
+        raise
+    except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Failed to batch update specialties status")
+        logger.exception("Failed to batch update specialties status")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="") from e
 
 
 @router.patch("/{specialty_id}")
@@ -193,18 +198,18 @@ async def update_specialty(
 
         db_specialty = db.query(Specialty).filter(Specialty.id == specialty_id, Specialty.deleted_at.is_(None)).first()
         if not db_specialty:
-            raise HTTPException(status_code=404, detail="Specialty not found")
+            raise AppException(code=ResponseCode.SPECIALTY_NOT_FOUND, message="Specialty not found")
 
 
         specialty_data = SpecialtyUpdate.model_validate_json(data).model_dump(exclude_unset=True)
 
         if not specialty_data and not image:
-            raise HTTPException(status_code=400, detail="No fields to update")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="No fields to update")
 
         if "name" in specialty_data and specialty_data["name"] != db_specialty.name:
             existing = db.query(Specialty).filter(Specialty.name == specialty_data["name"], Specialty.deleted_at.is_(None)).first()
             if existing:
-                raise HTTPException(status_code=409, detail="Specialty with this name already exists")
+                raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message="Specialty with this name already exists")
 
         for field, value in specialty_data.items():
             setattr(db_specialty, field, value)
@@ -243,29 +248,29 @@ async def update_specialty(
         if image and deleted_paths:
             delete_files(deleted_paths)
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.UPDATED,
             message="Specialty successfully updated",
             data=SpecialtyOut.model_validate(db_specialty).model_dump(),
-            status_code=200
         )
 
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise http_error
+        raise
     except ValidationError as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=422, detail=e.errors())
-    except IntegrityError:
+        raise AppException(code=ResponseCode.VALIDATION_ERROR, data=e.errors()) from e
+    except IntegrityError as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=409, detail="Specialty data conflicts with existing records")
-    except Exception:
+        raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message="Specialty data conflicts with existing records") from e
+    except Exception as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=500, detail="Failed to update specialty")
+        logger.exception("Failed to update specialty")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to update specialty") from e
 
 
 @router.delete("/{specialty_id}")
@@ -277,11 +282,11 @@ def delete_specialty(
     try:
         db_specialty = db.query(Specialty).filter(Specialty.id == specialty_id).first()
         if not db_specialty:
-            raise HTTPException(status_code=404, detail="Specialty not found")
+            raise AppException(code=ResponseCode.SPECIALTY_NOT_FOUND, message="Specialty not found")
 
         is_assigned = db.query(UserSpecialty).filter(UserSpecialty.specialty_id == specialty_id).first()
         if is_assigned:
-            raise HTTPException(status_code=400, detail="Cannot delete specialty because it is assigned to one or more users.")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="Cannot delete specialty because it is assigned to one or more users.")
 
         is_image = False
         deleted_paths = []
@@ -300,17 +305,17 @@ def delete_specialty(
         if is_image and deleted_paths:
             delete_files(deleted_paths)
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.DELETED,
             message="Specialty successfully deleted",
             data={"id": specialty_id},
-            status_code=200
         )
 
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
-        raise http_error
-    except Exception:
+        raise
+    except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Failed to delete specialty")
+        logger.exception("Failed to delete specialty")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to delete specialty") from e
 

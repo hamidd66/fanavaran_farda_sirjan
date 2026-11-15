@@ -1,5 +1,5 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, Query, Response, Cookie, Request, File, UploadFile, Form
+from fastapi import APIRouter, Depends, Query, Response, Cookie, Request, File, UploadFile, Form
 from sqlalchemy import or_, exists
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
@@ -8,11 +8,14 @@ from typing import Optional, List
 from pydantic import ValidationError
 import math
 import json
+import logging
 
+from app.core.exceptions.custom_exceptions import AppException
 from app.db.session import get_db
 from app.services.cookies import set_auth_cookie, delete_auth_cookie
 from app.services.tokens import verify_token, generate_access_token, generate_refresh_token
-from app.middleware.exception_handler import response_handler
+
+from app.core.responses.response_builder import success_response
 from app.utils.hashing import hash_password, verify_password
 from app.utils.delete_file import delete_files
 from app.core.rate_limiters.ip_limiter import check_ip_limit
@@ -22,6 +25,7 @@ from app.repositories.role_repo import get_role_by_name
 from app.repositories.file_repo import add_files, remove_files, confirm_pending_uploads, cleanup_pending_uploads
 from app.dependencies.permissions import require_roles
 
+from app.enums.response_codes import ResponseCode
 from app.models.person import Person
 from app.models.staff_profile import StaffProfile
 from app.models.user import User
@@ -37,6 +41,8 @@ from app.enums.student_profile import StudentEducationalStatus
 from app.enums.staff_profile import StaffEmploymentStatus
 from app.enums.user import UserRoleEnum, UserSort
 from app.enums.file import EntityType, FilePurpose
+
+logger = logging.getLogger(__name__)
 
 
 router = APIRouter(prefix="/user", tags=["Users"])
@@ -61,7 +67,7 @@ async def register_student(
         if filters:
             user_exists = db.query(exists().where(or_(*filters))).scalar()
             if user_exists:
-                raise HTTPException(status_code=409, detail="User already exists")
+                raise AppException(code=ResponseCode.USER_ALREADY_EXISTS, message="User already exists")
 
         user_data["password"] = hash_password(user_data["password"])
         new_user = User(
@@ -93,7 +99,7 @@ async def register_student(
 
         db_role_student = get_role_by_name(db, UserRoleEnum.student)
         if not db_role_student:
-            raise HTTPException(status_code=500, detail="Student role not found")
+            raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Student role not found")
         
         user_role = UserRole(
             user_id=new_user.id,
@@ -132,29 +138,29 @@ async def register_student(
         set_auth_cookie(response=response, key="access_token", value=access_token, path="/")
         set_auth_cookie(response=response, key="refresh_token", value=refresh_token, path="/user/refresh")
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.CREATED,
             message="Student registered successfully and logged in",
-            data= UserOut.model_validate(new_user).model_dump(),
-            status_code=201
+            data=UserOut.model_validate(new_user).model_dump(),
         )
 
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise http_error
+        raise
     except ValidationError as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=422, detail=e.errors())
-    except IntegrityError:
+        raise AppException(code=ResponseCode.VALIDATION_ERROR, data=e.errors()) from e
+    except IntegrityError as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=409, detail="User data conflicts with existing records")
-    except Exception:
+        raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message="User data conflicts with existing records") from e
+    except Exception as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=500, detail="Student registration failed")
+        logger.exception("Student registration failed")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Student registration failed") from e
 
 
 @router.post("/admin/register/student")
@@ -177,7 +183,7 @@ async def register_student_by_admin(
         if filters:
             user_exists = db.query(exists().where(or_(*filters))).scalar()
             if user_exists:
-                raise HTTPException(status_code=409, detail="User already exists")
+                raise AppException(code=ResponseCode.USER_ALREADY_EXISTS, message="User already exists")
 
         user_data["password"] = hash_password(user_data["password"])
         new_user = User(
@@ -209,7 +215,7 @@ async def register_student_by_admin(
 
         db_role_student = get_role_by_name(db, UserRoleEnum.student)
         if not db_role_student:
-            raise HTTPException(status_code=500, detail="Student role not found")
+            raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Student role not found")
         
         user_role = UserRole(
             user_id=new_user.id,
@@ -242,29 +248,29 @@ async def register_student_by_admin(
         db.commit()
         confirm_pending_uploads(db)
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.CREATED,
             message="Student registered successfully by admin",
             data={"user_id": new_user.id},
-            status_code=201
         )
 
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise http_error
+        raise
     except ValidationError as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=422, detail=e.errors())
-    except IntegrityError:
+        raise AppException(code=ResponseCode.VALIDATION_ERROR, data=e.errors()) from e
+    except IntegrityError as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=409, detail="User data conflicts with existing records")
-    except Exception:
+        raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message="User data conflicts with existing records") from e
+    except Exception as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=500, detail="Student registration failed")
+        logger.exception("Student registration failed")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Student registration failed") from e
 
 
 @router.post("/admin/register/staff")
@@ -287,7 +293,7 @@ async def register_staff_by_admin(
         if filters:
             user_exists = db.query(exists().where(or_(*filters))).scalar()
             if user_exists:
-                raise HTTPException(status_code=409, detail="User already exists")
+                raise AppException(code=ResponseCode.USER_ALREADY_EXISTS, message="User already exists")
 
         user_data["password"] = hash_password(user_data["password"])
         new_user = User(
@@ -340,29 +346,29 @@ async def register_staff_by_admin(
         db.commit()
         confirm_pending_uploads(db)
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.CREATED,
             message="Staff registered successfully by admin",
             data={"user_id": new_user.id},
-            status_code=201
         )
 
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise http_error
+        raise
     except ValidationError as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=422, detail=e.errors())
-    except IntegrityError:
+        raise AppException(code=ResponseCode.VALIDATION_ERROR, data=e.errors()) from e
+    except IntegrityError as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=409, detail="User data conflicts with existing records")
-    except Exception:
+        raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message="User data conflicts with existing records") from e
+    except Exception as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=500, detail="Staff registration failed")
+        logger.exception("Staff registration failed")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Staff registration failed") from e
 
 
 @router.post("/login/national-code-password")
@@ -378,17 +384,17 @@ def login_national_code_password(
         db_user = get_user_data(db, User.national_code == data.national_code)
 
         if not db_user:
-            raise HTTPException(status_code=401, detail="Invalid national code or password")
+            raise AppException(code=ResponseCode.INVALID_CREDENTIALS, message="Invalid national code or password")
 
         if is_account_locked(db_user):
-            raise HTTPException(status_code=429, detail="You cannot submit a request due to too many attempts")
+            raise AppException(code=ResponseCode.RATE_LIMIT_EXCEEDED, message="You cannot submit a request due to too many attempts")
 
         if not verify_password(data.password, db_user.password):
             register_failed_login(db, db_user)
-            raise HTTPException(status_code=401, detail="Invalid national code or password")
+            raise AppException(code=ResponseCode.INVALID_CREDENTIALS, message="Invalid national code or password")
 
         if not db_user.is_active:
-            raise HTTPException(status_code=403, detail="Account is inactive")
+            raise AppException(code=ResponseCode.ACCOUNT_INACTIVE, message="Account is inactive")
 
         if db_user.deleted_at is not None:
             db_user.deleted_at = None
@@ -405,19 +411,19 @@ def login_national_code_password(
         set_auth_cookie(response=response, key="access_token", value=access_token, path="/")
         set_auth_cookie(response=response, key="refresh_token", value=refresh_token, path="/user/refresh")
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.AUTHENTICATED,
             message="Login successful",
             data=UserOut.model_validate(db_user).model_dump(),
-            status_code=200,
         )
 
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
-        raise http_error
-    except Exception:
+        raise
+    except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Login failed")
+        logger.exception("Login failed")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Login failed") from e
 
 
 @router.post("/logout")
@@ -439,26 +445,25 @@ def logout_user(
         )
 
         if updated_rows == 0:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise AppException(code=ResponseCode.USER_NOT_FOUND, message="User not found")
 
         db.commit()
 
         delete_auth_cookie(response=response, key="access_token", path="/")
         delete_auth_cookie(response=response, key="refresh_token", path="/user/refresh")
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.LOGGED_OUT,
             message="Logged out successfully",
             data=None,
-            status_code=200,
         )
 
-    except HTTPException as http_error:
+    except AppException:
+        raise
+    except Exception as e:
         db.rollback()
-        raise http_error
-    except Exception:
-        db.rollback()
-        raise HTTPException(status_code=500, detail="Logout failed")
+        logger.exception("Logout failed")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Logout failed") from e
 
 
 @router.post("/logout-current")
@@ -470,17 +475,17 @@ def logout_current_device(
         delete_auth_cookie(response=response, key="access_token", path="/")
         delete_auth_cookie(response=response, key="refresh_token", path="/user/refresh")
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.LOGGED_OUT,
             message="Logged out from current device successfully",
             data=None,
-            status_code=200,
         )
 
-    except HTTPException as http_error:
-        raise http_error
-    except Exception:
-        raise HTTPException(status_code=500, detail="Logout failed")
+    except AppException:
+        raise
+    except Exception as e:
+        logger.exception("Logout failed")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Logout failed") from e
 
 
 @router.post("/refresh")
@@ -491,12 +496,12 @@ def refresh_token(
 ):
     try:
         if not refresh_token:
-            raise HTTPException(status_code=401, detail="Refresh token cookie missing")
+            raise AppException(code=ResponseCode.AUTHENTICATION_REQUIRED, message="Refresh token cookie missing")
 
         payload = verify_token(refresh_token)
 
         if not payload or payload.get("type") != "refresh":
-            raise HTTPException(status_code=401, detail="Invalid or expired refresh token")
+            raise AppException(code=ResponseCode.INVALID_TOKEN, message="Invalid or expired refresh token")
 
         user_id = payload.get("sub")
         token_version = payload.get("token_version")
@@ -509,27 +514,27 @@ def refresh_token(
         )
 
         if not db_user:
-            raise HTTPException(status_code=401, detail="User not found or inactive")
+            raise AppException(code=ResponseCode.AUTHENTICATION_REQUIRED, message="User not found or inactive")
 
         if token_version != db_user.token_version:
-            raise HTTPException(status_code=401, detail="Token has been revoked")
+            raise AppException(code=ResponseCode.TOKEN_REVOKED, message="Token has been revoked")
 
         access_token = generate_access_token(db_user)
         set_auth_cookie(response=response, key="access_token", value=access_token, path="/")
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.TOKEN_REFRESHED,
             message="Access token refreshed successfully",
             data=None,
-            status_code=200
         )
 
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
-        raise http_error
-    except Exception:
+        raise
+    except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Refresh failed")
+        logger.exception("Refresh failed")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Refresh failed") from e
 
 
 @router.post("/{user_id}/staff-profile")
@@ -542,15 +547,15 @@ def register_user_as_staff(
     try:
         db_user = get_user_data(db, User.id == user_id, User.deleted_at.is_(None))
         if not db_user:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise AppException(code=ResponseCode.USER_NOT_FOUND, message="User not found")
 
         if not db_user.person:
-            raise HTTPException(status_code=400, detail="User must have a person profile before registering as staff.")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="User must have a person profile before registering as staff")
 
         person_id = db_user.person.id
 
         if db_user.person.staff_profile:
-            raise HTTPException(status_code=409, detail="User is already registered as staff.")
+            raise AppException(code=ResponseCode.RESOURCE_ALREADY_EXISTS, message="User is already registered as staff")
 
         create_data = data.model_dump(exclude_none=True)
 
@@ -562,18 +567,18 @@ def register_user_as_staff(
         db.add(new_staff_profile)
         db.commit()
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.CREATED,
             message="User successfully registered as staff",
             data=UserOut.model_validate(db_user).model_dump(),
-            status_code=201
         )
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
-        raise http_error
-    except Exception:
+        raise
+    except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Failed to register user as staff")
+        logger.exception("Failed to register user as staff")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to register user as staff") from e
 
 
 @router.post("/{user_id}/student-profile")
@@ -586,15 +591,15 @@ def register_user_as_student(
     try:
         db_user = get_user_data(db, User.id == user_id, User.deleted_at.is_(None))
         if not db_user:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise AppException(code=ResponseCode.USER_NOT_FOUND, message="User not found")
 
         if not db_user.person:
-            raise HTTPException(status_code=400, detail="User must have a person profile before registering as a student.")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="User must have a person profile before registering as a student")
 
         person_id = db_user.person.id
 
         if db_user.person.student_profile:
-            raise HTTPException(status_code=409, detail="User is already registered as a student.")
+            raise AppException(code=ResponseCode.RESOURCE_ALREADY_EXISTS, message="User is already registered as a student")
 
         create_data = data.model_dump(exclude_none=True)
         new_student_profile = StudentProfile(
@@ -605,19 +610,19 @@ def register_user_as_student(
         db.add(new_student_profile)
         db.commit()
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.CREATED,
             message="User successfully registered as a student",
             data=UserOut.model_validate(db_user).model_dump(),
-            status_code=201
         )
 
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
-        raise http_error
-    except Exception:
+        raise
+    except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Failed to register user as a student")
+        logger.exception("Failed to register user as a student")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to register user as a student") from e
 
 
 @router.get("/me")
@@ -631,35 +636,19 @@ def get_current_user_profile(
         db_user = get_user_data(db, User.id == user_id)
         
         if not db_user:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise AppException(code=ResponseCode.USER_NOT_FOUND, message="User not found")
         
-        # roles = [ur.role.name for ur in db_user.user_roles if ur.is_access and ur.role.is_active]
-
-        # user_out = UserSummary.model_validate(db_user).model_dump()
-        # user_out["avatars"] = [
-        #     FileAttachmentSummary.model_validate(file_attachment).model_dump()
-        #     for file_attachment in db_user.person.file_attachments
-        #     if (
-        #         file_attachment.is_active 
-        #         and file_attachment.deleted_at is None 
-        #         and file_attachment.file.is_public 
-        #         and file_attachment.is_active 
-        #         and file_attachment.file.deleted_at is None
-        #     )
-        # ]
-
-        
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.RETRIEVED,
             message="Profile retrieved successfully",
             data=UserOut.model_validate(db_user).model_dump(),
-            status_code=200
         )
 
-    except HTTPException as http_error:
-        raise http_error
-    except Exception:
-        raise HTTPException(status_code=500, detail="Failed to fetch profile")
+    except AppException:
+        raise
+    except Exception as e:
+        logger.exception("Failed to fetch profile")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to fetch profile") from e
 
 
 @router.get("/")
@@ -722,8 +711,8 @@ def get_users(
             user_data = UserOut.model_validate(u).model_dump()
             users_list.append(user_data)
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.RETRIEVED,
             message="Users retrieved successfully",
             data={
                 "users": users_list,
@@ -732,13 +721,13 @@ def get_users(
                 "total": total_count,
                 "pages": math.ceil(total_count / limit)
             },
-            status_code=200
         )
         
-    except HTTPException as http_error:
-        raise http_error
-    except Exception:
-        raise HTTPException(status_code=500, detail="Failed to fetch users")
+    except AppException:
+        raise
+    except Exception as e:
+        logger.exception("Failed to fetch users")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to fetch users") from e
 
 
 @router.get("/{user_id}")
@@ -751,19 +740,19 @@ def get_user_by_id(
         db_user = get_user_data(db, User.id == user_id, User.deleted_at.is_(None))
 
         if not db_user:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise AppException(code=ResponseCode.USER_NOT_FOUND, message="User not found")
         
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.RETRIEVED,
             message="User retrieved successfully",
             data=UserOut.model_validate(db_user).model_dump(),
-            status_code=200
         )
 
-    except HTTPException as http_error:
-        raise http_error
-    except Exception:
-        raise HTTPException(status_code=500, detail="Failed to retrieve user profile")
+    except AppException:
+        raise
+    except Exception as e:
+        logger.exception("Failed to retrieve user profile")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to retrieve user profile") from e
 
 
 @router.patch("/{user_id}")
@@ -780,14 +769,14 @@ async def update_user(
         is_admin = "admin" in user_roles
 
         if not is_admin and current_user_id != user_id:
-            raise HTTPException(status_code=403, detail="Access denied")
+            raise AppException(code=ResponseCode.ACCESS_DENIED, message="Access denied")
 
         db_user = get_user_data(db, User.id == user_id, User.deleted_at.is_(None))
 
         if not db_user:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise AppException(code=ResponseCode.USER_NOT_FOUND, message="User not found")
         if not db_user.person:
-            raise HTTPException(status_code=404, detail="Person information not defined")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Person information not defined")
 
         changed_keys = []
 
@@ -811,12 +800,12 @@ async def update_user(
             staff_profile_data = StaffUpdate.model_validate_json(data).model_dump(exclude_unset=True)
             for key, value in staff_profile_data.items():
                 if key in ["employment_type", "hire_date"] and not is_admin:
-                    raise HTTPException(status_code=403, detail="Access denied")
+                    raise AppException(code=ResponseCode.ACCESS_DENIED, message="Access denied")
                 changed_keys.append(key)
                 setattr(db_user.person.staff_profile, key, value)
 
         if not changed_keys and not avatar:
-            raise HTTPException(status_code=400, detail="No fields to update")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="No fields to update")
 
         deleted_paths = []
         if avatar:
@@ -854,29 +843,29 @@ async def update_user(
         if avatar and deleted_paths:
             delete_files(deleted_paths)
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.UPDATED,
             message="User updated successfully",
             data=UserOut.model_validate(db_user).model_dump(),
-            status_code=200
         )
 
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise http_error
+        raise
     except ValidationError as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=422, detail=e.errors(include_context=False))
-    except IntegrityError:
+        raise AppException(code=ResponseCode.VALIDATION_ERROR, data=e.errors()) from e
+    except IntegrityError as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=409, detail="Input data conflicts with existing records")
-    except Exception:
+        raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message="Input data conflicts with existing records") from e
+    except Exception as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=500, detail="Failed to update user")
+        logger.exception("Failed to update user")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to update user") from e
 
 
 @router.patch("/{user_id}/toggle-active")
@@ -890,32 +879,32 @@ def toggle_active_status(
         current_user_id = UUID(auth["payload"]["sub"])
 
         if current_user_id == user_id:
-            raise HTTPException(status_code=400, detail="You cannot change your active status")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="You cannot change your active status")
         
         db_user = get_user_data(db, User.id == user_id, User.is_deleted.is_(False))
         if not db_user:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise AppException(code=ResponseCode.USER_NOT_FOUND, message="User not found")
         
         if db_user.is_active == data.is_active:
-            raise HTTPException(status_code=409, detail=f"User status is already set to {data.is_active}")
+            raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message=f"User status is already set to {data.is_active}")
 
         db_user.is_active = data.is_active
         db_user.token_version += 1
 
         db.commit()
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.UPDATED,
             message=f"User active status successfully set to {data.is_active}",
             data={"user_id": db_user.id, "is_active": data.is_active},
-            status_code=200
         )
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
-        raise http_error
-    except Exception:
+        raise
+    except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Failed to toggle user status")
+        logger.exception("Failed to toggle user status")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to toggle user status") from e
 
 
 @router.patch("/{user_id}/change-password")
@@ -931,21 +920,21 @@ def change_password(
         is_admin = "admin" in auth["roles"]
 
         if not is_admin and current_user_id != user_id:
-            raise HTTPException(status_code=403, detail="Access denied")
+            raise AppException(code=ResponseCode.ACCESS_DENIED, message="Access denied")
         
         db_user = get_user_data(db, User.id == user_id, User.is_deleted.is_(False))
         if not db_user:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise AppException(code=ResponseCode.USER_NOT_FOUND, message="User not found")
 
         if not is_admin or (is_admin and current_user_id == user_id):
             if not data.old_password:
-                raise HTTPException(status_code=400, detail="Old password is required")
+                raise AppException(code=ResponseCode.BAD_REQUEST, message="Old password is required")
             
             if not verify_password(data.old_password, db_user.password):
-                raise HTTPException(status_code=400, detail="Incorrect old password")
+                raise AppException(code=ResponseCode.INVALID_CREDENTIALS, message="Incorrect old password")
 
         if verify_password(data.new_password, db_user.password):
-            raise HTTPException(status_code=400, detail="New password cannot be the same as the old password")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="New password cannot be the same as the old password")
 
         db_user.password = hash_password(data.new_password)
         db_user.token_version += 1
@@ -960,18 +949,18 @@ def change_password(
             set_auth_cookie(response=response, key="access_token", value=access_token, path="/")
             set_auth_cookie(response=response, key="refresh_token", value=refresh_token, path="/user/refresh")
 
-        return response_handler(
-            status=True,
-            message="Password changed successfully and active sessions on other devices were terminated.",
+        return success_response(
+            code=ResponseCode.UPDATED,
+            message="Password changed successfully and active sessions on other devices were terminated",
             data=None,
-            status_code=200
         )
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
-        raise http_error
-    except Exception:
+        raise
+    except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Change password failed")
+        logger.exception("Change password failed")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Change password failed") from e
 
 
 @router.patch("/{user_id}/delete")
@@ -985,31 +974,31 @@ def toggle_user_soft_delete(
         current_admin_id = UUID(auth["payload"]["sub"])
         
         if current_admin_id == user_id:
-            raise HTTPException(status_code=400, detail="You cannot delete your own admin account")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="You cannot delete your own admin account")
         
         db_user = get_user_data(db, User.id == user_id)
         if not db_user:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise AppException(code=ResponseCode.USER_NOT_FOUND, message="User not found")
 
         if (db_user.deleted_at is not None) == data.is_deleted:
-            raise HTTPException(status_code=409, detail=f"User is already {'deleted' if data.is_deleted else 'restored'}")
+            raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message=f"User is already {'deleted' if data.is_deleted else 'restored'}")
 
         db_user.deleted_at = datetime.now(timezone.utc) if data.is_deleted else None        
         db_user.token_version += 1
 
         db.commit()
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.UPDATED,
             message="User soft-deleted successfully" if data.is_deleted else "User restored successfully",
             data={"user_id": user_id, "deleted_at": data.is_deleted},
-            status_code=200
         )
 
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
-        raise http_error
-    except Exception:
+        raise
+    except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Failed to update user deletion status")
+        logger.exception("Failed to update user deletion status")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to update user deletion status") from e
 

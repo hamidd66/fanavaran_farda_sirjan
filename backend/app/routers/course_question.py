@@ -1,15 +1,17 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, Query, Header
+from fastapi import APIRouter, Depends, Query, Header
 from sqlalchemy.orm import Session, selectinload, joinedload
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import func
 from datetime import datetime, timezone
 from typing import Optional
 import math
+import logging
 
 from app.db.session import get_db
 from app.dependencies.permissions import require_roles
-from app.middleware.exception_handler import response_handler
+from app.core.exceptions.custom_exceptions import AppException
+from app.core.responses.response_builder import success_response
+from app.enums.response_codes import ResponseCode
 
 from app.models.term import Term
 from app.models.course import Course
@@ -17,6 +19,8 @@ from app.models.course_question import CourseQuestion
 from app.schemas.course_question import QuestionCreate, QuestionUpdate, ToggleQuestionApproveStatus, QuestionOut, ToggleQuestionDeleteStatus
 from app.enums.course import QuestionSort
 from app.enums.user import UserRoleEnum
+
+logger = logging.getLogger(__name__)
 
 
 router = APIRouter(prefix="/course-questions", tags=["Course Questions"])
@@ -36,20 +40,20 @@ def create_question(
         is_staff = x_active_role in {UserRoleEnum.admin.value, UserRoleEnum.teacher.value}
 
         if x_active_role not in user_roles:
-            raise HTTPException(status_code=403, detail=f"You do not have the active role '{x_active_role}' or it is not assigned/enabled for you.")
+            raise AppException(code=ResponseCode.ACCESS_DENIED, message=f"You do not have the active role '{x_active_role}' or it is not assigned/enabled for you.")
 
         course = db.query(Course).filter(Course.id == course_id, Course.deleted_at.is_(None)).first()
         if not course:
-            raise HTTPException(status_code=404, detail="Course not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Course not found")
 
         if data.term_id:
             term = db.query(Term).filter(Term.id == data.term_id, Term.deleted_at.is_(None)).first()
             if not term:
-                raise HTTPException(status_code=404, detail="Term not found or inactive")
+                raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Term not found or inactive")
 
         if data.parent_id:
             if not is_staff:
-                raise HTTPException(status_code=403, detail="Only staff can reply to questions.")
+                raise AppException(code=ResponseCode.ACCESS_DENIED, message="Only staff can reply to questions.")
 
             parent_question = db.query(CourseQuestion).filter(
                 CourseQuestion.id == data.parent_id,
@@ -61,18 +65,18 @@ def create_question(
             ).first()
 
             if not parent_question:
-                raise HTTPException(status_code=404, detail="Parent question not found in this course.")
+                raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Parent question not found in this course.")
             if parent_question.parent_id is not None:
-                raise HTTPException(status_code=400, detail="Cannot reply to a reply.")
+                raise AppException(code=ResponseCode.BAD_REQUEST, message="Cannot reply to a reply.")
             
             if parent_question.sender_role != UserRoleEnum.student:
-                raise HTTPException(status_code=400, detail="Only student questions can receive replies.")
+                raise AppException(code=ResponseCode.BAD_REQUEST, message="Only student questions can receive replies.")
           
             if parent_question.replies:
-                raise HTTPException(status_code=409, detail="This question already has a reply.")
+                raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message="This question already has a reply.")
                 
             if parent_question.sender_id == user_id:
-                raise HTTPException(status_code=400, detail="You cannot reply to your own question.")
+                raise AppException(code=ResponseCode.BAD_REQUEST, message="You cannot reply to your own question.")
 
         new_question = CourseQuestion(
             course_id=course_id,
@@ -88,24 +92,24 @@ def create_question(
         db.commit()
         db.refresh(new_question)
 
-        return response_handler(
-            status=True, 
+        return success_response(
+            code=ResponseCode.CREATED,
             message="Question created successfully",
-            data=QuestionOut.model_validate(new_question).model_dump(), 
-            status_code=201
+            data=QuestionOut.model_validate(new_question).model_dump(),
         )
-    except HTTPException as http_error:
-        db.rollback(); 
-        raise http_error
-    except ValueError:
+    except AppException:
         db.rollback()
-        raise HTTPException(status_code=422, detail="Invalid active role")
-    except IntegrityError:
-        db.rollback(); 
-        raise HTTPException(status_code=409, detail="Data conflict occurred")
-    except Exception:
-        db.rollback(); 
-        raise HTTPException(status_code=500, detail="Failed to create question")
+        raise
+    except ValueError as e:
+        db.rollback()
+        raise AppException(code=ResponseCode.VALIDATION_ERROR, message="Invalid active role") from e
+    except IntegrityError as e:
+        db.rollback()
+        raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message="Data conflict occurred") from e
+    except Exception as e:
+        db.rollback()
+        logger.exception("Failed to create question")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to create question") from e
 
 
 @router.get("/{course_id}")
@@ -125,12 +129,12 @@ def get_questions(
 
         db_course = db.query(Course).filter(Course.id == course_id, Course.deleted_at.is_(None)).first()
         if not db_course:
-            raise HTTPException(status_code=404, detail="Course not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Course not found")
 
         if term_id:
             db_term = db.query(Term).filter(Term.id == term_id, Term.deleted_at.is_(None)).first()
             if not db_term:
-                raise HTTPException(status_code=404, detail="Term not found")
+                raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Term not found")
 
         query = db.query(CourseQuestion).filter(
             CourseQuestion.course_id == course_id,
@@ -184,8 +188,8 @@ def get_questions(
 
             question_data.append(QuestionOut.model_validate(question).model_dump())
 
-        return response_handler(
-            status=True, 
+        return success_response(
+            code=ResponseCode.RETRIEVED,
             message="Questions retrieved successfully",
             data={
                 "questions": question_data,
@@ -193,13 +197,13 @@ def get_questions(
                 "limit": limit, 
                 "total": total_count,
                 "pages": math.ceil(total_count / limit)
-            }, 
-            status_code=200
+            },
         )
-    except HTTPException as http_error:
-        raise http_error
-    except Exception:
-        raise HTTPException(status_code=500, detail="Failed to fetch questions")
+    except AppException:
+        raise
+    except Exception as e:
+        logger.exception("Failed to fetch questions")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to fetch questions") from e
 
 
 @router.patch("/{question_id}")
@@ -216,23 +220,23 @@ def update_question(
         is_staff = x_active_role in {UserRoleEnum.admin.value, UserRoleEnum.teacher.value}
 
         if x_active_role not in user_roles:
-            raise HTTPException(status_code=403, detail=f"You do not have the active role '{x_active_role}' or it is not assigned/enabled for you.")
+            raise AppException(code=ResponseCode.ACCESS_DENIED, message=f"You do not have the active role '{x_active_role}' or it is not assigned/enabled for you.")
 
         db_question = db.query(CourseQuestion).filter(CourseQuestion.id == question_id, CourseQuestion.deleted_at.is_(None)).options(
             selectinload(CourseQuestion.replies)
         ).first()
         if not db_question:
-            raise HTTPException(status_code=404, detail="Question not found.")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Question not found.")
 
         if db_question.sender_id != user_id and not is_staff:
-            raise HTTPException(status_code=403, detail="You can only edit your own questions.")
+            raise AppException(code=ResponseCode.ACCESS_DENIED, message="You can only edit your own questions.")
 
         if db_question.replies and len(db_question.replies) > 0:
-            raise HTTPException(status_code=400, detail="Cannot edit question that has received replies.")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="Cannot edit question that has received replies.")
 
         update_data = data.model_dump(exclude_unset=True)
         if not update_data:
-            raise HTTPException(status_code=400, detail="No fields to update")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="No fields to update")
 
         for key, value in update_data.items():
             setattr(db_question, key, value)
@@ -243,21 +247,21 @@ def update_question(
         db.commit()
         db.refresh(db_question)
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.UPDATED,
             message="Question updated successfully",
             data=QuestionOut.model_validate(db_question).model_dump(),
-            status_code=200
         )
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
-        raise http_error
-    except ValueError:
+        raise
+    except ValueError as e:
         db.rollback()
-        raise HTTPException(status_code=422, detail="Invalid active role")
-    except Exception:
+        raise AppException(code=ResponseCode.VALIDATION_ERROR, message="Invalid active role") from e
+    except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Failed to update question")
+        logger.exception("Failed to update question")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to update question") from e
 
 
 @router.patch("/approve/{question_id}")
@@ -272,28 +276,28 @@ def toggle_approval_question(
 
         db_question = db.query(CourseQuestion).filter(CourseQuestion.id == question_id, CourseQuestion.deleted_at.is_(None)).first()
         if not db_question:
-            raise HTTPException(status_code=404, detail="Question not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Question not found")
 
         if db_question.is_approved == data.is_approved:
-            raise HTTPException(status_code=409, detail=f"Question is already {"approved" if data.is_approved else "unapproved"}")
+            raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message=f"Question is already {'approved' if data.is_approved else 'unapproved'}")
 
         db_question.is_approved = data.is_approved
 
         db.commit()
         db.refresh(db_question)
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.UPDATED,
             message="Question approval status updated successfully",
             data=QuestionOut.model_validate(db_question).model_dump(),
-            status_code=200
         )
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
-        raise http_error
-    except Exception:
+        raise
+    except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Failed to update approval status")
+        logger.exception("Failed to update approval status")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to update approval status") from e
 
 
 @router.patch("/delete-status/{question_id}")
@@ -308,28 +312,28 @@ def toggle_delete_status_question(
 
         db_question = db.query(CourseQuestion).filter(CourseQuestion.id == question_id).first()
         if not db_question:
-            raise HTTPException(status_code=404, detail="Question not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Question not found")
 
         if (db_question.deleted_at is not None) == data.is_deleted:
-            raise HTTPException(status_code=409, detail=f"Question is already {"deleted" if data.is_deleted else "restored"}")
+            raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message=f"Question is already {'deleted' if data.is_deleted else 'restored'}")
 
         db_question.deleted_at = datetime.now(timezone.utc) if data.is_deleted else None
 
         db.commit()
         db.refresh(db_question)
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.UPDATED,
             message="Question delete status updated successfully",
             data=QuestionOut.model_validate(db_question).model_dump(),
-            status_code=200
         )
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
-        raise http_error
-    except Exception:
+        raise
+    except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Failed to update delete status")
+        logger.exception("Failed to update delete status")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to update delete status") from e
 
 
 @router.delete("/{question_id}")
@@ -343,23 +347,23 @@ def delete_question(
             selectinload(CourseQuestion.replies)
         ).first()
         if not db_question:
-            raise HTTPException(status_code=404, detail="Question not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Question not found")
 
         replies_count = len(db_question.replies)
 
         db.delete(db_question)
         db.commit()
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.DELETED,
             message="Question deleted successfully",
             data={"deleted_replies_count": replies_count},
-            status_code=200
         )
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
-        raise http_error
-    except Exception:
+        raise
+    except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Failed to delete question")
+        logger.exception("Failed to delete question")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to delete question") from e
 

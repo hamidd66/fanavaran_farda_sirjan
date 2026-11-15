@@ -1,16 +1,21 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
+import logging
 
 from app.db.session import get_db
 from app.dependencies.permissions import require_roles
-from app.middleware.exception_handler import response_handler
+from app.core.exceptions.custom_exceptions import AppException
+from app.core.responses.response_builder import success_response
+from app.enums.response_codes import ResponseCode
 from app.repositories.user_repo import get_user_data
 
 from app.models.user import User
 from app.models.specialty import Specialty
 from app.models.user_specialty import UserSpecialty
 from app.schemas.user_specialty import UserSpecialtyUpdate
+
+logger = logging.getLogger(__name__)
 
 
 router = APIRouter(prefix="/user-specialties", tags=["User Specialties"])
@@ -28,15 +33,15 @@ def batch_update_user_specialties(
 
         db_user = get_user_data(db, User.id == user_id, User.deleted_at.is_(None))
         if not db_user:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise AppException(code=ResponseCode.USER_NOT_FOUND, message="User not found")
 
         if not db_user.person:
-            raise HTTPException(status_code=404, detail="Person profile not found for this user")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Person profile not found for this user")
 
         person_id = db_user.person.id
 
         if not data.specialties:
-            raise HTTPException(status_code=400, detail="Specialties list cannot be empty")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="Specialties list cannot be empty")
 
         assign_specialty_ids = {item.specialty_id for item in data.specialties if item.action == "assign"}
         remove_specialty_ids = {item.specialty_id for item in data.specialties if item.action == "remove"}
@@ -51,7 +56,7 @@ def batch_update_user_specialties(
         valid_specialty_ids = {s.id for s in existing_specialties}
         for s_id in all_incoming_specialty_ids:
             if s_id not in valid_specialty_ids:
-                raise HTTPException(status_code=400, detail=f"Specialty with ID '{s_id}' not found or inactive")
+                raise AppException(code=ResponseCode.BAD_REQUEST, message=f"Specialty with ID '{s_id}' not found or inactive")
 
         current_user_specialties = db.query(UserSpecialty).filter(
             UserSpecialty.person_id == person_id,
@@ -91,16 +96,16 @@ def batch_update_user_specialties(
 
         db.commit()
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.UPDATED,
             message="User specialties updated successfully in batch",
             data={"user_id": user_id, "processed_count": len(data.specialties)},
-            status_code=200
         )
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
-        raise http_error
-    except Exception:
+        raise
+    except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Failed to batch update user specialties")
+        logger.exception("Failed to batch update user specialties")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to batch update user specialties") from e
 

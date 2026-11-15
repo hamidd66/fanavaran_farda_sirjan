@@ -1,22 +1,27 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File, Form
+from fastapi import APIRouter, Depends, Query, UploadFile, File, Form
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from pydantic import ValidationError
 from sqlalchemy import or_
 from typing import Optional
 import math
+import logging
 
 from app.db.session import get_db
 from app.dependencies.permissions import require_roles
-from app.middleware.exception_handler import response_handler
+from app.core.exceptions.custom_exceptions import AppException
+from app.core.responses.response_builder import success_response
 from app.repositories.file_repo import add_files, remove_files, confirm_pending_uploads, cleanup_pending_uploads
 from app.utils.delete_file import delete_files
+from app.enums.response_codes import ResponseCode
 
 from app.models.role import Role
 from app.enums.file import FilePurpose, EntityType
 from app.schemas.role import BatchRolesStatusSchema, UpdateRoleSchema, RoleOut
 from app.schemas.file_attachment import FileAttachmentCreate
+
+logger = logging.getLogger(__name__)
 
 
 router = APIRouter(prefix="/roles", tags=["Roles"])
@@ -30,7 +35,7 @@ def batch_update_roles_status(
 ):
     try:
         if not data.items:
-            raise HTTPException(status_code=400, detail="Items list cannot be empty")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="Items list cannot be empty")
 
         role_ids = [item.role_id for item in data.items]
 
@@ -39,7 +44,7 @@ def batch_update_roles_status(
 
         for r_id in role_ids:
             if r_id not in roles_map:
-                raise HTTPException(status_code=404, detail=f"Role with ID '{r_id}' not found")
+                raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message=f"Role with ID '{r_id}' not found")
 
         updated_count = 0
         status_dict = {item.role_id: item.is_active for item in data.items}
@@ -53,19 +58,19 @@ def batch_update_roles_status(
         if updated_count > 0:
             db.commit()
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.UPDATED,
             message="Roles status successfully updated in batch",
             data={"updated_count": updated_count},
-            status_code=200
         )
 
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
-        raise http_error
-    except Exception:
+        raise
+    except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Failed to batch update roles status")
+        logger.exception("Failed to batch update roles status")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to batch update roles status") from e
 
 
 @router.patch("/{role_id}")
@@ -81,12 +86,12 @@ async def update_role_info(
 
         db_role = db.query(Role).filter(Role.id == role_id).first()
         if not db_role:
-            raise HTTPException(status_code=404, detail="Role not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Role not found")
 
         update_data = UpdateRoleSchema.model_validate_json(data).model_dump(exclude_unset=True)
 
         if not update_data and not image:
-            raise HTTPException(status_code=400, detail="No fields to update")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="No fields to update")
 
 
         for field, value in update_data.items():
@@ -127,29 +132,29 @@ async def update_role_info(
         if image and deleted_paths:
             delete_files(deleted_paths)
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.UPDATED,
             message="Role successfully updated",
             data=RoleOut.model_validate(db_role).model_dump(),
-            status_code=200
         )
 
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise http_error
+        raise
     except ValidationError as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=422, detail=e.errors())
-    except IntegrityError:
+        raise AppException(code=ResponseCode.VALIDATION_ERROR, data=e.errors()) from e
+    except IntegrityError as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=409, detail="Role data conflicts with existing records")
-    except Exception:
+        raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message="Role data conflicts with existing records") from e
+    except Exception as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=500, detail="Failed to update role")
+        logger.exception("Failed to update role")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to update role") from e
 
 
 @router.get("/")
@@ -184,8 +189,8 @@ def get_roles(
         
         roles_list = [RoleOut.model_validate(r).model_dump() for r in roles]
         
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.RETRIEVED,
             message="Roles retrieved successfully",
             data={
                 "roles": roles_list,
@@ -194,10 +199,10 @@ def get_roles(
                 "total": total_count,
                 "pages": math.ceil(total_count / limit)
             },
-            status_code=200
         )
-    except HTTPException as http_error:
-        raise http_error
-    except Exception:
-        raise HTTPException(status_code=500, detail="Failed to fetch roles")
+    except AppException:
+        raise
+    except Exception as e:
+        logger.exception("Failed to fetch roles")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to fetch roles") from e
 

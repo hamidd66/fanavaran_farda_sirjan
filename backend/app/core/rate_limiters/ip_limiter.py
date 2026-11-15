@@ -1,16 +1,18 @@
 from collections import defaultdict, deque
 from time import monotonic
-from fastapi import HTTPException, Request
+from fastapi import Request
 # import asyncio
 from threading import Lock
 
 from app.config.settings import settings
+from app.core.exceptions.custom_exceptions import AppException
+from app.enums.response_codes import ResponseCode
 
 
 class IpLimiter:
     def __init__(
         self,
-        max_attempts = settings.MAX_IP_ATTEMPTS,           # (تعداد دفعات درخواست)
+        max_attempts = settings.MAX_IP_ATTEMPTS,                # (تعداد دفعات درخواست)
         window_seconds = settings.IP_WINDOW_MINUTES * 60,       # (بازه زمانی بررسی درخواست ها)
         lockout_seconds = settings.IP_LOCKOUT_MINUTES * 60,     # (مدت زمان قفل شدن پس از رسیدن به حد مجاز)
     ):
@@ -36,11 +38,8 @@ class IpLimiter:
 
             if now < locked_until:
                 retry_after = int(locked_until - now) + 1
-                raise HTTPException(
-                    status_code=429,
-                    detail="Account temporarily locked due to too many attempts.",
-                    headers={"Retry-After": str(retry_after)},
-                )
+                # raise HTTPException(status_code=429, detail="Account temporarily locked due to too many attempts.", headers={"Retry-After": str(retry_after)})
+                raise AppException(code=ResponseCode.RATE_LIMIT_EXCEEDED, message="Account temporarily locked due to too many attempts.")
 
             while timestamps and now - timestamps[0] >= self.window_seconds:
                 timestamps.popleft()
@@ -48,12 +47,8 @@ class IpLimiter:
             if len(timestamps) >= self.max_attempts:
                 data["locked_until"] = now + self.lockout_seconds
                 timestamps.clear()
-                
-                raise HTTPException(
-                    status_code=429,
-                    detail="Too many login attempts. You are locked out.",
-                    headers={"Retry-After": str(self.lockout_seconds)},
-                )
+                # raise HTTPException(status_code=429, detail="Too many login attempts. You are locked out.", headers={"Retry-After": str(self.lockout_seconds)})
+                raise AppException(code=ResponseCode.RATE_LIMIT_EXCEEDED, message="Too many login attempts. You are locked out.")
 
             timestamps.append(now)
 

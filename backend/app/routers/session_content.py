@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File, Form
+from fastapi import APIRouter, Depends, Query, UploadFile, File, Form
 from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import func, or_, update, case
@@ -7,20 +7,26 @@ from pydantic import ValidationError
 from typing import Optional, List
 from uuid import UUID
 import math
+import logging
 
 from app.db.session import get_db
-from app.middleware.exception_handler import response_handler
+from app.core.exceptions.custom_exceptions import AppException
+from app.core.responses.response_builder import success_response
+from app.enums.response_codes import ResponseCode
 from app.dependencies.permissions import require_roles
 from app.repositories.file_repo import add_files, remove_files, reorder_files, confirm_pending_uploads, cleanup_pending_uploads
 from app.utils.delete_file import delete_files
 from app.utils.ordering import reorder_items
 
+from app.models.term import Term
 from app.models.term_session import TermSession
 from app.models.session_content import SessionContent
 from app.enums.file import EntityType, FilePurpose
 from app.enums.term import SessionContentSort, ContentType
 from app.schemas.file_attachment import FileAttachmentCreate
 from app.schemas.session_content import SessionContentCreate, SessionContentOut, SessionContentUpdate, ToggleSessionContentActiveStatus, ToggleSessionContentDeleteStatus, SessionContentOrderItemUpdate
+
+logger = logging.getLogger(__name__)
 
 
 router = APIRouter(prefix="/sessions-contents", tags=["Session Contents"])
@@ -43,7 +49,7 @@ async def create_session_content(
             TermSession.deleted_at.is_(None)
         ).first()
         if not db_session:
-            raise HTTPException(status_code=404, detail="Session not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Session not found")
             
         display_order = (
             db.query(func.max(SessionContent.display_order))
@@ -85,28 +91,28 @@ async def create_session_content(
         db.refresh(new_content)
         confirm_pending_uploads(db)
         
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.CREATED,
             message="Session content successfully created",
             data=SessionContentOut.model_validate(new_content).model_dump(),
-            status_code=201
         )
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise http_error
+        raise
     except ValidationError as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=422, detail=e.errors())
-    except IntegrityError:
+        raise AppException(code=ResponseCode.VALIDATION_ERROR, data=e.errors()) from e
+    except IntegrityError as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=409, detail="Data conflicts with existing records")
-    except Exception:
+        raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message="Data conflicts with existing records") from e
+    except Exception as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=500, detail="Failed to create session content")
+        logger.exception("Failed to create session content")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to create session content") from e
 
 
 @router.get("/{session_id}")
@@ -128,9 +134,9 @@ def get_session_contents(
         
         db_session = db.query(TermSession).filter(TermSession.id == session_id).first()
         if not db_session:
-            raise HTTPException(status_code=404, detail="Session not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Session not found")
         if not viewer_is_admin and db_session.deleted_at is not None:
-            raise HTTPException(status_code=404, detail="Session not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Session not found")
         
         query = db.query(SessionContent).filter(SessionContent.term_session_id == session_id).options(
             selectinload(SessionContent.user),
@@ -180,8 +186,8 @@ def get_session_contents(
         
         contents_data = [SessionContentOut.model_validate(c).model_dump() for c in contents]
         
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.RETRIEVED,
             message="Session contents retrieved successfully",
             data={
                 "contents": contents_data,
@@ -190,12 +196,12 @@ def get_session_contents(
                 "total": total_count,
                 "pages": math.ceil(total_count / limit)
             },
-            status_code=200
         )
-    except HTTPException as http_error:
-        raise http_error
-    except Exception:
-        raise HTTPException(status_code=500, detail="Failed to fetch session contents")
+    except AppException:
+        raise
+    except Exception as e:
+        logger.exception("Failed to fetch session contents")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to fetch session contents") from e
 
 
 @router.get("/session/{session_id}/content/{content_id}")
@@ -210,9 +216,9 @@ def get_session_content_by_id(
         
         db_session = db.query(TermSession).filter(TermSession.id == session_id).first()
         if not db_session:
-            raise HTTPException(status_code=404, detail="Session not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Session not found")
         if not viewer_is_admin and db_session.deleted_at is not None:
-            raise HTTPException(status_code=404, detail="Session not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Session not found")
             
         db_content = (
             db.query(SessionContent)
@@ -228,29 +234,29 @@ def get_session_content_by_id(
         )
         
         if not db_content:
-            raise HTTPException(status_code=404, detail="Content not found in this session")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Content not found in this session")
             
         if not viewer_is_admin and db_content.deleted_at is not None:
-            raise HTTPException(status_code=404, detail="Content not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Content not found")
             
         if not viewer_is_admin and not db_content.is_active:
-            raise HTTPException(status_code=404, detail="Content not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Content not found")
 
         if not auth and not db_session.is_free_preview:
-            raise HTTPException(status_code=403, detail="Only authenticated users can view this content")
+            raise AppException(code=ResponseCode.ACCESS_DENIED, message="Only authenticated users can view this content")
             
         content_data = SessionContentOut.model_validate(db_content).model_dump()
         
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.RETRIEVED,
             message="Session content retrieved successfully",
             data=content_data,
-            status_code=200
         )
-    except HTTPException as http_error:
-        raise http_error
-    except Exception:
-        raise HTTPException(status_code=500, detail="Failed to fetch session content details")
+    except AppException:
+        raise
+    except Exception as e:
+        logger.exception("Failed to fetch session content details")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to fetch session content details") from e
 
 
 @router.patch("/{content_id}")
@@ -278,10 +284,10 @@ async def update_session_content(
             .first()
         )
         if not db_content:
-            raise HTTPException(status_code=404, detail="Content not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Content not found")
 
         if not update_data and not files and not deleted_file_ids:
-            raise HTTPException(status_code=400, detail="No fields to update")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="No fields to update")
 
         for key, value in update_data.items():
             setattr(db_content, key, value)
@@ -297,7 +303,7 @@ async def update_session_content(
                 if attachment.id in deleted_ids_set and attachment.purpose == "file"
             ]
             if len(attachments) != len(deleted_ids_set):
-                raise HTTPException(status_code=400, detail="Invalid file IDs")
+                raise AppException(code=ResponseCode.BAD_REQUEST, message="Invalid file IDs")
             
             deleted_attachment_ids = [attachment.id for attachment in attachments]
             if deleted_attachment_ids:
@@ -331,28 +337,28 @@ async def update_session_content(
         if deleted_file_ids and deleted_paths:
             delete_files(deleted_paths)
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.UPDATED,
             message="Session content updated successfully",
             data=SessionContentOut.model_validate(db_content).model_dump(),
-            status_code=200
         )
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise http_error
+        raise
     except ValidationError as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=422, detail=e.errors(include_context=False))
-    except IntegrityError:
+        raise AppException(code=ResponseCode.VALIDATION_ERROR, data=e.errors(include_context=False)) from e
+    except IntegrityError as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=409, detail="Input data conflicts with existing records")
-    except Exception:
+        raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message="Input data conflicts with existing records") from e
+    except Exception as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=500, detail="Failed to update session content")
+        logger.exception("Failed to update session content")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to update session content") from e
 
 
 @router.patch("/{session_id}/reorder")
@@ -365,14 +371,14 @@ def reorder_session_contents(
     try:
         items = data.items
         if not items:
-            raise HTTPException(status_code=400, detail="Items list is empty")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="Items list is empty")
             
         new_orders = {item.id: item.display_order for item in items}
         if len(new_orders) != len(items):
-            raise HTTPException(status_code=400, detail="Duplicate content IDs in request")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="Duplicate content IDs in request")
             
         if sorted(new_orders.values()) != list(range(1, len(items) + 1)):
-            raise HTTPException(status_code=400, detail="Display orders must be unique and consecutive starting from 1")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="Display orders must be unique and consecutive starting from 1")
             
         session = (
             db.query(TermSession.id)
@@ -381,7 +387,7 @@ def reorder_session_contents(
             .first()
         )
         if not session:
-            raise HTTPException(status_code=404, detail="Session not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Session not found")
             
         current = dict(
             db.query(SessionContent.id, SessionContent.display_order)
@@ -393,10 +399,13 @@ def reorder_session_contents(
         
         unknown_ids = new_orders.keys() - current.keys()
         if unknown_ids:
-            raise HTTPException(status_code=404, detail=f"Contents not found or do not belong to this session: {sorted(map(str, unknown_ids))}")
+            raise AppException(
+                code=ResponseCode.RESOURCE_NOT_FOUND,
+                message=f"Contents not found or do not belong to this session: {sorted(map(str, unknown_ids))}",
+            )
             
         if len(current) != len(new_orders):
-            raise HTTPException(status_code=400, detail="All active contents must be included")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="All active contents must be included")
             
         changes = {cid: order for cid, order in new_orders.items() if current[cid] != order}
         if changes:
@@ -424,21 +433,21 @@ def reorder_session_contents(
         result = [SessionContentOut.model_validate(c).model_dump() for c in contents]
         db.commit()
         
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.UPDATED,
             message="Session contents reordered successfully",
             data=result,
-            status_code=200,
         )
-    except HTTPException:
+    except AppException:
         db.rollback()
         raise
-    except IntegrityError:
+    except IntegrityError as e:
         db.rollback()
-        raise HTTPException(status_code=409, detail="Conflict while reordering session contents")
-    except Exception:
+        raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message="Conflict while reordering session contents") from e
+    except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Failed to reorder session contents")
+        logger.exception("Failed to reorder session contents")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to reorder session contents") from e
 
 
 @router.patch("/{content_id}/toggle-active")
@@ -454,27 +463,27 @@ def toggle_session_content_active_status(
             SessionContent.deleted_at.is_(None)
         ).first()
         if not db_content:
-            raise HTTPException(status_code=404, detail="Content not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Content not found")
 
         if db_content.is_active == data.is_active:
-            raise HTTPException(status_code=409, detail=f"Content status is already set to {data.is_active}")
+            raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message=f"Content status is already set to {data.is_active}")
 
         db_content.is_active = data.is_active
 
         db.commit()
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.UPDATED,
             message=f"Content active status successfully set to {data.is_active}",
             data={"content_id": db_content.id, "is_active": data.is_active},
-            status_code=200
         )
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
-        raise http_error
-    except Exception:
+        raise
+    except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Failed to toggle content status")
+        logger.exception("Failed to toggle content status")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to toggle content status") from e
 
 
 @router.patch("/{content_id}/soft-delete")
@@ -487,10 +496,10 @@ def toggle_soft_delete_session_content(
     try:
         db_content = db.query(SessionContent).filter(SessionContent.id == content_id).first()
         if not db_content:
-            raise HTTPException(status_code=404, detail="Content not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Content not found")
 
         if (db_content.deleted_at is not None) == data.is_deleted:
-            raise HTTPException(status_code=409, detail=f"Content delete status is already set to {data.is_deleted}")
+            raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message=f"Content delete status is already set to {data.is_deleted}")
 
         db_content.deleted_at = datetime.now(timezone.utc) if data.is_deleted else None
         db.flush()
@@ -506,18 +515,18 @@ def toggle_soft_delete_session_content(
 
         db.commit()
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.UPDATED,
             message=f"Content {'soft-deleted' if data.is_deleted else 'restored'} successfully",
             data={"content_id": db_content.id, "is_deleted": data.is_deleted},
-            status_code=200
         )
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
-        raise http_error
-    except Exception:
+        raise
+    except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Failed to update content deletion status")
+        logger.exception("Failed to update content deletion status")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to update content deletion status") from e
 
 
 @router.delete("/{content_id}/hard-delete")
@@ -534,7 +543,7 @@ def hard_delete_session_content(
             .first()
         )
         if not db_content:
-            raise HTTPException(status_code=404, detail="Content not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Content not found")
 
         session_id = db_content.term_session_id
 
@@ -564,15 +573,15 @@ def hard_delete_session_content(
         if deleted_paths:
             delete_files(deleted_paths)
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.DELETED,
             message="Session content hard-deleted successfully",
             data={"content_id": content_id},
-            status_code=200
         )
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
-        raise http_error
-    except Exception:
+        raise
+    except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Failed to hard-delete session content")
+        logger.exception("Failed to hard-delete session content")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to hard-delete session content") from e

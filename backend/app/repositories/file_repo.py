@@ -1,24 +1,24 @@
-﻿import asyncio
-import hashlib
-import logging
-
-from pathlib import PurePosixPath
+﻿from pathlib import PurePosixPath
 from typing import List, Optional, Union
 from uuid import UUID
-
-from fastapi import UploadFile, HTTPException
+from fastapi import UploadFile
 from sqlalchemy import func, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
+import asyncio
+import hashlib
+import logging
 
-from app.enums.file import EntityType, FilePurpose, StorageProvider, StorageType, FileCategory
-from app.models.file import File
-from app.models.file_attachment import FileAttachment
+from app.core.exceptions.custom_exceptions import AppException
 from app.utils.delete_file import delete_files
 from app.utils.file_upload import upload_files
-
+from app.models.file import File
+from app.models.file_attachment import FileAttachment
+from app.enums.response_codes import ResponseCode
+from app.enums.file import EntityType, FilePurpose, StorageProvider, StorageType, FileCategory
 
 logger = logging.getLogger(__name__)
+
 
 MAX_ATTACHMENTS = 50
 MAX_REMOVE = 200
@@ -53,17 +53,14 @@ def _to_dict(item) -> dict:
     if hasattr(item, "dict"):
         return item.dict()
 
-    raise HTTPException(status_code=400, detail="Invalid attachment")
+    raise AppException(code=ResponseCode.BAD_REQUEST, message="Invalid attachment")
 
 def _parse_enum(enum_cls, value, name: str):
     try:
         return enum_cls(value)
     except (ValueError, TypeError):
         allowed = ", ".join(item.value for item in enum_cls)
-        raise HTTPException(
-            status_code=400,
-            detail=f"Invalid {name}. Allowed values: {allowed}",
-        )
+        raise AppException(code=ResponseCode.BAD_REQUEST, message=f"Invalid {name}. Allowed values: {allowed}")
 
 def _parse_attachments(attachments, files_count: int) -> List[dict]:
 
@@ -71,13 +68,10 @@ def _parse_attachments(attachments, files_count: int) -> List[dict]:
         attachments = attachments.get("items")
 
     if not isinstance(attachments, (list, tuple)) or not attachments:
-        raise HTTPException(status_code=400, detail="At least one attachment is required")
+        raise AppException(code=ResponseCode.BAD_REQUEST, message="At least one attachment is required")
 
     if len(attachments) > MAX_ATTACHMENTS:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Maximum {MAX_ATTACHMENTS} attachments allowed",
-        )
+        raise AppException(code=ResponseCode.BAD_REQUEST, message=f"Maximum {MAX_ATTACHMENTS} attachments allowed")
 
     parsed = []
     used_indexes = set()
@@ -90,32 +84,32 @@ def _parse_attachments(attachments, files_count: int) -> List[dict]:
 
         file_index = item.get("file_index")
         if not _is_int(file_index) or not 0 <= file_index < files_count:
-            raise HTTPException(status_code=400, detail="Invalid file_index")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="Invalid file_index")
 
         purpose = _parse_enum(FilePurpose, item.get("purpose"), "purpose")
 
         display_order = item.get("display_order")
         if not _is_int(display_order) or not 0 <= display_order <= MAX_DISPLAY_ORDER:
-            raise HTTPException(status_code=400, detail="Invalid display_order")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="Invalid display_order")
 
         is_primary = item.get("is_primary", False)
         is_active = item.get("is_active", True)
 
         if not isinstance(is_primary, bool) or not isinstance(is_active, bool):
-            raise HTTPException(status_code=400, detail="is_primary and is_active must be boolean")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="is_primary and is_active must be boolean")
 
         if is_primary and not is_active:
-            raise HTTPException(status_code=400, detail="Primary attachment must be active")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="Primary attachment must be active")
 
         if (purpose, display_order) in used_orders:
-            raise HTTPException(status_code=400, detail="Duplicate display_order for the same purpose")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="Duplicate display_order for the same purpose")
 
         if (purpose, file_index) in used_file_purposes:
-            raise HTTPException(status_code=400, detail="Same file attached twice for the same purpose")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="Same file attached twice for the same purpose")
 
         if is_primary:
             if purpose in primary_purposes:
-                raise HTTPException(status_code=400, detail="Only one primary attachment per purpose is allowed")
+                raise AppException(code=ResponseCode.BAD_REQUEST, message="Only one primary attachment per purpose is allowed")
             primary_purposes.add(purpose)
 
         used_orders.add((purpose, display_order))
@@ -131,7 +125,7 @@ def _parse_attachments(attachments, files_count: int) -> List[dict]:
         })
 
     if used_indexes != set(range(files_count)):
-        raise HTTPException(status_code=400, detail="Every file must have at least one attachment")
+        raise AppException(code=ResponseCode.BAD_REQUEST, message="Every file must have at least one attachment")
 
     return parsed
 
@@ -209,10 +203,10 @@ def _check_conflicts(
 
     for item in parsed:
         if (item["purpose"], item["display_order"]) in used_orders:
-            raise HTTPException(status_code=409, detail="display_order is already in use")
+            raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message="display_order is already in use")
 
         if item["is_primary"] and item["purpose"] in used_primaries:
-            raise HTTPException(status_code=409, detail="A primary attachment already exists for this purpose")
+            raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message="A primary attachment already exists for this purpose")
 
     return alive_pairs
 
@@ -243,10 +237,10 @@ async def add_files(
 
     try:
         if not files:
-            raise HTTPException(status_code=400, detail="At least one file is required")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="At least one file is required")
 
         if not isinstance(is_public, bool):
-            raise HTTPException(status_code=400, detail="is_public must be boolean")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="is_public must be boolean")
 
         entity_type = _parse_enum(EntityType, entity_type, "entity_type")
         parsed = _parse_attachments(attachments, len(files))
@@ -345,11 +339,11 @@ async def add_files(
                 pair = (item["purpose"], id(db_file))
 
                 if pair in seen_pairs:
-                    raise HTTPException(status_code=400, detail="Duplicate file in request")
+                    raise AppException(code=ResponseCode.BAD_REQUEST, message="Duplicate file in request")
                 seen_pairs.add(pair)
 
                 if db_file.id is not None and (item["purpose"], db_file.id) in alive_pairs:
-                    raise HTTPException(status_code=409, detail="File is already attached for this purpose")
+                    raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message="File is already attached for this purpose")
 
             db_attachments: List[FileAttachment] = []
 
@@ -386,22 +380,17 @@ async def add_files(
 
         return db_files, db_attachments
 
-    except (HTTPException, asyncio.CancelledError):
+    except (AppException, asyncio.CancelledError):
         delete_files(saved_paths)
         raise
-
     except IntegrityError as exc:
         logger.warning("Integrity error while adding files", exc_info=True)
         delete_files(saved_paths)
-        raise HTTPException(
-            status_code=409,
-            detail="Files could not be saved because of a conflict. Please try again.",
-        ) from exc
-
+        raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message="Files could not be saved because of a conflict. Please try again.") from exc
     except Exception as exc:
         logger.exception("Failed to add files")
         delete_files(saved_paths)
-        raise HTTPException(status_code=500, detail="Failed to upload file") from exc
+        raise AppException(code=ResponseCode.FILE_UPLOAD_FAILED, message="Failed to upload file") from exc
 
 
 def remove_files(
@@ -424,7 +413,7 @@ def remove_files(
             return empty
 
         if len(ids) > MAX_REMOVE:
-            raise HTTPException(status_code=400, detail=f"Maximum {MAX_REMOVE} attachments allowed")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message=f"Maximum {MAX_REMOVE} attachments allowed")
 
         if entity_type is not None:
             entity_type = _parse_enum(EntityType, entity_type, "entity_type")
@@ -504,12 +493,11 @@ def remove_files(
             ],
         }
 
-    except HTTPException:
+    except AppException:
         raise
-
     except Exception as exc:
         logger.exception("Failed to remove files")
-        raise HTTPException(status_code=500, detail="Failed to delete files") from exc
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to delete files") from exc
 
 
 def reorder_files(
@@ -549,10 +537,9 @@ def reorder_files(
 
         return sum(1 for item in db_attachments if item.deleted_at is None)
 
-    except HTTPException:
+    except AppException:
         raise
-
     except Exception as exc:
         logger.exception("Failed to reorder files")
-        raise HTTPException(status_code=500, detail="Failed to reorder files") from exc
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to reorder files") from exc
 

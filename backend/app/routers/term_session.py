@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import func, or_, update, case
@@ -7,9 +7,12 @@ from pydantic import ValidationError
 from typing import Optional
 from uuid import UUID
 import math
+import logging
 
 from app.db.session import get_db
-from app.middleware.exception_handler import response_handler
+from app.core.exceptions.custom_exceptions import AppException
+from app.core.responses.response_builder import success_response
+from app.enums.response_codes import ResponseCode
 from app.dependencies.permissions import require_roles
 from app.utils.ordering import reorder_items
 
@@ -18,6 +21,8 @@ from app.models.term_session import TermSession
 from app.models.session_content import SessionContent
 from app.enums.term import SessionType, TermSessionSort
 from app.schemas.term_session import TermSessionCreate, TermSessionOut, TermSessionUpdate, ToggleTermSessionActiveStatus, ToggleTermSessionDeleteStatus, TermSessionOrderItemUpdate
+
+logger = logging.getLogger(__name__)
 
 
 router = APIRouter(prefix="/terms-sessions", tags=["Term Sessions"])
@@ -35,7 +40,7 @@ async def create_term_session(
         
         db_term = db.query(Term).filter(Term.id == term_id, Term.deleted_at.is_(None)).first()
         if not db_term:
-            raise HTTPException(status_code=404, detail="Term not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Term not found")
             
         session_number = (
             db.query(func.max(TermSession.session_number))
@@ -62,24 +67,24 @@ async def create_term_session(
         db.commit()
         db.refresh(new_session)
         
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.CREATED,
             message="Term session successfully created",
             data=TermSessionOut.model_validate(new_session).model_dump(),
-            status_code=201
         )
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
-        raise http_error
+        raise
     except ValidationError as e:
         db.rollback()
-        raise HTTPException(status_code=422, detail=e.errors())
-    except IntegrityError:
+        raise AppException(code=ResponseCode.VALIDATION_ERROR, data=e.errors()) from e
+    except IntegrityError as e:
         db.rollback()
-        raise HTTPException(status_code=409, detail="Data conflicts with existing records")
-    except Exception:
+        raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message="Data conflicts with existing records") from e
+    except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Failed to create term session")
+        logger.exception("Failed to create term session")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to create term session") from e
 
 
 @router.get("/{term_id}")
@@ -101,7 +106,7 @@ def get_term_sessions(
         
         db_term = db.query(Term).filter(Term.id == term_id, Term.deleted_at.is_(None)).first()
         if not db_term:
-            raise HTTPException(status_code=404, detail="Term not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Term not found")
             
         query = db.query(TermSession).filter(TermSession.term_id == term_id).options(
             selectinload(TermSession.user),
@@ -155,8 +160,8 @@ def get_term_sessions(
             session_dict["contents_count"] = len([c for c in session.session_contents if c.deleted_at is None]) if session.session_contents else 0
             sessions_data.append(session_dict)
         
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.RETRIEVED,
             message="Term sessions retrieved successfully",
             data={
                 "sessions": sessions_data,
@@ -165,12 +170,12 @@ def get_term_sessions(
                 "total": total_count,
                 "pages": math.ceil(total_count / limit)
             },
-            status_code=200
         )
-    except HTTPException as http_error:
-        raise http_error
-    except Exception:
-        raise HTTPException(status_code=500, detail="Failed to fetch term sessions")
+    except AppException:
+        raise
+    except Exception as e:
+        logger.exception("Failed to fetch term sessions")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to fetch term sessions") from e
 
 
 @router.get("/term/{term_id}/session/{session_id}")
@@ -185,9 +190,9 @@ def get_term_session_by_id(
         
         db_term = db.query(Term).filter(Term.id == term_id).first()
         if not db_term:
-            raise HTTPException(status_code=404, detail="Term not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Term not found")
         if not viewer_is_admin and db_term.deleted_at is not None:
-            raise HTTPException(status_code=404, detail="Term not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Term not found")
             
         db_session = (
             db.query(TermSession)
@@ -200,30 +205,30 @@ def get_term_session_by_id(
         )
         
         if not db_session:
-            raise HTTPException(status_code=404, detail="Session not found in this term")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Session not found in this term")
             
         if not viewer_is_admin and db_session.deleted_at is not None:
-            raise HTTPException(status_code=404, detail="Session not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Session not found")
             
         if not viewer_is_admin and not db_session.is_active:
-            raise HTTPException(status_code=404, detail="Session not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Session not found")
 
         if not auth and not db_session.is_free_preview:
-            raise HTTPException(status_code=403, detail="Only authenticated users can view this session")
+            raise AppException(code=ResponseCode.ACCESS_DENIED, message="Only authenticated users can view this session")
             
         session_data = TermSessionOut.model_validate(db_session).model_dump()
         session_data["contents_count"] = len([c for c in db_session.session_contents if c.deleted_at is None]) if db_session.session_contents else 0
         
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.RETRIEVED,
             message="Term session retrieved successfully",
             data=session_data,
-            status_code=200
         )
-    except HTTPException as http_error:
-        raise http_error
-    except Exception:
-        raise HTTPException(status_code=500, detail="Failed to fetch term session details")
+    except AppException:
+        raise
+    except Exception as e:
+        logger.exception("Failed to fetch term session details")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to fetch term session details") from e
 
 
 @router.patch("/{session_id}")
@@ -245,11 +250,11 @@ def update_term_session(
             .first()
         )
         if not db_session:
-            raise HTTPException(status_code=404, detail="Session not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Session not found")
         
         update_data = data.model_dump(exclude_unset=True)
         if not update_data:
-            raise HTTPException(status_code=400, detail="No fields to update")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="No fields to update")
             
         changed_fields = []
         for key, value in update_data.items():
@@ -259,24 +264,24 @@ def update_term_session(
         db.commit()
         db.refresh(db_session)
         
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.UPDATED,
             message="Term session updated successfully",
             data=TermSessionOut.model_validate(db_session).model_dump(),
-            status_code=200
         )
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
-        raise http_error
+        raise
     except ValidationError as e:
         db.rollback()
-        raise HTTPException(status_code=422, detail=e.errors(include_context=False))
-    except IntegrityError:
+        raise AppException(code=ResponseCode.VALIDATION_ERROR, data=e.errors(include_context=False)) from e
+    except IntegrityError as e:
         db.rollback()
-        raise HTTPException(status_code=409, detail="Input data conflicts with existing records")
-    except Exception:
+        raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message="Input data conflicts with existing records") from e
+    except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Failed to update term session")
+        logger.exception("Failed to update term session")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to update term session") from e
 
 
 @router.patch("/{term_id}/reorder")
@@ -289,14 +294,14 @@ def reorder_term_sessions(
     try:
         items = data.items
         if not items:
-            raise HTTPException(status_code=400, detail="Items list is empty")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="Items list is empty")
             
         new_numbers = {item.id: item.session_number for item in items}
         if len(new_numbers) != len(items):
-            raise HTTPException(status_code=400, detail="Duplicate session IDs in request")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="Duplicate session IDs in request")
             
         if sorted(new_numbers.values()) != list(range(1, len(items) + 1)):
-            raise HTTPException(status_code=400, detail="Session numbers must be unique and consecutive starting from 1")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="Session numbers must be unique and consecutive starting from 1")
             
         term = (
             db.query(Term.id)
@@ -305,7 +310,7 @@ def reorder_term_sessions(
             .first()
         )
         if not term:
-            raise HTTPException(status_code=404, detail="Term not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Term not found")
             
         current = dict(
             db.query(TermSession.id, TermSession.session_number)
@@ -317,10 +322,13 @@ def reorder_term_sessions(
         
         unknown_ids = new_numbers.keys() - current.keys()
         if unknown_ids:
-            raise HTTPException(status_code=404, detail=f"Sessions not found or do not belong to this term: {sorted(map(str, unknown_ids))}")
+            raise AppException(
+                code=ResponseCode.RESOURCE_NOT_FOUND,
+                message=f"Sessions not found or do not belong to this term: {sorted(map(str, unknown_ids))}",
+            )
             
         if len(current) != len(new_numbers):
-            raise HTTPException(status_code=400, detail="All active sessions must be included")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="All active sessions must be included")
             
         changes = {sid: num for sid, num in new_numbers.items() if current[sid] != num}
         if changes:
@@ -349,21 +357,21 @@ def reorder_term_sessions(
         result = [TermSessionOut.model_validate(s).model_dump() for s in sessions]
         db.commit()
         
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.UPDATED,
             message="Term sessions reordered successfully",
             data=result,
-            status_code=200,
         )
-    except HTTPException:
+    except AppException:
         db.rollback()
         raise
-    except IntegrityError:
+    except IntegrityError as e:
         db.rollback()
-        raise HTTPException(status_code=409, detail="Conflict while reordering term sessions")
-    except Exception:
+        raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message="Conflict while reordering term sessions") from e
+    except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Failed to reorder term sessions")
+        logger.exception("Failed to reorder term sessions")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to reorder term sessions") from e
 
 
 @router.patch("/{session_id}/toggle-active")
@@ -379,27 +387,27 @@ def toggle_term_session_active_status(
             TermSession.deleted_at.is_(None)
         ).first()
         if not db_session:
-            raise HTTPException(status_code=404, detail="Session not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Session not found")
             
         if db_session.is_active == data.is_active:
-            raise HTTPException(status_code=409, detail=f"Session status is already set to {data.is_active}")
+            raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message=f"Session status is already set to {data.is_active}")
             
         db_session.is_active = data.is_active
 
         db.commit()
         
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.UPDATED,
             message=f"Session active status successfully set to {data.is_active}",
             data={"session_id": db_session.id, "is_active": data.is_active},
-            status_code=200
         )
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
-        raise http_error
-    except Exception:
+        raise
+    except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Failed to toggle session status")
+        logger.exception("Failed to toggle session status")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to toggle session status") from e
 
 
 @router.patch("/{session_id}/soft-delete")
@@ -414,10 +422,10 @@ def toggle_soft_delete_term_session(
             TermSession.id == session_id, 
         ).first()
         if not db_session:
-            raise HTTPException(status_code=404, detail="Session not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Session not found")
             
         if (db_session.deleted_at is not None) == data.is_deleted:
-            raise HTTPException(status_code=409, detail=f"Session delete status is already set to {data.is_deleted}")
+            raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message=f"Session delete status is already set to {data.is_deleted}")
             
         db_session.deleted_at = datetime.now(timezone.utc) if data.is_deleted else None
         db.flush()
@@ -433,18 +441,18 @@ def toggle_soft_delete_term_session(
 
         db.commit()
         
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.UPDATED,
             message=f"Session {'soft-deleted' if data.is_deleted else 'restored'} successfully",
             data={"session_id": db_session.id, "is_deleted": data.is_deleted},
-            status_code=200
         )
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
-        raise http_error
-    except Exception:
+        raise
+    except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Failed to update session deletion status")
+        logger.exception("Failed to update session deletion status")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to update session deletion status") from e
 
 
 @router.delete("/{session_id}/hard-delete")
@@ -459,11 +467,11 @@ def hard_delete_term_session(
             TermSession.id == session_id, 
         ).first()
         if not db_session:
-            raise HTTPException(status_code=404, detail="Session not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Session not found")
             
         has_contents = db.query(SessionContent.id).filter(SessionContent.term_session_id == session_id).first()
         if has_contents:
-            raise HTTPException(status_code=400, detail="Cannot hard-delete session. Active contents are associated with this session.")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="Cannot hard-delete session. Active contents are associated with this session")
             
         term_id_value = db_session.term_id
         
@@ -481,16 +489,17 @@ def hard_delete_term_session(
 
         db.commit()
         
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.DELETED,
             message="Session hard-deleted successfully",
             data={"session_id": session_id},
             status_code=200
         )
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
-        raise http_error
-    except Exception:
+        raise
+    except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Failed to hard-delete session")
+        logger.exception("Failed to hard-delete session")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to hard-delete session") from e
 

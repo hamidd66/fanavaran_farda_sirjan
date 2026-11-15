@@ -1,10 +1,13 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
+import logging
 
 from app.db.session import get_db
 from app.dependencies.permissions import require_roles
-from app.middleware.exception_handler import response_handler
+from app.core.exceptions.custom_exceptions import AppException
+from app.core.responses.response_builder import success_response
+from app.enums.response_codes import ResponseCode
 from app.repositories.user_repo import get_user_data
 
 from app.models.user import User
@@ -12,6 +15,8 @@ from app.models.role import Role
 from app.models.user_role import UserRole
 from app.enums.user import UserRoleEnum
 from app.schemas.user_role import UserRolesActionUpdate, UserRolesAccessUpdate
+
+logger = logging.getLogger(__name__)
 
 
 router = APIRouter(prefix="/user-roles", tags=["User Roles"])
@@ -28,17 +33,17 @@ def batch_update_user_roles(
         admin_id = UUID(auth["payload"]["sub"])
 
         if admin_id == user_id:
-            raise HTTPException(status_code=400, detail="You cannot change your roles")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="You cannot change your roles")
 
         db_user = get_user_data(db, User.id == user_id, User.deleted_at.is_(None))
         if not db_user:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise AppException(code=ResponseCode.USER_NOT_FOUND, message="User not found")
 
         if not db_user.person:
-            raise HTTPException(status_code=404, detail="Person profile not found for this user")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Person profile not found for this user")
 
         if not data.roles:
-            raise HTTPException(status_code=400, detail="Roles list cannot be empty")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="Roles list cannot be empty")
 
         assign_role_ids = {item.role_id for item in data.roles if item.action == "assign"}
         remove_role_ids = {item.role_id for item in data.roles if item.action == "remove"}
@@ -52,16 +57,16 @@ def batch_update_user_roles(
 
         if name_roles & {UserRoleEnum.admin.value, UserRoleEnum.teacher.value}:
             if not db_user.person.staff_profile:
-                raise HTTPException(status_code=400, detail="The user must first be added to the staff_profile table.")
+                raise AppException(code=ResponseCode.BAD_REQUEST, message="The user must first be added to the staff_profile table.")
 
         if UserRoleEnum.student.value in name_roles:
             if not db_user.person.student_profile:
-                raise HTTPException(status_code=400, detail="The user must first be added to the student_profile table.")
+                raise AppException(code=ResponseCode.BAD_REQUEST, message="The user must first be added to the student_profile table.")
     
         valid_role_ids = {r.id for r in existing_roles}
         for r_id in all_incoming_role_ids:
             if r_id not in valid_role_ids:
-                raise HTTPException(status_code=400, detail=f"Role with ID '{r_id}' not found or inactive")
+                raise AppException(code=ResponseCode.BAD_REQUEST, message=f"Role with ID '{r_id}' not found or inactive")
 
         current_user_roles = db.query(UserRole).filter(
             UserRole.user_id == user_id,
@@ -105,19 +110,19 @@ def batch_update_user_roles(
 
         db.commit()
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.UPDATED,
             message="User roles updated successfully in batch",
             data={"user_id": user_id, "processed_count": len(data.roles)},
-            status_code=200
         )
 
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
-        raise http_error
-    except Exception:
+        raise
+    except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Failed to batch update user roles")
+        logger.exception("Failed to batch update user roles")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to batch update user roles") from e
 
 
 @router.patch("/{user_id}/batch-roles-access")
@@ -131,14 +136,14 @@ def batch_update_role_access(
         admin_id = UUID(auth["payload"]["sub"])
         
         if admin_id == user_id:
-            raise HTTPException(status_code=400, detail="You cannot change your roles access status")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="You cannot change your roles access status")
 
         db_user = get_user_data(db, User.id == user_id, User.deleted_at.is_(None))
         if not db_user:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise AppException(code=ResponseCode.USER_NOT_FOUND, message="User not found")
 
         if not data.access_items:
-            raise HTTPException(status_code=400, detail="Access items list cannot be empty")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="Access items list cannot be empty")
 
         role_ids = [item.role_id for item in data.access_items]
 
@@ -151,7 +156,7 @@ def batch_update_role_access(
 
         for r_id in role_ids:
             if r_id not in user_roles_map:
-                raise HTTPException(status_code=404, detail=f"Role with ID '{r_id}' is not assigned to this user")
+                raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message=f"Role with ID '{r_id}' is not assigned to this user")
 
         updated_count = 0
 
@@ -168,17 +173,17 @@ def batch_update_role_access(
 
             db.commit()
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.UPDATED,
             message="Role access statuses successfully updated in batch",
             data={"user_id": user_id, "updated_items_count": updated_count},
-            status_code=200
         )
 
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
-        raise http_error
-    except Exception:
+        raise
+    except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Failed to batch update role access status")
+        logger.exception("Failed to batch update role access status")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to batch update role access status") from e
 

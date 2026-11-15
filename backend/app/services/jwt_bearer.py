@@ -1,11 +1,13 @@
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from fastapi import Request, HTTPException, Depends
+from fastapi import Request, Depends
 from sqlalchemy.orm import Session
 from uuid import UUID
 
 from app.db.session import get_db
 from app.services.tokens import verify_token
 from app.models.user import User
+from app.core.exceptions.custom_exceptions import AppException
+from app.enums.response_codes import ResponseCode
 
 
 class JWTBearer(HTTPBearer):
@@ -26,7 +28,7 @@ class JWTBearer(HTTPBearer):
 
         if payload is None:
             if self.auto_error:
-                raise HTTPException(status_code=401, detail="Invalid or expired access token")
+                raise AppException(code=ResponseCode.INVALID_TOKEN, message="Invalid or expired access token")
             return None
 
         return payload
@@ -34,7 +36,7 @@ class JWTBearer(HTTPBearer):
 
 def get_payload(payload: dict = Depends(JWTBearer()), db: Session = Depends(get_db)) -> dict:
     if not _validate_user(payload, db):
-        raise HTTPException(status_code=401, detail="Invalid authentication")
+        raise AppException(code=ResponseCode.INVALID_CREDENTIALS, message="Invalid authentication")
 
     return payload
 

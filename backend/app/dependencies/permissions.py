@@ -1,10 +1,12 @@
-from fastapi import Depends, HTTPException
+from fastapi import Depends
 from sqlalchemy.orm import Session
 from uuid import UUID
 
 from app.db.session import get_db
 from app.services.jwt_bearer import get_payload, get_optional_payload
 from app.repositories.role_repo import get_active_roles
+from app.core.exceptions.custom_exceptions import AppException
+from app.enums.response_codes import ResponseCode
 
 
 def require_roles(*allowed_roles: str, auth_optional: bool = False):
@@ -29,7 +31,7 @@ def require_roles(*allowed_roles: str, auth_optional: bool = False):
             )
 
             if not has_permission and not auth_optional:
-                raise HTTPException(status_code=403, detail="Access denied")
+                raise AppException(code=ResponseCode.ACCESS_DENIED, message="Access denied")
 
         return {
             "payload": payload,

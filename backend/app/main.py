@@ -1,15 +1,17 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from fastapi.staticfiles import StaticFiles
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 # from .db.database import engine
 # from .db.base import Base
-from .middleware.exception_handler import http_exception_handler, general_exception_handler, validation_exception_handler
 from .middleware.cors import setup_cors
 from .config import logging_config
 from .utils.file_upload import cleanup_temp_files
+from .core.exceptions.custom_exceptions import AppException
+from .core.exceptions.exception_handlers import app_exception_handler, http_exception_handler, validation_exception_handler, unexpected_exception_handler
 
-from app.routers import (
+from .routers import (
     user,
     role,
     user_role,
@@ -41,14 +43,14 @@ app.include_router(term.router)
 app.include_router(term_session.router)
 app.include_router(session_content.router)
 
-
 @app.on_event("startup")
 async def startup_event(): 
     cleanup_temp_files()
 
-app.add_exception_handler(HTTPException, http_exception_handler)
-app.add_exception_handler(Exception, general_exception_handler)
+app.add_exception_handler(AppException, app_exception_handler)
+app.add_exception_handler(StarletteHTTPException, http_exception_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
+app.add_exception_handler(Exception, unexpected_exception_handler)
 
 app.mount("/media", StaticFiles(directory="media"), name="media")
 

@@ -1,16 +1,18 @@
 from uuid import UUID
-from datetime import datetime, timezone
-from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File, Form
+from fastapi import APIRouter, Depends, Query, UploadFile, File, Form
 from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.exc import IntegrityError
 from pydantic import ValidationError
 from sqlalchemy import or_, func, update, case
 from typing import Optional
 import math
+import logging
 
 from app.db.session import get_db
 from app.dependencies.permissions import require_roles
-from app.middleware.exception_handler import response_handler
+from app.core.exceptions.custom_exceptions import AppException
+from app.core.responses.response_builder import success_response
+from app.enums.response_codes import ResponseCode
 from app.repositories.file_repo import add_files, remove_files, confirm_pending_uploads, cleanup_pending_uploads
 from app.utils.delete_file import delete_files
 from app.utils.ordering import reorder_items
@@ -21,6 +23,8 @@ from app.enums.file import EntityType, FilePurpose
 from app.enums.course import CategorySort
 from app.schemas.file_attachment import FileAttachmentCreate
 from app.schemas.course_category import CourseCategoryCreate, CourseCategoryUpdate, CourseCategoryOut, CourseCategoryOrderItemUpdate, BatchCategoriesStatus
+
+logger = logging.getLogger(__name__)
 
 
 router = APIRouter(prefix="/course-categories", tags=["Course Categories"])
@@ -46,7 +50,7 @@ async def create_course_category(
             CourseCategory.deleted_at.is_(None)
         ).first()
         if existing_data:
-            raise HTTPException(status_code=409, detail="Course category already exists")
+            raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message="Course category already exists")
 
         display_order = (db.query(func.max(CourseCategory.display_order)).scalar() or 0) + 1
 
@@ -88,29 +92,29 @@ async def create_course_category(
         category_dict = CourseCategoryOut.model_validate(new_category).model_dump()
         category_dict["courses_count"] = 0
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.CREATED,
             message="Course category successfully created",
             data=category_dict,
-            status_code=201
         )
 
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise http_error
+        raise
     except ValidationError as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=422, detail=e.errors())
-    except IntegrityError:
+        raise AppException(code=ResponseCode.VALIDATION_ERROR, data=e.errors()) from e
+    except IntegrityError as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=409, detail="Course category data conflicts with existing records")
-    except Exception:
+        raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message="Course category data conflicts with existing records") from e
+    except Exception as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=500, detail="Failed to create course category")
+        logger.exception("Failed to create course category")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to create course category") from e
 
 
 @router.get("/")
@@ -175,8 +179,8 @@ def get_course_categories(
             category_dict["courses_count"] = courses_count_map.get(category.id, 0)
             categories_data.append(category_dict)
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.RETRIEVED,
             message="Course categories retrieved successfully",
             data={
                 "categories": categories_data,
@@ -185,12 +189,12 @@ def get_course_categories(
                 "total": total_count,
                 "pages": math.ceil(total_count / limit)
             },
-            status_code=200
         )
-    except HTTPException as http_error:
-        raise http_error
-    except Exception:
-        raise HTTPException(status_code=500, detail="Failed to fetch course categories")
+    except AppException:
+        raise
+    except Exception as e:
+        logger.exception("Failed to fetch course categories")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to fetch course categories") from e
 
 
 @router.get("/{category_id}")
@@ -216,26 +220,26 @@ def get_course_category_by_id(
         )
 
         if not db_category:
-            raise HTTPException(status_code=404, detail="Course category not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Course category not found")
 
         if not viewer_is_admin and not db_category.is_active:
-            raise HTTPException(status_code=404, detail="Course category not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Course category not found")
 
         courses_count = db.query(func.count(Course.id)).filter(Course.category_id == db_category.id).scalar() or 0
 
         category_dict = CourseCategoryOut.model_validate(db_category).model_dump()
         category_dict["courses_count"] = courses_count
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.RETRIEVED,
             message="Course category retrieved successfully",
             data=category_dict,
-            status_code=200
         )
-    except HTTPException as http_error:
-        raise http_error
-    except Exception:
-        raise HTTPException(status_code=500, detail="Failed to retrieve course category")
+    except AppException:
+        raise
+    except Exception as e:
+        logger.exception("Failed to retrieve course category")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to retrieve course category") from e
 
 
 @router.patch("/reorder")
@@ -246,9 +250,9 @@ def reorder_course_categories(
 ):
     try:
         items = data.items
-
+        
         if not items:
-            raise HTTPException(status_code=400, detail="Items list is empty")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="Items list is empty")
 
         new_orders = {
             item.id: item.display_order
@@ -256,10 +260,10 @@ def reorder_course_categories(
         }
 
         if len(new_orders) != len(items):
-            raise HTTPException(status_code=400, detail="Duplicate category IDs in request")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="Duplicate category IDs in request")
 
         if sorted(new_orders.values()) != list(range(1, len(items) + 1)):
-            raise HTTPException(status_code=400, detail="Display orders must be unique and consecutive starting from 1")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="Display orders must be unique and consecutive starting from 1")
 
         current = dict(
             db.query(
@@ -274,10 +278,10 @@ def reorder_course_categories(
         unknown_ids = new_orders.keys() - current.keys()
 
         if unknown_ids:
-            raise HTTPException(status_code=404, detail=f"Categories not found: {sorted(map(str, unknown_ids))}")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message=f"Categories not found: {sorted(map(str, unknown_ids))}")
 
         if len(current) != len(new_orders):
-            raise HTTPException(status_code=400, detail="All active categories must be included")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="All active categories must be included")
 
         changes = {
             cid: order
@@ -336,22 +340,22 @@ def reorder_course_categories(
 
         db.commit()
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.UPDATED,
             message="Course categories reordered successfully",
             data=result,
-            status_code=200,
         )
 
-    except HTTPException:
+    except AppException:
         db.rollback()
         raise
-    except IntegrityError:
+    except IntegrityError as e:
         db.rollback()
-        raise HTTPException(status_code=409, detail="Conflict while reordering course categories")
-    except Exception:
+        raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message="Conflict while reordering course categories") from e
+    except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Failed to reorder course categories")
+        logger.exception("Failed to reorder course categories")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to reorder course categories") from e
 
 
 @router.patch("/batch-active")
@@ -364,17 +368,16 @@ def batch_update_categories_status(
         admin_id = auth["payload"]["sub"]
 
         if not data.items:
-            raise HTTPException(status_code=400, detail="Items list cannot be empty")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="Items list cannot be empty")
 
         category_ids = [item.category_id for item in data.items]
 
         categories = db.query(CourseCategory).filter(CourseCategory.id.in_(category_ids), CourseCategory.deleted_at.is_(None)).all()
         categories_map = {c.id: c for c in categories}
-        name_categories = {c.name for c in categories}
 
         for c_id in category_ids:
             if c_id not in categories_map:
-                raise HTTPException(status_code=404, detail=f"Course category with ID '{c_id}' not found")
+                raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message=f"Course category with ID '{c_id}' not found")
 
         updated_count = 0
         status_dict = {item.category_id: item.is_active for item in data.items}
@@ -388,19 +391,19 @@ def batch_update_categories_status(
         if updated_count > 0:
             db.commit()
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.UPDATED,
             message="Course categories status successfully updated in batch",
             data={"updated_count": updated_count},
-            status_code=200
         )
 
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
-        raise http_error
-    except Exception:
+        raise
+    except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Failed to batch update course categories status")
+        logger.exception("Failed to batch update course categories status")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to batch update course categories status") from e
 
 
 @router.patch("/{category_id}")
@@ -421,12 +424,12 @@ async def update_course_category(
             .first()
         )
         if not db_category:
-            raise HTTPException(status_code=404, detail="Course category not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Course category not found")
 
         update_data = CourseCategoryUpdate.model_validate_json(data).model_dump(exclude_unset=True)
 
         if not update_data and not image:
-            raise HTTPException(status_code=400, detail="No fields to update")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="No fields to update")
 
         for name_field in ("name", "slug"):
             if name_field in update_data and update_data[name_field] != db_category.name:
@@ -435,7 +438,7 @@ async def update_course_category(
                     CourseCategory.id != category_id
                 ).first()
                 if existing_data:
-                    raise HTTPException(status_code=409, detail=f"Course category with this {name_field} already exists")
+                    raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message=f"Course category with this {name_field} already exists")
 
         for key, value in update_data.items():
             setattr(db_category, key, value)
@@ -477,29 +480,29 @@ async def update_course_category(
         category_dict = CourseCategoryOut.model_validate(db_category).model_dump()
         category_dict["courses_count"] = courses_count
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.UPDATED,
             message="Course category successfully updated",
             data=category_dict,
-            status_code=200
         )
 
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise http_error
+        raise
     except ValidationError as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=422, detail=e.errors())
-    except IntegrityError:
+        raise AppException(code=ResponseCode.VALIDATION_ERROR, data=e.errors()) from e
+    except IntegrityError as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=409, detail="Course category data conflicts with existing records")
-    except Exception:
+        raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message="Course category data conflicts with existing records") from e
+    except Exception as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=500, detail="Failed to update course category")
+        logger.exception("Failed to update course category")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to update course category") from e
 
 
 @router.delete("/{category_id}")
@@ -516,11 +519,11 @@ def delete_course_category(
             .first()
         )
         if not db_category:
-            raise HTTPException(status_code=404, detail="Course category not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Course category not found")
 
         courses_count = db.query(func.count(Course.id)).filter(Course.category_id == category_id).scalar() or 0
         if courses_count > 0:
-            raise HTTPException(status_code=409, detail=f"Cannot delete course category with {courses_count} associated course(s). Reassign or delete the courses first.")
+            raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message=f"Cannot delete course category with {courses_count} associated course(s). Reassign or delete the courses first.")
 
         is_image = False
         deleted_paths = []
@@ -548,19 +551,19 @@ def delete_course_category(
         if is_image and deleted_paths:
             delete_files(deleted_paths)
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.DELETED,
             message="Course category successfully deleted",
             data={"id": category_id},
-            status_code=200
         )
 
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
-        raise http_error
-    except IntegrityError:
+        raise
+    except IntegrityError as e:
         db.rollback()
-        raise HTTPException(status_code=409, detail="Cannot delete course category because it is referenced by other records")
-    except Exception:
+        raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message="Cannot delete course category because it is referenced by other records") from e
+    except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Failed to delete course category")
+        logger.exception("Failed to delete course category")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to delete course category") from e

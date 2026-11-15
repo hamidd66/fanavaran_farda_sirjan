@@ -1,16 +1,19 @@
 from uuid import UUID
 from datetime import datetime, timezone
-from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File, Form
+from fastapi import APIRouter, Depends, Query, UploadFile, File, Form
 from sqlalchemy import or_
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, selectinload
 from pydantic import ValidationError
 from typing import Optional, List
 import math
+import logging
 
 from app.db.session import get_db
 from app.dependencies.permissions import require_roles
-from app.middleware.exception_handler import response_handler
+from app.core.exceptions.custom_exceptions import AppException
+from app.core.responses.response_builder import success_response
+from app.enums.response_codes import ResponseCode
 from app.repositories.file_repo import add_files, remove_files, reorder_files, confirm_pending_uploads, cleanup_pending_uploads
 from app.utils.delete_file import delete_files
 
@@ -21,6 +24,8 @@ from app.enums.course import CourseSort
 from app.enums.file import EntityType, FilePurpose
 from app.schemas.file_attachment import FileAttachmentCreate
 from app.schemas.course import CourseCreate, CourseUpdate, CourseOut, ToggleCourseActiveStatus, ToggleCourseDeleteStatus
+
+logger = logging.getLogger(__name__)
 
 
 router = APIRouter(prefix="/courses", tags=["Courses"])
@@ -40,7 +45,7 @@ async def create_course(
 
         category = db.query(CourseCategory).filter(CourseCategory.id == course_data.category_id, CourseCategory.deleted_at.is_(None)).first()
         if not category:
-            raise HTTPException(status_code=404, detail="Category not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Category not found")
 
         new_course = Course(
             created_by=user_id,
@@ -73,28 +78,28 @@ async def create_course(
         db.refresh(new_course)
         confirm_pending_uploads(db)
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.CREATED,
             message="Course created successfully",
             data=CourseOut.model_validate(new_course).model_dump(),
-            status_code=201
         )
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise http_error
+        raise
     except ValidationError as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=422, detail=e.errors())
-    except IntegrityError:
+        raise AppException(code=ResponseCode.VALIDATION_ERROR, data=e.errors()) from e
+    except IntegrityError as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=409, detail="Data conflicts with existing records")
-    except Exception:
+        raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message="Data conflicts with existing records") from e
+    except Exception as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=500, detail="Failed to create course")
+        logger.exception("Failed to create course")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to create course") from e
     
 
 @router.get("/")
@@ -132,7 +137,7 @@ def get_courses(
         if category_id:
             category = db.query(CourseCategory).filter(CourseCategory.id == category_id, CourseCategory.deleted_at.is_(None)).first()
             if not category:
-                raise HTTPException(status_code=404, detail="Category not found")
+                raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Category not found")
             query = query.filter(Course.category_id == category_id)
 
         if search:
@@ -161,8 +166,8 @@ def get_courses(
             course_dict["questions_count"] = len(course.course_questions) if course.course_questions else 0
             courses_data.append(course_dict)
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.RETRIEVED,
             message="Courses retrieved successfully",
             data={
                 "courses": courses_data,
@@ -171,12 +176,12 @@ def get_courses(
                 "total": total_count,
                 "pages": math.ceil(total_count / limit)
             },
-            status_code=200
         )
-    except HTTPException as http_error:
-        raise http_error
-    except Exception:
-        raise HTTPException(status_code=500, detail="Failed to fetch courses")
+    except AppException:
+        raise
+    except Exception as e:
+        logger.exception("Failed to fetch courses")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to fetch courses") from e
 
 
 @router.get("/{course_id}")
@@ -198,25 +203,25 @@ def get_course_by_id(
             .first()
         )
         if not db_course:
-            raise HTTPException(status_code=404, detail="Course not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Course not found")
         
         if not viewer_is_admin and db_course.deleted_at is None:
-            raise HTTPException(status_code=404, detail="Course not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Course not found")
 
         course_dict = CourseOut.model_validate(db_course).model_dump()
         course_dict["terms_count"] = len(db_course.terms) if db_course.terms else 0
         course_dict["questions_count"] = len(db_course.course_questions) if db_course.course_questions else 0
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.RETRIEVED,
             message="Course retrieved successfully",
             data=CourseOut.model_validate(db_course).model_dump(),
-            status_code=200
         )
-    except HTTPException as http_error:
-        raise http_error
-    except Exception:
-        raise HTTPException(status_code=500, detail="Failed to fetch course")
+    except AppException:
+        raise
+    except Exception as e:
+        logger.exception("Failed to fetch course")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to fetch course") from e
 
 
 @router.patch("/{course_id}")
@@ -245,10 +250,10 @@ async def update_course(
             .first()
         )
         if not db_course:
-            raise HTTPException(status_code=404, detail="Course not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Course not found")
 
         if not update_data and not images and not deleted_image_ids:
-            raise HTTPException(status_code=400, detail="No fields to update")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="No fields to update")
 
         for key, value in update_data.items():
             setattr(db_course, key, value)
@@ -264,7 +269,7 @@ async def update_course(
                 if attachment.id in deleted_ids_set and attachment.purpose == "image"
             ]
             if len(attachments) != len(deleted_ids_set):
-                raise HTTPException(status_code=400, detail="Invalid image IDs")
+                raise AppException(code=ResponseCode.BAD_REQUEST, message="Invalid image IDs")
 
             deleted_attachment_ids = [attachment.id for attachment in attachments]
             if deleted_attachment_ids:
@@ -299,28 +304,28 @@ async def update_course(
         if deleted_image_ids and deleted_paths:
             delete_files(deleted_paths)
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.UPDATED,
             message="Course updated successfully",
             data=CourseOut.model_validate(db_course).model_dump(),
-            status_code=200
         )
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise http_error
+        raise
     except ValidationError as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=422, detail=e.errors(include_context=False))
-    except IntegrityError:
+        raise AppException(code=ResponseCode.VALIDATION_ERROR, data=e.errors(include_context=False)) from e
+    except IntegrityError as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=409, detail="Input data conflicts with existing records")
-    except Exception:
+        raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message="Input data conflicts with existing records") from e
+    except Exception as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=500, detail="Failed to update course")
+        logger.exception("Failed to update course")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to update course") from e
 
 
 @router.patch("/{course_id}/toggle-active")
@@ -333,27 +338,27 @@ def toggle_course_active_status(
     try:
         db_course = db.query(Course).filter(Course.id == course_id, Course.deleted_at.is_(None)).first()
         if not db_course:
-            raise HTTPException(status_code=404, detail="Course not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Course not found")
 
         if db_course.is_active == data.is_active:
-            raise HTTPException(status_code=409, detail=f"Course status is already set to {data.is_active}")
+            raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message=f"Course status is already set to {data.is_active}")
 
         db_course.is_active = data.is_active
 
         db.commit()
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.UPDATED,
             message=f"Course active status successfully set to {data.is_active}",
             data={"course_id": db_course.id, "is_active": data.is_active},
-            status_code=200
         )
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
-        raise http_error
-    except Exception:
+        raise
+    except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Failed to toggle course status")
+        logger.exception("Failed to toggle course status")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to toggle course status") from e
 
 
 @router.patch("/{course_id}/soft-delete")
@@ -366,27 +371,27 @@ def toggle_soft_delete_course(
     try:
         db_course = db.query(Course).filter(Course.id == course_id).first()
         if not db_course:
-            raise HTTPException(status_code=404, detail="Course not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Course not found")
 
         if (db_course.deleted_at is not None) == data.is_deleted:
-            raise HTTPException(status_code=409, detail=f"Course delete is already set to {data.is_deleted}")
+            raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message=f"Course delete is already set to {data.is_deleted}")
 
         db_course.deleted_at = datetime.now(timezone.utc) if data.is_deleted else None
 
         db.commit()
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.UPDATED,
             message=f"Course {'soft-deleted' if data.is_deleted else 'restored'} successfully",
             data={"course_id": db_course.id, "deleted_at": db_course.deleted_at},
-            status_code=200
         )
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
-        raise http_error
-    except Exception:
+        raise
+    except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Failed to update course deletion status")
+        logger.exception("Failed to update course deletion status")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to update course deletion status") from e
 
 
 @router.delete("/{course_id}/hard-delete")
@@ -398,13 +403,13 @@ def hard_delete_course(
     try:
         db_course = db.query(Course).filter(Course.id == course_id).first()
         if not db_course:
-            raise HTTPException(status_code=404, detail="Course not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Course not found")
 
         has_terms = db.query(Term.id).filter(
             Term.course_id == course_id
         ).first()
         if has_terms:
-            raise HTTPException(status_code=400, detail="Cannot hard-delete course. Delete all terms first.")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="Cannot hard-delete course. Delete all terms first.")
 
         deleted_paths = []
         attachments = [
@@ -418,21 +423,23 @@ def hard_delete_course(
         db.delete(db_course)
         db.commit()
 
-        # if len(deleted_paths) > 0:
         if deleted_paths:
             delete_files(deleted_paths)
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.DELETED,
             message="Course hard-deleted successfully",
             data={"course_id": course_id},
-            status_code=200
         )
 
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
-        raise http_error
-    except Exception:
+        raise
+    except IntegrityError as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Failed to hard-delete course")
+        raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message="Cannot hard-delete course because it is referenced by other records") from e
+    except Exception as e:
+        db.rollback()
+        logger.exception("Failed to hard-delete course")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to hard-delete course") from e
 

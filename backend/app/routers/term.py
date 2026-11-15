@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File, Form
+from fastapi import APIRouter, Depends, Query, UploadFile, File, Form
 from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import or_, func, case, update
@@ -7,9 +7,12 @@ from datetime import datetime, timezone
 from typing import Optional, List
 from uuid import UUID
 import math
+import logging
 
 from app.db.session import get_db
-from app.middleware.exception_handler import response_handler
+from app.core.exceptions.custom_exceptions import AppException
+from app.core.responses.response_builder import success_response
+from app.enums.response_codes import ResponseCode
 from app.dependencies.permissions import require_roles
 from app.repositories.file_repo import add_files, remove_files, reorder_files, confirm_pending_uploads, cleanup_pending_uploads
 from app.utils.delete_file import delete_files
@@ -22,6 +25,8 @@ from app.enums.file import EntityType, FilePurpose
 from app.enums.term import TermSort
 from app.schemas.file_attachment import FileAttachmentCreate
 from app.schemas.term import TermCreate, TermOut, TermUpdate, ToggleTermActiveStatus, ToggleTermDeleteStatus, TermOrderItemUpdate
+
+logger = logging.getLogger(__name__)
 
 
 router = APIRouter(prefix="/terms", tags=["Terms"])
@@ -41,7 +46,7 @@ async def create_term(
 
         db_course = db.query(Course).filter(Course.id == course_id, Course.deleted_at.is_(None)).first()
         if not db_course:
-            raise HTTPException(status_code=404, detail="Course not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Course not found")
 
         existing_term = db.query(Term).filter(
             Term.course_id == course_id,
@@ -49,7 +54,7 @@ async def create_term(
             Term.deleted_at.is_(None)
         ).first()
         if existing_term:
-            raise HTTPException(status_code=409, detail=f"A term already exists for this course.")
+            raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message=f"A term already exists for this course.")
 
         term_number = (
             db.query(func.max(Term.term_number))
@@ -91,28 +96,28 @@ async def create_term(
         db.refresh(new_term)
         confirm_pending_uploads(db)
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.CREATED,
             message="Term successfully created",
             data=TermOut.model_validate(new_term).model_dump(),
-            status_code=201
         )
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise http_error
+        raise
     except ValidationError as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=422, detail=e.errors())
-    except IntegrityError:
+        raise AppException(code=ResponseCode.VALIDATION_ERROR, data=e.errors()) from e
+    except IntegrityError as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=409, detail="Data conflicts with existing records")
-    except Exception:
+        raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message="Data conflicts with existing records") from e
+    except Exception as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=500, detail="Failed to create term")
+        logger.exception("Failed to create term")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to create term") from e
 
 
 @router.get("/{course_id}")
@@ -132,10 +137,10 @@ def get_terms_by_course(
 
         db_course = db.query(Course).filter(Course.id == course_id).first()
         if not db_course:
-            raise HTTPException(status_code=404, detail="Course not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Course not found")
         
         if not viewer_is_admin and db_course.deleted_at is not None:
-            raise HTTPException(status_code=404, detail="Course not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Course not found")
 
         query = db.query(Term).filter(Term.course_id == course_id).options(
             selectinload(Term.course_questions),
@@ -203,8 +208,8 @@ def get_terms_by_course(
 
             terms_data.append(term_dict)
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.RETRIEVED,
             message="Terms retrieved successfully",
             data={
                 "terms": terms_data,
@@ -213,13 +218,13 @@ def get_terms_by_course(
                 "total": total_count,
                 "pages": math.ceil(total_count / limit)
             },
-            status_code=200
         )
 
-    except HTTPException as http_error:
-        raise http_error
-    except Exception:
-        raise HTTPException(status_code=500, detail="Failed to fetch course terms")
+    except AppException:
+        raise
+    except Exception as e:
+        logger.exception("Failed to fetch course terms")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to fetch course terms") from e
 
 
 @router.get("/course/{course_id}/term/{term_id}")
@@ -234,10 +239,10 @@ def get_term_by_id(
 
         db_course = db.query(Course).filter(Course.id == course_id).first()
         if not db_course:
-            raise HTTPException(status_code=404, detail="Course not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Course not found")
         
         if not viewer_is_admin and db_course.deleted_at is not None:
-            raise HTTPException(status_code=404, detail="Course not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Course not found")
 
         db_term = (
             db.query(Term)
@@ -251,13 +256,13 @@ def get_term_by_id(
             .first()
         )
         if not db_term:
-            raise HTTPException(status_code=404, detail="Term not found in this course")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Term not found in this course")
 
         if not viewer_is_admin and db_term.deleted_at is not None:
-            raise HTTPException(status_code=404, detail="Term not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Term not found")
     
         if not viewer_is_admin and not db_term.is_active:
-            raise HTTPException(status_code=404, detail="Session not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Session not found")
         
         term_data = TermOut.model_validate(db_term).model_dump()
         
@@ -279,17 +284,17 @@ def get_term_by_id(
         ]
         term_data["questions_count"] = len(questions) if db_term.course_questions else 0
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.RETRIEVED,
             message="Term retrieved successfully",
             data=term_data,
-            status_code=200
         )
 
-    except HTTPException as http_error:
-        raise http_error
-    except Exception:
-        raise HTTPException(status_code=500, detail="Failed to fetch term details")
+    except AppException:
+        raise
+    except Exception as e:
+        logger.exception("Failed to fetch term details")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to fetch term details") from e
 
 
 @router.patch("/{term_id}")
@@ -317,10 +322,10 @@ async def update_term(
             .first()
         )
         if not db_term:
-            raise HTTPException(status_code=404, detail="Term not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Term not found")
 
         if not update_data and not images and not deleted_image_ids:
-            raise HTTPException(status_code=400, detail="No fields to update")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="No fields to update")
 
         for key, value in update_data.items():
             setattr(db_term, key, value)
@@ -336,7 +341,7 @@ async def update_term(
                 if attachment.id in deleted_ids_set and attachment.purpose == "image"
             ]
             if len(attachments) != len(deleted_ids_set):
-                raise HTTPException(status_code=400, detail="Invalid image IDs")
+                raise AppException(code=ResponseCode.BAD_REQUEST, message="Invalid image IDs")
 
             deleted_attachment_ids = [attachment.id for attachment in attachments]
             if deleted_attachment_ids:
@@ -370,29 +375,29 @@ async def update_term(
         if deleted_image_ids and deleted_paths:
             delete_files(deleted_paths)
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.UPDATED,
             message="Term updated successfully",
             data=TermOut.model_validate(db_term).model_dump(),
-            status_code=200
         )
 
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise http_error
+        raise
     except ValidationError as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=422, detail=e.errors(include_context=False))
-    except IntegrityError:
+        raise AppException(code=ResponseCode.VALIDATION_ERROR, data=e.errors(include_context=False)) from e
+    except IntegrityError as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=409, detail="Input data conflicts with existing records")
-    except Exception:
+        raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message="Input data conflicts with existing records") from e
+    except Exception as e:
         db.rollback()
         cleanup_pending_uploads(db)
-        raise HTTPException(status_code=500, detail="Failed to update term")
+        logger.exception("Failed to update term")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to update term") from e
 
 
 @router.patch("/{course_id}/reorder")
@@ -405,15 +410,15 @@ def reorder_course_terms(
     try:
         items = data.items
         if not items:
-            raise HTTPException(status_code=400, detail="Items list is empty")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="Items list is empty")
 
         new_numbers = {item.id: item.term_number for item in items}
 
         if len(new_numbers) != len(items):
-            raise HTTPException(status_code=400, detail="Duplicate term IDs in request")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="Duplicate term IDs in request")
 
         if sorted(new_numbers.values()) != list(range(1, len(items) + 1)):
-            raise HTTPException(status_code=400, detail="Term numbers must be unique and consecutive starting from 1")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="Term numbers must be unique and consecutive starting from 1")
 
         course = (
             db.query(Course.id)
@@ -422,7 +427,7 @@ def reorder_course_terms(
             .first()
         )
         if not course:
-            raise HTTPException(status_code=404, detail="Course not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Course not found")
 
         current = dict(
             db.query(Term.id, Term.term_number)
@@ -434,13 +439,13 @@ def reorder_course_terms(
 
         unknown_ids = new_numbers.keys() - current.keys()
         if unknown_ids:
-            raise HTTPException(
-                status_code=404,
-                detail=f"Terms not found or do not belong to this course: {sorted(map(str, unknown_ids))}",
+            raise AppException(
+                code=ResponseCode.RESOURCE_NOT_FOUND,
+                message=f"Terms not found or do not belong to this course: {sorted(map(str, unknown_ids))}",
             )
 
         if len(current) != len(new_numbers):
-            raise HTTPException(status_code=400, detail="All active terms must be included")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="All active terms must be included")
 
         changes = {tid: num for tid, num in new_numbers.items() if current[tid] != num}
 
@@ -472,22 +477,22 @@ def reorder_course_terms(
 
         db.commit()
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.UPDATED,
             message="Course terms reordered successfully",
             data=result,
-            status_code=200,
         )
 
-    except HTTPException:
+    except AppException:
         db.rollback()
         raise
-    except IntegrityError:
+    except IntegrityError as e:
         db.rollback()
-        raise HTTPException(status_code=409, detail="Conflict while reordering course terms")
-    except Exception:
+        raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message="Conflict while reordering course terms") from e
+    except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Failed to reorder course terms")
+        logger.exception("Failed to reorder course terms")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to reorder course terms") from e
 
 
 @router.patch("/{term_id}/toggle-active")
@@ -500,27 +505,27 @@ def toggle_term_active_status(
     try:
         db_term = db.query(Term).filter(Term.id == term_id, Term.deleted_at.is_(None)).first()
         if not db_term:
-            raise HTTPException(status_code=404, detail="Term not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Term not found")
 
         if db_term.is_active == data.is_active:
-            raise HTTPException(status_code=409, detail=f"Term status is already set to {data.is_active}")
+            raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message=f"Term status is already set to {data.is_active}")
 
         db_term.is_active = data.is_active
 
         db.commit()
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.UPDATED,
             message=f"Term active status successfully set to {data.is_active}",
             data={"term_id": db_term.id, "is_active": data.is_active},
-            status_code=200
         )
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
-        raise http_error
-    except Exception:
+        raise
+    except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Failed to toggle term status")
+        logger.exception("Failed to toggle term status")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to toggle term status") from e
 
 
 @router.patch("/{term_id}/soft-delete")
@@ -533,10 +538,10 @@ def toggle_soft_delete_term(
     try:
         db_term = db.query(Term).filter(Term.id == term_id).first()
         if not db_term:
-            raise HTTPException(status_code=404, detail="Term not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Term not found")
 
         if (db_term.deleted_at is not None) == data.is_deleted:
-            raise HTTPException(status_code=409, detail=f"Term delete status is already set to {data.is_deleted}")
+            raise AppException(code=ResponseCode.RESOURCE_CONFLICT, message=f"Term delete status is already set to {data.is_deleted}")
 
         db_term.deleted_at = datetime.now(timezone.utc) if data.is_deleted else None
         db.flush()
@@ -552,18 +557,18 @@ def toggle_soft_delete_term(
 
         db.commit()
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.UPDATED,
             message=f"Term {'soft-deleted' if data.is_deleted else 'restored'} successfully",
             data={"term_id": db_term.id, "is_deleted": data.is_deleted},
-            status_code=200
         )
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
-        raise http_error
-    except Exception:
+        raise
+    except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Failed to update term deletion status")
+        logger.exception("Failed to update term deletion status")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to update term deletion status") from e
 
 
 @router.delete("/{term_id}/hard-delete")
@@ -575,13 +580,13 @@ def hard_delete_term(
     try:
         db_term = db.query(Term).filter(Term.id == term_id).first()
         if not db_term:
-            raise HTTPException(status_code=404, detail="Term not found")
+            raise AppException(code=ResponseCode.RESOURCE_NOT_FOUND, message="Term not found")
 
         course_id = db_term.course_id
 
         has_sessions = db.query(TermSession.id).filter(TermSession.term_id == term_id).first()
         if has_sessions:
-            raise HTTPException(status_code=400, detail="Cannot hard-delete term. Active sessions are associated with this term.")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="Cannot hard-delete term. Active sessions are associated with this term.")
 
         # has_classrooms = db.query(Classroom.id).filter(Classroom.term_id == term_id).first()
         # if has_classrooms:
@@ -614,17 +619,17 @@ def hard_delete_term(
         if deleted_paths:
             delete_files(deleted_paths)
 
-        return response_handler(
-            status=True,
+        return success_response(
+            code=ResponseCode.DELETED,
             message="Term hard-deleted successfully",
             data={"term_id": term_id},
-            status_code=200
         )
 
-    except HTTPException as http_error:
+    except AppException:
         db.rollback()
-        raise http_error
-    except Exception:
+        raise
+    except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Failed to hard-delete term")
+        logger.exception("Failed to hard-delete term")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to hard-delete term") from e
 

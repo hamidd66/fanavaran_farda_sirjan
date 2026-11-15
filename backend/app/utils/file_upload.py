@@ -5,7 +5,9 @@ import uuid
 from pathlib import Path, PurePosixPath
 from typing import List
 import aiofiles
-from fastapi import UploadFile, HTTPException
+from fastapi import UploadFile
+from app.core.exceptions.custom_exceptions import AppException
+from app.enums.response_codes import ResponseCode
 from PIL import Image
 
 from app.config.settings import settings
@@ -175,7 +177,7 @@ async def _save_file(file: UploadFile, path: Path, max_size: int) -> int:
             size += len(chunk)
 
             if size > max_size:
-                raise HTTPException(status_code=413, detail="File too large")
+                raise AppException(code=ResponseCode.FILE_TOO_LARGE, message="File too large")
 
             await buffer.write(chunk)
 
@@ -202,7 +204,7 @@ def _safe_upload_dir(folder_name: str) -> Path:
     path = (UPLOAD_ROOT / folder_name).resolve()
 
     if root not in path.parents and path != root:
-        raise HTTPException(status_code=400, detail="Invalid upload path")
+        raise AppException(code=ResponseCode.BAD_REQUEST, message="Invalid upload path")
 
     return path
 
@@ -228,38 +230,36 @@ async def upload_files(
 
     try:
         if folder_name not in settings.ALLOWED_FOLDERS:
-            raise HTTPException(status_code=400, detail="Invalid folder")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="Invalid folder")
 
         if not files:
-            raise HTTPException(status_code=400, detail="At least one file is required")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="At least one file is required")
 
         if len(purposes_by_file) != len(files):
-            raise HTTPException(status_code=400, detail="Each file must have exactly one purpose")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="Each file must have exactly one purpose")
 
         if len(files) > IMAGE_MAX_FILES:
-            raise HTTPException(status_code=400, detail=f"Maximum {IMAGE_MAX_FILES} files allowed")
+            raise AppException(code=ResponseCode.BAD_REQUEST, message=f"Maximum {IMAGE_MAX_FILES} files allowed")
 
         extensions = []
         declared_total = 0
 
         for file in files:
             if file.content_type not in IMAGE_ALLOWED_CONTENT_TYPES:
-                raise HTTPException(status_code=400, detail="Only image files are allowed")
+                raise AppException(code=ResponseCode.BAD_REQUEST, message="Only image files are allowed")
 
             ext = _get_ext(file)
 
             if ext not in IMAGE_ALLOWED_EXTENSIONS:
-                raise HTTPException(status_code=400, detail="Invalid file extension")
+                raise AppException(code=ResponseCode.BAD_REQUEST, message="Invalid file extension")
 
             if file.size is not None:
                 if file.size > IMAGE_MAX_FILE_SIZE:
-                    raise HTTPException(status_code=413, detail="File too large")
+                    raise AppException(code=ResponseCode.FILE_TOO_LARGE, message="File too large")
                 declared_total += file.size
 
-            extensions.append(ext)
-
         if declared_total > IMAGE_MAX_TOTAL_SIZE:
-            raise HTTPException(status_code=413, detail="Total upload size exceeded")
+            raise AppException(code=ResponseCode.FILE_TOO_LARGE, message="Total upload size exceeded")
 
         upload_dir = _safe_upload_dir(folder_name)
         await asyncio.to_thread(upload_dir.mkdir, parents=True, exist_ok=True)
@@ -285,7 +285,7 @@ async def upload_files(
                 except asyncio.CancelledError:
                     raise
                 except Exception:
-                    raise HTTPException(status_code=400, detail="Invalid or corrupted image file")
+                    raise AppException(code=ResponseCode.BAD_REQUEST, message="Invalid or corrupted image file")
 
                 os.replace(tmp_path, final_path)
                 saved_paths.append(final_path)
@@ -306,16 +306,16 @@ async def upload_files(
 
         return results
 
-    except (HTTPException, asyncio.CancelledError):
+    except (AppException, asyncio.CancelledError):
         for path in saved_paths:
             _remove_file(path)
         raise
 
-    except Exception:
+    except Exception as e:
         logger.exception("Upload failed unexpectedly")
         for path in saved_paths:
             _remove_file(path)
-        raise HTTPException(status_code=500, detail="Upload failed")
+        raise AppException(code=ResponseCode.FILE_UPLOAD_FAILED, message="Upload failed") from e
 
     finally:
         for file in files:
