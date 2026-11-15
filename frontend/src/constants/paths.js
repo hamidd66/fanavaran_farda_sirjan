@@ -7,12 +7,13 @@ const paths = [
     "helpers",
     "layouts",
     "pages",
-    "router",
+    "routers",
     "services",
     "store",
     "styles",
     "utils",
     "lib",
+    "hooks",
 ];
 
 export default paths

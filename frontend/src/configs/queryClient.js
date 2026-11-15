@@ -1,24 +1,25 @@
 import { QueryClient, QueryCache, MutationCache } from "@tanstack/react-query";
 import { getErrorMessage, getSuccessMessage } from "lib/api/responseMessages";
+import toast from "react-hot-toast";
 
 const silentErrorCodes = new Set([
-    "AUTHENTICATION_REQUIRED",
-    "TOKEN_EXPIRED",
+    // "AUTHENTICATION_REQUIRED",
+    // "TOKEN_EXPIRED",
 ]);
 const silentSuccessCodes = new Set([
-    "RETRIEVED",
-    "TOKEN_REFRESHED",
+    // "RETRIEVED",
+    // "TOKEN_REFRESHED",
 ]);
 
 function handleGlobalError(code) {
     if (silentErrorCodes.has(code)) return;
     const message = getErrorMessage(code);
-    console.error(message);
+    toast.error(message);
 }
 function handleGlobalSuccess(code) {
     if (silentSuccessCodes.has(code)) return;
     const message = getSuccessMessage(code);
-    console.log(message);
+    toast.success(message);
 }
 
 const queryClient = new QueryClient({

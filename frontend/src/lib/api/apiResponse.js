@@ -39,7 +39,7 @@ function normalizeApiError(error) {
     });
 }
 
-export function normalizeApiResponse(response) {
+function normalizeApiResponse(response) {
     const body = response.data;
 
     if (
