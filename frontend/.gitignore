@@ -121,3 +121,9 @@ storage/
 *.swp
 *.swo
 *~
+
+############################################
+# 📄 Project-specific files
+############################################
+description.txt
+database.db
