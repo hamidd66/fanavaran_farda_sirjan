@@ -1,16 +1,16 @@
-import { useCurrentUser } from "hooks/user";
+import { useEffect } from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import toast from "react-hot-toast";
 
 import { getActiveRole } from "utils/user";
-import { useEffect } from "react";
+import { useGetUser } from "hooks/user";
 
 function RoleGuard({ role }) {
-    const { data: user, isPending, isError } = useCurrentUser();
+    const { user, isPending, isError } = useGetUser();
     const { roleTitle, isPossibility, isExist, isAccess, isActive } = getActiveRole(user, role);
 
     useEffect(() => {
-        if (isPending || isError || isPossibility) {
+        if (isPending || isError || isPossibility || !user) {
             return;
         }
         if (!isExist)
@@ -20,7 +20,7 @@ function RoleGuard({ role }) {
         else if (!isActive)
             toast.error(`نقش ${roleTitle} غیر فعال شده است`, { id: "no-access-to-role" })
 
-    }, [isPending, isPossibility])
+    }, [isPending, isPossibility, user]);
 
     if (isPending || isError) return null
     if (!isPossibility) return <Navigate to="/panel" replace />

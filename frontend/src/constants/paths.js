@@ -14,6 +14,8 @@ const paths = [
     "utils",
     "lib",
     "hooks",
+    "guards",
+    "context",
 ];
 
 export default paths

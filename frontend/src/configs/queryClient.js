@@ -14,12 +14,12 @@ const silentSuccessCodes = new Set([
 function handleGlobalError(code) {
     if (silentErrorCodes.has(code)) return;
     const message = getErrorMessage(code);
-    toast.error(message);
+    toast.error(message, { id: "global-error" });
 }
 function handleGlobalSuccess(code) {
     if (silentSuccessCodes.has(code)) return;
     const message = getSuccessMessage(code);
-    toast.success(message);
+    toast.success(message, { id: "global-response" });
 }
 
 const queryClient = new QueryClient({
