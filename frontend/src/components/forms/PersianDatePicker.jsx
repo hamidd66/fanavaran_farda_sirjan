@@ -6,7 +6,9 @@ import transition from "react-element-popper/animations/transition";
 import gregorian from "react-date-object/calendars/gregorian";
 import gregorian_en from "react-date-object/locales/gregorian_en";
 import DateObject from "react-date-object";
+
 import { weekDays } from 'constants/datePicker';
+import "./persianDatePicker.css"
 
 function PersianDatePicker({ changeHandler, value, fieldName, placeholder }) {
     const PickerDate = DatePicker.default;

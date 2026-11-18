@@ -2,13 +2,13 @@ import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
-import { FaRegCircleUser, FaUpload } from 'react-icons/fa6';
 import toast from 'react-hot-toast';
 
 import { registerStudent } from 'services/user';
 import { registerStudentFields } from 'constants/inputFields';
 import PersianDatePicker from 'components/forms/PersianDatePicker';
 import DropdownInput from 'components/forms/DropdownInput';
+import ImagePicker from 'components/forms/ImagePicker';
 
 function Register({ refetch }) {
   const [form, setForm] = useState({
@@ -53,8 +53,6 @@ function Register({ refetch }) {
     const formDataObject = { ...form };
     delete formDataObject.avatar;
 
-    console.log(formDataObject);
-
     const formData = new FormData();
     formData.append("data", JSON.stringify(formDataObject));
 
@@ -88,23 +86,7 @@ function Register({ refetch }) {
             <div key={item.name}>
 
               {item.name == "avatar" && (
-                <div className="admin-avatar-upload-section mt-2 mb-4">
-                  <div className="admin-avatar-preview-box">
-                    {form.avatar instanceof File ? (
-                      <img src={URL.createObjectURL(form.avatar)} alt="Preview" className="admin-avatar-preview-img" />
-                    ) : (
-                      <FaRegCircleUser fontSize="28px" color="#94a3b8" />
-                    )}
-                  </div>
-                  <div className="admin-avatar-upload-actions">
-                    <label className="admin-btn-secondary admin-avatar-upload-btn">
-                      <FaUpload fontSize="15px" />
-                      انتخاب تصویر
-                      <input type="file" accept="image/*" name='avatar' onChange={changeHandler} style={{ display: 'none' }} />
-                    </label>
-                    <span className="admin-avatar-hint">فرمت‌های JPG، PNG (حداکثر ۲ مگابایت)</span>
-                  </div>
-                </div>
+                <ImagePicker image={form.avatar} changeHandler={changeHandler} />
               )}
 
               {!["file", "date", "list"].includes(item.type) && (

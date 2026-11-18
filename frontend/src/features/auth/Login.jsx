@@ -44,7 +44,7 @@ function Login({ refetch }) {
                 <form onSubmit={formHandler} className='mt-4'>
 
                     {loginNationalCodePasswordFields.map(item => (
-                        <div className="form-group">
+                        <div key={item.name} className="form-group">
                             <label className="form-label" htmlFor={item.name}>
                                 {item.label}
                             </label>

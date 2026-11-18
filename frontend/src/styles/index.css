@@ -65,6 +65,7 @@ html{
 
 body {
   font-family: 'Vazirmatn Variable', sans-serif;
+  direction: rtl;
   background-color: var(--bg-page);
   min-height: 100dvh;
   max-width: 1440px;

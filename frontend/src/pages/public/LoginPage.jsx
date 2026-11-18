@@ -5,7 +5,7 @@ import { Nav } from 'react-bootstrap';
 
 import Login from 'features/auth/Login';
 import Register from 'features/auth/Register';
-import 'features/auth/auth.css';
+import './loginPage.css';
 
 function LoginPage() {
   const [changeAuth, setChangeAuth] = useState("login");

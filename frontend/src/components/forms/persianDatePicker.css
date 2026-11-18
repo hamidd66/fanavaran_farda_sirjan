@@ -1,0 +1,35 @@
+.rmdp-container {
+  width: 100%;
+}
+
+.rmdp-input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.rmdp-day.rmdp-selected span {
+  background-color: var(--color-primary-dark) !important;
+}
+
+.rmdp-day:not(.rmdp-disabled):not(.rmdp-selected) span.sd:hover {
+  background-color: var(--color-primary-hover);
+  opacity: 0.5;
+}
+
+.rmdp-arrow:hover {
+  background-color: var(--color-primary-hover) !important;
+}
+
+.rmdp-arrow-container:hover {
+  background-color: var(--color-purple-hover) !important;
+  opacity: 0.5;
+}
+
+.rmdp-week-day {
+  color: var(--color-purple-hover) !important;
+}
+
+.rmdp-ym:not(.rmdp-disabled):not(.rmdp-selected) span:hover {
+  background-color: var(--color-primary-hover) !important;
+  opacity: 0.5;
+}
