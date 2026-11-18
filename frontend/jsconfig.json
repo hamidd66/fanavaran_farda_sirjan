@@ -18,6 +18,7 @@
             "hooks/*": ["./src/hooks/*"],
             "guards/*": ["./src/guards/*"],
             "context/*": ["./src/context/*"],
+            "features/*": ["./src/features/*"],
         }
     }
 }

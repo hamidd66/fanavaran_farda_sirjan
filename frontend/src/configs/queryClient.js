@@ -1,5 +1,5 @@
 import { QueryClient, QueryCache, MutationCache } from "@tanstack/react-query";
-import { getErrorMessage, getSuccessMessage } from "lib/api/responseMessages";
+import { getErrorMessage, getSuccessMessage } from "constants/responseMessages";
 import toast from "react-hot-toast";
 
 const silentErrorCodes = new Set([

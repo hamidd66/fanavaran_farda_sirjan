@@ -1,0 +1,15 @@
+.parent{
+    height: 80px;
+}
+
+.headerLogo{
+    width: 80px;
+}
+
+.link{
+    font-weight: 500 !important;
+}
+
+.link:hover{
+    color: var(--color-purple-hover) !important;
+}

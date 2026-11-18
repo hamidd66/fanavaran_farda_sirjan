@@ -1,0 +1,178 @@
+:root {
+  /* رنگ اصلی و سازمانی پلتفرم (ایندیگو استاندارد) */
+  --color-primary: #4f46e5;
+  /* رنگ تیره اصلی برای حالت‌های هاور یا تاکید بالا */
+  --color-primary-dark: #3730a3;
+  /* رنگ هاور کلیدها و المان‌های تعاملی اصلی */
+  --color-primary-hover: #4338ca;
+  /* پس‌زمینه روشن و ملایم بر پایه رنگ اصلی */
+  --color-primary-light: rgba(79, 70, 229, 0.08);
+  /* حاشیه متناسب با رنگ اصلی */
+  --color-primary-border: rgba(79, 70, 229, 0.25);
+
+  /* رنگ‌های اختصاصی و کلاسیک پنل مدیریت (آبی تیره) */
+  --admin-primary: #1e3a8a;
+  --admin-primary-dark: #172554;
+  --admin-primary-hover: #172554;
+  --admin-primary-light: #eff6ff;
+  --admin-accent: #3b82f6;
+
+  /* رنگ‌های تخصصی مدیریت کلاس‌ها */
+  --cls-primary: #3b82f6;
+  --cls-primary-hover: #2563eb;
+  --cls-primary-soft: rgba(59, 130, 246, 0.12);
+
+  /* رنگ‌های تاکیدی و مکمل (بنفش و سرخابی) */
+  --color-accent: #818cf8;
+  --color-purple: #8b5cf6;
+  --color-purple-hover: #7c3aed;
+  --color-purple-soft: rgba(139, 92, 246, 0.12);
+
+
+  /* ==========================================
+     ۲. وضعیت‌ها، هشدارها و بازخوردها (Status & Feedback Colors)
+     ========================================== */
+  /* موفقیت (عملیات موفق، وضعیت فعال، تایید شده) */
+  --color-success: #10b981;
+  --color-success-dark: #047857;
+  --color-success-bg: #ecfdf5;
+
+  /* خطا و خطر (حذف، لغو، وضعیت بحرانی یا خطای اعتبارسنجی) */
+  --color-danger: #ef4444;
+  --color-danger-dark: #b91c1c;
+  --color-danger-bg: #fef2f2;
+
+  /* هشدار (در انتظار بررسی، اخطار مالی یا آموزشی) */
+  --color-warning: #f59e0b;
+  --color-warning-dark: #b45309;
+  --color-warning-bg: #fffbeb;
+
+  /* اطلاعات و راهنمایی (نکات آموزشی، اطلاع‌رسانی سیستم) */
+  --color-info: #06b6d4;
+  --color-info-bg: #ecfeff;
+
+
+  /* ==========================================
+     ۳. پس‌زمینه‌ها و سطوح (Backgrounds & Surfaces)
+     ========================================== */
+  /* پس‌زمینه اصلی صفحات و بدنه سایت */
+  --bg-page: #f8fafc;
+  /* پس‌زمینه کارت‌ها، مودال‌ها و کانتینرها */
+  --bg-card: #ffffff;
+  /* پس‌زمینه تیره سایدبارها و پنل‌های اختصاصی (تم تاریک) */
+  --bg-dark-sidebar: #0f1222;
+  --bg-dark-surface: #181d33;
+  /* پس‌زمینه خاکستری خنثی جهت تفکیک بخش‌ها */
+  --bg-gray: #f0f2f5;
+
+
+  /* ==========================================
+     ۴. تایپوگرافی و رنگ متن‌ها (Typography & Text Colors)
+     ========================================== */
+  /* رنگ اصلی و پررنگ متن‌ها (تیترها، نام‌ها و عناوین مهم) */
+  --text-main: #0f172a;
+  /* رنگ متن بدنه و پاراگراف‌ها (خوانایی مطلوب) */
+  --text-body: #334155;
+  /* رنگ متن ثانویه و توضیحات (خاکستری ملایم) */
+  --text-muted: #64748b;
+  /* رنگ متن‌های کم‌رنگ یا غیرفعال (راهنماها) */
+  --text-light: #94a3b8;
+
+
+  /* ==========================================
+     ۵. حاشیه‌ها و خطوط جداکننده (Borders & Dividers)
+     ========================================== */
+  /* حاشیه استاندارد کارت‌ها و جداول */
+  --border-color: #e2e8f0;
+  /* حاشیه بسیار روشن جهت تفکیک ظریف ردیف‌ها */
+  --border-light: #f1f5f9;
+  /* حاشیه المان‌ها در حالت فوکوس (تمرکز کاربر) */
+  --border-focus: #93c5fd;
+  /* حاشیه ظریف و نیمه‌شفاف برای پس‌زمینه‌های تیره سایدبار */
+  --border-subtle: rgba(255, 255, 255, 0.08);
+
+
+  /* ==========================================
+     ۶. شعاع گردی گوشه‌ها (Border Radius)
+     ========================================== */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-full: 9999px;
+
+
+  /* ==========================================
+     ۷. سایه‌ها و عمق‌دهی (Box Shadows)
+     ========================================== */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.08);
+  --shadow-card: 0 8px 24px rgba(15, 23, 42, 0.04);
+
+
+  /* ==========================================
+     ۸. اندازه‌ها و ابعاد ساختاری (Layout & Sizing)
+     ========================================== */
+  --sidebar-width-admin: 270px;
+  --sidebar-width-student: 280px;
+  --sidebar-width-teacher: 275px;
+
+
+  /* ==========================================
+     ۹. ترنزیشن‌ها و انیمیشن‌ها (Transitions)
+     ========================================== */
+  --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: all 0.3s ease;
+  --transition-complex: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+
+/* ==========================================================================
+   تم‌های داینامیک حوزه‌های آموزشی (Categories & Domain Themes)
+   ========================================== */
+.category-frontend {
+  --category-primary: #2563eb;
+  --category-secondary: #1d4ed8;
+  --category-light: #eff6ff;
+}
+
+.category-backend {
+  --category-primary: #059669;
+  --category-secondary: #047857;
+  --category-light: #ecfdf5;
+}
+
+.category-ai {
+  --category-primary: #7c3aed;
+  --category-secondary: #6d28d9;
+  --category-light: #f5f3ff;
+}
+
+
+/* ==========================================================================
+   کارت‌های آماری و رنگ‌بندی‌های پویا (Stat Cards Color Schemes)
+   ========================================== */
+.admin-stat-card.blue {
+  --card-color: #2563eb;
+  --card-color-dark: #1d4ed8;
+  --card-soft-color: #eff6ff;
+}
+
+.admin-stat-card.green {
+  --card-color: #10b981;
+  --card-color-dark: #047857;
+  --card-soft-color: #ecfdf5;
+}
+
+.admin-stat-card.amber {
+  --card-color: #f59e0b;
+  --card-color-dark: #b45309;
+  --card-soft-color: #fffbeb;
+}
+
+.admin-stat-card.red {
+  --card-color: #ef4444;
+  --card-color-dark: #b91c1c;
+  --card-soft-color: #fef2f2;
+}

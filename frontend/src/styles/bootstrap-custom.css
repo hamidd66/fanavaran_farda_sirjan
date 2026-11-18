@@ -1,0 +1,28 @@
+.dropdown-menu {
+    max-height: 200px;
+    overflow: auto;
+}
+
+.dropdown-toggle::after {
+    vertical-align: 0;
+    margin-right: 0.255em;
+    margin-left: 0;
+}
+
+.dropdown-item {
+    text-align: right;
+}
+
+.dropdown>.btn:hover {
+    background-color: inherit;
+    color: inherit;
+}
+
+.dropdown>.btn:focus {
+    background: inherit;
+    color: inherit;
+}
+
+.btn.show {
+    background-color: inherit;
+}

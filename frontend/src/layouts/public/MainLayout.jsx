@@ -1,13 +1,19 @@
 import { Outlet } from 'react-router-dom'
+import MainSidebar from 'components/layout/MainSidebar'
+import MainHeader from 'components/layout/MainHeader'
 
 function MainLayout() {
   return (
     <>
-      <header>
-        Main Header
+      <header className='position-sticky top-0 z-3 bg-body'>
+        <MainHeader />
       </header>
 
-      <main>
+      <aside>
+        <MainSidebar />
+      </aside>
+
+      <main style={{ minHeight: "100dvh" }}>
         <Outlet />
       </main>
 

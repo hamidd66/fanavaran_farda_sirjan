@@ -16,6 +16,7 @@ const paths = [
     "hooks",
     "guards",
     "context",
+    "features",
 ];
 
 export default paths
