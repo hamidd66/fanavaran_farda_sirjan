@@ -1,8 +1,9 @@
 from uuid import UUID
 from datetime import datetime
-from typing import Literal
-from pydantic import BaseModel, ConfigDict, Field
+from typing import Literal, Optional
+from pydantic import BaseModel, ConfigDict, Field, AliasPath
 from app.schemas.specialty import SpecialtyOut
+from app.schemas.file_attachment import FileAttachmentSummary
 
 
 class UserSpecialtyActionItem(BaseModel):
@@ -24,3 +25,14 @@ class UserSpecialtyOut(BaseModel):
     assigned_at: datetime
 
     specialty: SpecialtyOut
+
+class UserSpecialtySummary(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    user_specialty_id: UUID = Field(validation_alias="id")
+
+    specialty_id: UUID
+    name: str = Field(validation_alias=AliasPath("specialty", "name"))
+    description: Optional[str] = Field(None, validation_alias=AliasPath("specialty", "description"))
+    is_active: bool = Field(validation_alias=AliasPath("specialty", "is_active"))
+    files: list[FileAttachmentSummary] = Field(default_factory=list, validation_alias=AliasPath("specialty", "file_attachments"))

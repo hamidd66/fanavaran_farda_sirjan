@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Optional, Literal
 from pydantic import BaseModel, ConfigDict, Field, AliasPath
 from app.schemas.role import RoleOut
+from app.schemas.file_attachment import FileAttachmentSummary
 
 
 class UserRoleActionItem(BaseModel):
@@ -38,7 +39,11 @@ class UserRoleOut(BaseModel):
 class UserRoleSummary(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
+    user_role_id: UUID = Field(validation_alias="id")
     is_access: bool
+    
+    role_id: UUID
     name: str = Field(validation_alias=AliasPath("role", "name"))
     title: str = Field(validation_alias=AliasPath("role", "title"))
     is_active: bool = Field(validation_alias=AliasPath("role", "is_active"))
+    files: list[FileAttachmentSummary] = Field(default_factory=list, validation_alias=AliasPath("role", "file_attachments"))

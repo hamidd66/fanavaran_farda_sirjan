@@ -7,7 +7,7 @@ import { useGetUser } from "hooks/user";
 function DefaultPanelRedirect() {
     const { user, isPending, isError } = useGetUser();
 
-    const firstRole = user?.user_roles?.find(
+    const firstRole = user?.roles?.find(
         userRole => userRole.is_access && userRole.is_active
     );
 

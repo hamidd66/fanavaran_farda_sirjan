@@ -34,16 +34,3 @@ class FileOut(BaseModel):
     @property
     def file_url(self) -> str:
         return f"{settings.media_url}/{self.storage_path}"
-
-
-# class FileSummary(BaseModel):
-#     model_config = ConfigDict(from_attributes=True)
-
-#     id: UUID
-#     is_public: bool
-#     storage_path: str = Field(exclude=True)
-
-#     @computed_field
-#     @property
-#     def file_url(self) -> str:
-#         return f"{settings.media_url}/{self.storage_path}"

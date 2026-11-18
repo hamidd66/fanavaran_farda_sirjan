@@ -13,7 +13,7 @@ export const getDefaultPanelPath = user => {
 };
 
 export const getActiveRole = (user, role) => {
-    const userRole = user?.user_roles?.find(
+    const userRole = user?.roles?.find(
         userRole => userRole.name == role
     );
 

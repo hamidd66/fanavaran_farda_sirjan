@@ -1,9 +1,11 @@
 from uuid import UUID
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel, Field, ConfigDict, EmailStr, model_validator
+from pydantic import BaseModel, Field, ConfigDict, EmailStr, model_validator, AliasPath
 from app.schemas.user_role import UserRoleSummary
 from app.schemas.person import PersonOut
+from app.schemas.file_attachment import FileAttachmentSummary
+from app.schemas.user_specialty import UserSpecialtySummary
 from app.schemas.base_schema import BaseSchemaCreate
 
 NULLABLE_FIELDS = {
@@ -65,5 +67,7 @@ class UserOut(BaseModel):
     last_login: Optional[datetime] = None
     created_at: datetime
 
-    user_roles: list[UserRoleSummary] = Field(default_factory=list)
     person: Optional[PersonOut] = None
+    roles: list[UserRoleSummary] = Field(default_factory=list, validation_alias="user_roles")
+    files: list[FileAttachmentSummary] = Field(default_factory=list, validation_alias=AliasPath("person", "file_attachments"))
+    specialties: list[UserSpecialtySummary] = Field(default_factory=list, validation_alias=AliasPath("person", "user_specialties"))

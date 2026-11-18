@@ -31,6 +31,9 @@ def batch_update_user_specialties(
     try:
         admin_id = UUID(auth["payload"]["sub"])
 
+        if admin_id == user_id:
+            raise AppException(code=ResponseCode.BAD_REQUEST, message="You cannot change your specialties")
+
         db_user = get_user_data(db, User.id == user_id, User.deleted_at.is_(None))
         if not db_user:
             raise AppException(code=ResponseCode.USER_NOT_FOUND, message="User not found")

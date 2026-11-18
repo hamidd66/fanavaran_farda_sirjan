@@ -7,8 +7,6 @@ from app.enums.person import Gender, EducationLevel
 
 from app.schemas.student_profile import StudentProfileOut
 from app.schemas.staff_profile import StaffProfileOut
-from app.schemas.user_specialty import UserSpecialtyOut
-from app.schemas.file_attachment import FileAttachmentOut
 from app.schemas.base_schema import BaseSchemaCreate
 
 NULLABLE_FIELDS = {
@@ -80,5 +78,5 @@ class PersonOut(BaseModel):
 
     staff_profile: Optional[StaffProfileOut] = None
     student_profile: Optional[StudentProfileOut] = None
-    user_specialties: Optional[list[UserSpecialtyOut]] = None
-    file_attachments: Optional[list[FileAttachmentOut]] = None
+    # specialties: Optional[list[UserSpecialtyOut]] = Field(None, validation_alias="user_specialties")
+    # files: Optional[list[FileAttachmentSummary]] = Field(None, validation_alias="file_attachments")

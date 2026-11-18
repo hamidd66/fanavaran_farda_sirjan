@@ -1,10 +1,11 @@
 from uuid import UUID
 from datetime import datetime
 from typing import Optional, List
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, computed_field, AliasPath
 
 from app.schemas.file import FileOut
 from app.enums.file import FilePurpose, EntityType
+
 
 # {"items": [{"file_index": 0, "purpose": "avatar", "display_order": 2, "is_primary": false, "is_active": true}]}
 class FileAttachmentOrderItem(BaseModel):
@@ -43,12 +44,19 @@ class FileAttachmentOut(BaseModel):
 
     file: FileOut
 
-# class FileAttachmentSummary(BaseModel):
-#     model_config = ConfigDict(from_attributes=True)
 
-#     id: UUID
-#     purpose: FilePurpose
-#     display_order: int
-#     is_primary: bool
+class FileAttachmentSummary(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
 
-#     file: FileSummary
+    attachment_id: UUID = Field(validation_alias="id")
+    purpose: FilePurpose
+    display_order: int
+    is_primary: bool
+
+    file: FileOut = Field(exclude=True)
+    file_id: UUID
+    is_public: bool = Field(validation_alias=AliasPath("file", "is_public"))
+    @computed_field
+    @property
+    def url(self) -> str:
+        return self.file.file_url
