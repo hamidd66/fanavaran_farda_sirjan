@@ -6,9 +6,10 @@ from datetime import datetime
 from app.schemas.file_attachment import FileAttachmentOut
 from app.schemas.course_category import CourseCategoryOut
 from app.schemas.user import UserOut
+from app.schemas.base_schema import BaseSchemaCreate
 
 
-class CourseCreate(BaseModel):
+class CourseCreate(BaseSchemaCreate):
     model_config = ConfigDict(str_strip_whitespace=True)
 
     category_id: UUID = Field(...)

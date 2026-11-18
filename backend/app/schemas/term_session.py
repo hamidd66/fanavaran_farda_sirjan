@@ -5,12 +5,13 @@ from uuid import UUID
 
 from app.enums.term import SessionType
 from app.schemas.user import UserOut
+from app.schemas.base_schema import BaseSchemaCreate
 
 NULLABLE_FIELDS = {
     "description"
 }
 
-class TermSessionCreate(BaseModel):
+class TermSessionCreate(BaseSchemaCreate):
     model_config = ConfigDict(str_strip_whitespace=True)
 
     session_type: SessionType

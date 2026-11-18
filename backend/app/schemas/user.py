@@ -2,15 +2,16 @@ from uuid import UUID
 from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel, Field, ConfigDict, EmailStr, model_validator
-from app.schemas.user_role import UserRoleOut
+from app.schemas.user_role import UserRoleSummary
 from app.schemas.person import PersonOut
+from app.schemas.base_schema import BaseSchemaCreate
 
 NULLABLE_FIELDS = {
     "username",
     "email"
 }
 
-class UserCreate(BaseModel):
+class UserCreate(BaseSchemaCreate):
     model_config = ConfigDict(str_strip_whitespace=True)
     username: Optional[str] = Field(None, min_length=5, max_length=50, pattern=r"^[A-Za-z][A-Za-z0-9_]{4,}$")
     national_code: str = Field(..., pattern=r"^\d{10}$")
@@ -64,13 +65,5 @@ class UserOut(BaseModel):
     last_login: Optional[datetime] = None
     created_at: datetime
 
-    user_roles: list[UserRoleOut]
+    user_roles: list[UserRoleSummary] = Field(default_factory=list)
     person: Optional[PersonOut] = None
-
-# class UserSummary(BaseModel):
-#     model_config = ConfigDict(from_attributes=True)
-
-#     id: UUID
-#     user_roles: list[UserRoleOut]
-#     person: Optional[PersonOut] = None
-#     avatars: Optional[list] = None

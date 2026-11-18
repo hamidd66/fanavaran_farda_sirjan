@@ -4,8 +4,10 @@ from typing import Optional
 from pydantic import BaseModel, Field, ConfigDict
 
 from app.enums.student_profile import StudentEducationalStatus
+from app.schemas.base_schema import BaseSchemaCreate
 
-class StudentCreate(BaseModel):
+
+class StudentCreate(BaseSchemaCreate):
     model_config = ConfigDict(str_strip_whitespace=True)
     parent_phone: str = Field(..., pattern=r"^09\d{9}$")
 

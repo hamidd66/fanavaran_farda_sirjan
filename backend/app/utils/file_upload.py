@@ -253,6 +253,8 @@ async def upload_files(
             if ext not in IMAGE_ALLOWED_EXTENSIONS:
                 raise AppException(code=ResponseCode.BAD_REQUEST, message="Invalid file extension")
 
+            extensions.append(ext)
+
             if file.size is not None:
                 if file.size > IMAGE_MAX_FILE_SIZE:
                     raise AppException(code=ResponseCode.FILE_TOO_LARGE, message="File too large")

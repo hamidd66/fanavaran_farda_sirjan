@@ -6,13 +6,15 @@ from uuid import UUID
 from app.enums.term import ContentType
 from app.schemas.user import UserOut
 from app.schemas.file_attachment import FileAttachmentOut
+from app.schemas.base_schema import BaseSchemaCreate
+
 
 NULLABLE_FIELDS = {
     "description",
     "body"
 }
 
-class SessionContentCreate(BaseModel):
+class SessionContentCreate(BaseSchemaCreate):
     model_config = ConfigDict(str_strip_whitespace=True)
 
     content_type: ContentType

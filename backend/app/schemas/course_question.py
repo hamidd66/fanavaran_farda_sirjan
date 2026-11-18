@@ -3,8 +3,10 @@ from typing import Optional, List
 from uuid import UUID
 from datetime import datetime
 from app.schemas.user import UserOut
+from app.schemas.base_schema import BaseSchemaCreate
 
-class QuestionCreate(BaseModel):
+
+class QuestionCreate(BaseSchemaCreate):
     model_config = ConfigDict(str_strip_whitespace=True)
 
     message: str = Field(..., min_length=1)

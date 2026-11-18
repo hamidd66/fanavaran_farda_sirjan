@@ -1,7 +1,7 @@
 from uuid import UUID
 from datetime import datetime
 from typing import Optional, Literal
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, AliasPath
 from app.schemas.role import RoleOut
 
 
@@ -35,3 +35,10 @@ class UserRoleOut(BaseModel):
     assigned_at: datetime
     role: RoleOut
 
+class UserRoleSummary(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    is_access: bool
+    name: str = Field(validation_alias=AliasPath("role", "name"))
+    title: str = Field(validation_alias=AliasPath("role", "title"))
+    is_active: bool = Field(validation_alias=AliasPath("role", "is_active"))

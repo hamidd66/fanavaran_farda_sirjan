@@ -4,12 +4,14 @@ from typing import Optional, List
 from datetime import datetime
 
 from app.schemas.file_attachment import FileAttachmentOut
+from app.schemas.base_schema import BaseSchemaCreate
+
 
 NULLABLE_FIELDS = {
     "description"
 }
 
-class CourseCategoryCreate(BaseModel):
+class CourseCategoryCreate(BaseSchemaCreate):
     model_config = ConfigDict(str_strip_whitespace=True)
 
     name: str = Field(..., min_length=2, max_length=100)

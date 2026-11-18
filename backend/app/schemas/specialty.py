@@ -4,9 +4,10 @@ from typing import Optional, List
 from pydantic import BaseModel, Field, ConfigDict
 
 from app.schemas.file_attachment import FileAttachmentOut
+from app.schemas.base_schema import BaseSchemaCreate
 
 
-class SpecialtyCreate(BaseModel):
+class SpecialtyCreate(BaseSchemaCreate):
     model_config = ConfigDict(str_strip_whitespace=True)
     
     name: str = Field(...)

@@ -4,13 +4,14 @@ from typing import Optional
 from pydantic import BaseModel, Field, ConfigDict
 
 from app.enums.staff_profile import StaffEmploymentStatus, EmploymentType
+from app.schemas.base_schema import BaseSchemaCreate
 
 
-class StaffCreate(BaseModel):
+class StaffCreate(BaseSchemaCreate):
     model_config = ConfigDict(str_strip_whitespace=True)
 
     employment_type: EmploymentType
-    job_title: str = Field(..., max_length=120)
+    job_title: str = Field(..., min_length=2, max_length=120)
     card_number: str = Field(..., pattern=r"^[0-9]{16}$")
     sheba_number: str = Field(..., pattern=r"^[0-9]{24}$")
     hire_date: date = Field(...)

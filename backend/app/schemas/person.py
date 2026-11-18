@@ -9,6 +9,7 @@ from app.schemas.student_profile import StudentProfileOut
 from app.schemas.staff_profile import StaffProfileOut
 from app.schemas.user_specialty import UserSpecialtyOut
 from app.schemas.file_attachment import FileAttachmentOut
+from app.schemas.base_schema import BaseSchemaCreate
 
 NULLABLE_FIELDS = {
     "admin_note",
@@ -16,7 +17,7 @@ NULLABLE_FIELDS = {
     "field_of_study"
 }
 
-class PersonSelfCreate(BaseModel):
+class PersonSelfCreate(BaseSchemaCreate):
     model_config = ConfigDict(str_strip_whitespace=True)
 
     first_name: str = Field(..., min_length=2, max_length=100)

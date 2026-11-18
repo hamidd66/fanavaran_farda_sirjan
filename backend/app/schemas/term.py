@@ -5,9 +5,10 @@ from datetime import datetime
 
 from app.schemas.file_attachment import FileAttachmentOut
 from app.schemas.user import UserOut
+from app.schemas.base_schema import BaseSchemaCreate
 
 
-class TermCreate(BaseModel):
+class TermCreate(BaseSchemaCreate):
     model_config = ConfigDict(str_strip_whitespace=True)
 
     title: str = Field(..., min_length=3, max_length=200)
