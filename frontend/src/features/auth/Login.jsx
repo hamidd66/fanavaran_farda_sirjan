@@ -6,10 +6,23 @@ import toast from 'react-hot-toast';
 
 import { loginNationalCodePassword } from 'services/user';
 import { loginNationalCodePasswordFields } from 'constants/inputFields';
+import { areRequiredFieldsFilled, FormChangeHandler } from 'utils/form';
+import FormInput from 'components/forms/FormInput';
+
+const initialForm = {
+  national_code: '',
+  password: '',
+}
+
+const requiredFields = [
+    'national_code',
+    'password',
+]
 
 function Login({ refetch }) {
-    const [form, setForm] = useState({ national_code: "", password: "" });
+    const [form, setForm] = useState(initialForm);
     const queryClient = useQueryClient();
+    const changeHandler = FormChangeHandler(setForm);
 
     const { mutate } = useMutation({
         mutationFn: loginNationalCodePassword,
@@ -17,23 +30,19 @@ function Login({ refetch }) {
             refetch();
             queryClient.invalidateQueries('currentUser');
         },
-        onError: e => console.log(e.data),
+        onError: e => console.error(e.data),
     })
 
     const formHandler = e => {
         e.preventDefault();
 
-        if (!form.national_code || !form.password) {
+        if (!areRequiredFieldsFilled(form, requiredFields)) {
             toast.error("لطفا فیلد ها را پر کنید", { id: 'CheckFieldsComplete' });
             return
         };
 
         mutate(form);
-        setForm({ national_code: "", password: "" });
-    }
-
-    const changeHandler = event => {
-        setForm({ ...form, [event.target.name]: event.target.value });
+        setForm(initialForm);
     }
 
     return (
@@ -44,21 +53,17 @@ function Login({ refetch }) {
                 <form onSubmit={formHandler} className='mt-4'>
 
                     {loginNationalCodePasswordFields.map(item => (
-                        <div key={item.name} className="form-group">
-                            <label className="form-label" htmlFor={item.name}>
-                                {item.label}
-                            </label>
-                            <div className="input-wrap">
-                                <input
-                                    id={item.name}
-                                    type={item.type}
-                                    name={item.name}
-                                    className={`form-control ${item.moreClasses}`}
-                                    placeholder={item.placeholder}
-                                    value={form[item.name]}
-                                    onChange={changeHandler}
-                                />
-                            </div>
+                        <div key={item.name}>
+                            <FormInput
+                                label={item.label}
+                                type={item.type}
+                                name={item.name}
+                                value={form[item.name]}
+                                changeHandler={changeHandler}
+                                moreClasses={item.moreClasses}
+                                placeholder={item.placeholder}
+                                list={item.list}
+                            />
                         </div>
                     ))}
 

@@ -6,12 +6,10 @@ import toast from 'react-hot-toast';
 
 import { registerStudent } from 'services/user';
 import { registerStudentFields } from 'constants/inputFields';
-import PersianDatePicker from 'components/forms/PersianDatePicker';
-import DropdownInput from 'components/forms/DropdownInput';
-import ImagePicker from 'components/forms/ImagePicker';
+import FormInput from 'components/forms/FormInput';
+import { FormChangeHandler, areRequiredFieldsFilled } from 'utils/form';
 
-function Register({ refetch }) {
-  const [form, setForm] = useState({
+const initialForm = {
     avatar: null,
     username: '',
     national_code: '',
@@ -29,131 +27,90 @@ function Register({ refetch }) {
     education_level: '',
     referral_source: '',
     parent_phone: '',
-  });
+}
 
-  const queryClient = useQueryClient();
+const requiredFields = [
+    'national_code',
+    'phone',
+    'password',
+    'first_name',
+    'last_name',
+    'father_name',
+    'birth_date',
+    'gender',
+    'address',
+    'education_level',
+    'referral_source',
+    'parent_phone',
+];
 
-  const { mutate } = useMutation({
-    mutationFn: registerStudent,
-    onSuccess: () => {
-      refetch();
-      queryClient.invalidateQueries('currentUser');
-    },
-    onError: e => console.log(e.data),
-  })
+function Register({ refetch }) {
+    const [form, setForm] = useState(initialForm);
+    const changeHandler = FormChangeHandler(setForm);
+    const queryClient = useQueryClient();
 
-  const formHandler = e => {
-    e.preventDefault();
+    const { mutate } = useMutation({
+        mutationFn: registerStudent,
+        onSuccess: () => {
+            refetch();
+            queryClient.invalidateQueries({
+                queryKey: ['currentUser']
+            });
+        },
+        onError: e => console.error(e.data),
+    })
 
-    if (!form.national_code || !form.phone || !form.password || !form.first_name || !form.last_name || !form.father_name || !form.birth_date || !form.gender || !form.address || !form.education_level || !form.referral_source || !form.parent_phone) {
-      toast.error("لطفا فیلد ها را پر کنید", { id: 'CheckFieldsComplete' });
-      return
-    };
+    const formHandler = e => {
+        e.preventDefault();
 
-    const formDataObject = { ...form };
-    delete formDataObject.avatar;
+        if (!areRequiredFieldsFilled(form, requiredFields)) {
+            toast.error("لطفا فیلد ها را پر کنید", { id: 'CheckFieldsComplete' });
+            return
+        };
 
-    const formData = new FormData();
-    formData.append("data", JSON.stringify(formDataObject));
+        const { avatar, ...studentData } = form;
 
-    if (form.avatar) {
-      formData.append("avatar", form.avatar);
+        const formData = new FormData();
+        formData.append("data", JSON.stringify(studentData));
+
+        if (avatar)
+            formData.append("avatar", avatar);
+
+        mutate(formData);
     }
 
-    mutate(formData);
-  }
+    return (
+        <div className="panels">
+            <div className="panel mt-4">
+                <p className="card-subtitle">جهت ثبت نام لطفا با دقت اطلاعات خود را وارد کنید</p>
+                <form onSubmit={formHandler} className='mt-4'>
 
-  const changeHandler = (event, value) => {
-    if (event?.target?.name == "avatar") {
-      const file = event.target.files?.[0];
-      if (file) setForm({ ...form, [event.target.name]: file });
-      return
-    }
-    if (value !== undefined) {
-      setForm(prevForm => ({ ...prevForm, [event]: value }));
-      return;
-    }
-    setForm({ ...form, [event.target.name]: event.target.value });
-  }
+                    {registerStudentFields.map(item => (
+                        <div key={item.name}>
+                            <FormInput
+                                label={item.label}
+                                type={item.type}
+                                name={item.name}
+                                value={form[item.name]}
+                                changeHandler={changeHandler}
+                                moreClasses={item.moreClasses}
+                                placeholder={item.placeholder}
+                                list={item.list}
+                            />
+                        </div>
+                    ))}
 
-  return (
-    <div className="panels">
-      <div className="panel mt-4">
-        <p className="card-subtitle">جهت ثبت نام لطفا با دقت اطلاعات خود را وارد کنید</p>
-        <form onSubmit={formHandler} className='mt-4'>
+                    <Button type="submit" className="btn-main">
+                        ثبت نام
+                    </Button>
 
-          {registerStudentFields.map(item => (
-            <div key={item.name}>
-
-              {item.name == "avatar" && (
-                <ImagePicker image={form.avatar} changeHandler={changeHandler} />
-              )}
-
-              {!["file", "date", "list"].includes(item.type) && (
-                <div className="form-group">
-                  <label className="form-label" htmlFor={item.name}>
-                    {item.label}
-                  </label>
-                  <div className="input-wrap">
-                    <input
-                      id={item.name}
-                      type={item.type}
-                      name={item.name}
-                      className={`form-control ${item.moreClasses}`}
-                      placeholder={item.placeholder}
-                      value={form[item.name]}
-                      onChange={changeHandler}
-                    />
-                  </div>
-                </div>
-              )}
-
-              {item.type == "date" && (
-                <div className="form-group">
-                  <label className="form-label">
-                    {item.label}
-                  </label>
-                  <div className="input-wrap">
-                    <PersianDatePicker
-                      changeHandler={changeHandler}
-                      value={form[item.name]}
-                      fieldName={item.name}
-                      placeholder={item.placeholder}
-                    />
-                  </div>
-                </div>
-              )}
-
-              {item.type == "list" && (
-                <div className="form-group">
-                  <label className="form-label">
-                    {item.label}
-                  </label>
-                  <div className='input-wrap'>
-                    <DropdownInput
-                      list={item.list}
-                      fieldName="gender"
-                      value={form.gender}
-                      changeHandler={changeHandler}
-                      defaultName={item.placeholder}
-                    />
-                  </div>
-                </div>
-              )}
+                    <Link to="/" className="link-back-home">
+                        بازگشت به صفحه اصلی
+                    </Link>
+                </form>
             </div>
-          ))}
-
-          <Button type="submit" className="btn-main">
-            ورود
-          </Button>
-
-          <Link to="/" className="link-back-home">
-            بازگشت به صفحه اصلی
-          </Link>
-        </form>
-      </div>
-    </div>
-  )
+        </div>
+    )
 }
 
 export default Register
