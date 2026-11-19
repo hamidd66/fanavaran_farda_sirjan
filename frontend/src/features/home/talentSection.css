@@ -1,0 +1,39 @@
+.talent-section {
+  background: linear-gradient(135deg, #1a1a2e, #312e81);
+  padding: 60px 0;
+  color: #fff;
+  text-align: center;
+}
+
+.talent-section h2 {
+  font-size: 1.8rem;
+  font-weight: 800;
+}
+
+.talent-section p {
+  font-size: 1rem;
+  opacity: .85;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.9;
+}
+
+.btn.btn-talent {
+  background: #f59e0b;
+  color: #1a1a2e;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 14px;
+  font-weight: 700;
+  margin-top: 10px;
+  font-size: 1rem;
+  transition: .3s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn.btn-talent:hover {
+  background: #d97706;
+  color: #fff;
+}
