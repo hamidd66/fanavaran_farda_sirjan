@@ -7,3 +7,11 @@ export const navLinks = [
     { title: 'مدرسین', href: '/teachers' },
     { title: 'درباره ما', href: '/about-us' },
 ];
+
+export const footerLinks = [
+    {title: 'دوره ها', href: '/courses'},
+    {title: 'مسابقات', href: '/competition'},
+    {title: 'استعداد یابی', href: '/talent'},
+    {title: 'مقالات', href: '/articles'},
+    {title: 'درباره ما', href: '/about-us'},
+]

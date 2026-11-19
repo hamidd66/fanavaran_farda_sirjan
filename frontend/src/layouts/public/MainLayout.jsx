@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom'
 import MainSidebar from 'components/layout/MainSidebar'
 import MainHeader from 'components/layout/MainHeader'
+import MainFooter from 'components/layout/MainFooter'
 
 function MainLayout() {
   return (
@@ -18,7 +19,7 @@ function MainLayout() {
       </main>
 
       <footer>
-        Main Footer
+        <MainFooter />
       </footer>
     </>
   )
