@@ -1,6 +1,10 @@
+import HeroSection from "features/home/HeroSection"
+
 function HomePage() {
   return (
-    <div>HomePage</div>
+    <section>
+      <HeroSection />
+    </section>
   )
 }
 

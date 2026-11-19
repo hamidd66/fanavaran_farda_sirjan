@@ -1,0 +1,186 @@
+.hero {
+    position: relative;
+
+    .base,
+    .framework,
+    .vite {
+        inset-inline: 0;
+        margin: 0 auto;
+    }
+
+    .base {
+        width: 170px;
+        position: relative;
+        z-index: 0;
+    }
+
+    .framework,
+    .vite {
+        position: absolute;
+    }
+
+    .framework {
+        z-index: 1;
+        top: 34px;
+        height: 28px;
+        transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg) scale(1.4);
+    }
+
+    .vite {
+        z-index: 0;
+        top: 107px;
+        height: 26px;
+        width: auto;
+        transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg) scale(0.8);
+    }
+}
+
+.hero {
+    background: linear-gradient(135deg, #eef2ff 0%, #f0fdf4 100%);
+    padding: 80px 0 60px;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero h1 {
+    font-size: 1.9rem;
+    font-weight: 800;
+    line-height: 1.7;
+    color: #1a1a2e;
+}
+
+.hero h2 {
+    line-height: 1.7;
+}
+
+.hero p {
+    font-size: 1rem;
+    color: #555;
+    line-height: 1.9;
+    max-width: 620px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.hero-img {
+    border-radius: 20px;
+    height: 340px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* =========================
+   Hero Buttons
+========================= */
+
+.btn.btn-primary-custom {
+    background: #4f46e5;
+    color: #ffffff;
+    border: none;
+    border-radius: 14px;
+    padding: 11px 20px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    transition: all 0.3s ease;
+}
+
+.btn.btn-primary-custom:hover {
+    background: #3730a3;
+    color: #ffffff;
+    transform: translateY(-2px);
+}
+
+.btn.btn-outline-custom {
+    background: transparent;
+    border: 2px solid #4f46e5;
+    color: #4f46e5;
+    border-radius: 14px;
+    padding: 9px 20px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    transition: all 0.3s ease;
+}
+
+.btn.btn-outline-custom:hover {
+    background: #4f46e5;
+    color: #ffffff;
+    transform: translateY(-2px);
+}
+
+.btn.btn-primary-custom {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.85rem 2.4rem;
+  border-radius: 50px;
+  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+  color: #ffffff !important;
+  font-weight: 700;
+  font-size: 1rem;
+  text-decoration: none;
+  box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn.btn-primary-custom:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 25px rgba(245, 158, 11, 0.4);
+}
+
+/* =========================
+   Responsive
+========================= */
+
+@media (max-width: 991px) {
+    .navbar {
+        padding: 10px 16px;
+    }
+
+    .mega-dropdown {
+        min-width: 100%;
+        margin-top: 8px;
+    }
+
+    .mega-menu-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .search-box {
+        width: 100%;
+        margin-top: 12px;
+    }
+
+    .search-input,
+    .search-input:focus {
+        width: 100%;
+    }
+
+    .btn-register {
+        margin-top: 12px;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero {
+        padding: 55px 0 45px;
+    }
+
+    .hero h1 {
+        font-size: 1.55rem;
+    }
+
+    .hero h2 {
+        font-size: 1.35rem !important;
+    }
+
+    .hero-img {
+        height: 260px;
+    }
+
+    .btn-primary-custom,
+    .btn-outline-custom {
+        width: 100%;
+        text-align: center;
+    }
+}
