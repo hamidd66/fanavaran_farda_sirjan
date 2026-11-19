@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field, ConfigDict, model_validator
 from typing import Optional, List
 from datetime import datetime
 
-from app.schemas.file_attachment import FileAttachmentOut
+from app.schemas.file_attachment import FileAttachmentSummary
 from app.schemas.base_schema import BaseSchemaCreate
 
 
@@ -72,4 +72,4 @@ class CourseCategoryOut(BaseModel):
     created_at: datetime
 
     courses_count: Optional[int] = 0
-    file_attachments: Optional[List[FileAttachmentOut]] = None
+    files: list[FileAttachmentSummary] = Field(default_factory=list, validation_alias="file_attachments")
