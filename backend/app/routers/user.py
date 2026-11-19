@@ -32,7 +32,7 @@ from app.models.user import User
 from app.models.user_role import UserRole
 from app.models.role import Role
 from app.models.student_profile import StudentProfile
-from app.schemas.user import UserLogin, UserUpdate, ToggleActiveStatus, ChangePassword, UserOut, ToggleDeleteStatus, UserCreate
+from app.schemas.user import UserLogin, UserUpdate, ToggleActiveStatus, ChangePassword, UserOut, ToggleDeleteStatus, UserCreate, UserPublic
 from app.schemas.staff_profile import StaffUpdate, StaffCreate
 from app.schemas.person import PersonSelfCreate, PersonUpdate, PersonAdminCreate
 from app.schemas.student_profile import StudentCreate, StudentUpdate
@@ -671,9 +671,7 @@ def get_users(
         )
 
         if roles:
-            query = query.join(User.user_roles).join(UserRole.role).filter(
-                Role.name.in_(roles)
-            )
+            query = query.join(User.user_roles).join(UserRole.role).filter(Role.name.in_(roles))
             
         if is_active is not None:
             query = query.filter(User.is_active == is_active)
@@ -705,11 +703,8 @@ def get_users(
             
         total_count = query.distinct().count()
         users = query.distinct().offset((page - 1) * limit).limit(limit).all()
-        
-        users_list = []
-        for u in users:
-            user_data = UserOut.model_validate(u).model_dump()
-            users_list.append(user_data)
+
+        users_list = [UserOut.model_validate(u).model_dump() for u in users]
 
         return success_response(
             code=ResponseCode.RETRIEVED,
@@ -730,22 +725,85 @@ def get_users(
         raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to fetch users") from e
 
 
+@router.get("/public")
+def get_summary_users(
+    db: Session = Depends(get_db),
+    roles: List[str] = Query(..., min_length=1),
+    page: int = Query(1, ge=1),
+    limit: int = Query(20, ge=1, le=100),
+    search: Optional[str] = Query(None),
+):
+    try:
+        query = db.query(User).options(
+            joinedload(User.user_roles).joinedload(UserRole.role),
+        ).filter(
+            User.is_active.is_(True),
+            User.deleted_at.is_(None)
+        )
+
+        if roles:
+            query = query.join(User.user_roles).join(UserRole.role).filter(Role.name.in_(roles))
+
+        if search:
+            search_term = f"%{search}%"
+            query = query.join(User.person).filter(
+                or_(
+                    Person.first_name.ilike(search_term),
+                    Person.last_name.ilike(search_term),
+                )
+            )
+    
+        total_count = query.distinct().count()
+        users = query.distinct().offset((page - 1) * limit).limit(limit).all()
+
+        users_list = [UserPublic.model_validate(u).model_dump() for u in users]
+
+        return success_response(
+            code=ResponseCode.RETRIEVED,
+            message="Users retrieved successfully",
+            data={
+                "users": users_list,
+                "page": page,
+                "limit": limit,
+                "total": total_count,
+                "pages": math.ceil(total_count / limit)
+            },
+        )
+    except AppException:
+        raise
+    except Exception as e:
+        logger.exception("Failed to fetch users")
+        raise AppException(code=ResponseCode.INTERNAL_SERVER_ERROR, message="Failed to fetch users") from e
+
+
 @router.get("/{user_id}")
 def get_user_by_id(
     user_id: UUID, 
-    auth: dict = Depends(require_roles("admin")), 
+    auth: dict = Depends(require_roles(auth_optional=True)), 
     db: Session = Depends(get_db)
 ):
     try:
-        db_user = get_user_data(db, User.id == user_id, User.deleted_at.is_(None))
+        viewer_is_admin = bool(auth.get("payload")) and bool("admin" in auth.get("roles", []))
+        
+        filters = [User.id == user_id]
+        if not viewer_is_admin:
+            filters.extend([User.is_active.is_(True), User.deleted_at.is_(None)])
+            
+        db_user = get_user_data(db, *filters)
 
         if not db_user:
             raise AppException(code=ResponseCode.USER_NOT_FOUND, message="User not found")
+
+        user_data = None
+        if viewer_is_admin:
+            user_data = UserOut.model_validate(db_user).model_dump()
+        else:
+            user_data = UserPublic.model_validate(db_user).model_dump()
         
         return success_response(
             code=ResponseCode.RETRIEVED,
             message="User retrieved successfully",
-            data=UserOut.model_validate(db_user).model_dump(),
+            data=user_data,
         )
 
     except AppException:

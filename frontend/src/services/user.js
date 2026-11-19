@@ -14,3 +14,8 @@ export const registerStudent = async data => {
     const response = await api.post("/user/register/student", data, { headers: { "Content-Type": 'multipart/form-data' } });
     return response.data.data;
 }
+
+export const getPublicTeachers = async () => {
+    const response = await api.get("/user/public?roles=teacher");
+    return response.data.data;
+}

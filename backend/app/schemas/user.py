@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel, Field, ConfigDict, EmailStr, model_validator, AliasPath
 from app.schemas.user_role import UserRoleSummary
-from app.schemas.person import PersonOut
+from app.schemas.person import PersonOut, PersonPublic
 from app.schemas.file_attachment import FileAttachmentSummary
 from app.schemas.user_specialty import UserSpecialtySummary
 from app.schemas.base_schema import BaseSchemaCreate
@@ -69,5 +69,15 @@ class UserOut(BaseModel):
 
     person: Optional[PersonOut] = None
     roles: list[UserRoleSummary] = Field(default_factory=list, validation_alias="user_roles")
+    files: list[FileAttachmentSummary] = Field(default_factory=list, validation_alias=AliasPath("person", "file_attachments"))
+    specialties: list[UserSpecialtySummary] = Field(default_factory=list, validation_alias=AliasPath("person", "user_specialties"))
+
+class UserPublic(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    username: Optional[str] = None
+
+    person: Optional[PersonPublic] = None
     files: list[FileAttachmentSummary] = Field(default_factory=list, validation_alias=AliasPath("person", "file_attachments"))
     specialties: list[UserSpecialtySummary] = Field(default_factory=list, validation_alias=AliasPath("person", "user_specialties"))

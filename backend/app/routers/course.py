@@ -215,7 +215,7 @@ def get_course_by_id(
         return success_response(
             code=ResponseCode.RETRIEVED,
             message="Course retrieved successfully",
-            data=CourseOut.model_validate(db_course).model_dump(),
+            data=course_dict,
         )
     except AppException:
         raise

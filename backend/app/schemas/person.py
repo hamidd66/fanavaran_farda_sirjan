@@ -1,7 +1,7 @@
 from uuid import UUID
 from datetime import datetime, date
 from typing import Optional
-from pydantic import BaseModel, Field, ConfigDict, model_validator
+from pydantic import BaseModel, Field, ConfigDict, model_validator, AliasPath
 from app.enums.user import ReferralSources
 from app.enums.person import Gender, EducationLevel
 
@@ -80,3 +80,14 @@ class PersonOut(BaseModel):
     student_profile: Optional[StudentProfileOut] = None
     # specialties: Optional[list[UserSpecialtyOut]] = Field(None, validation_alias="user_specialties")
     # files: Optional[list[FileAttachmentSummary]] = Field(None, validation_alias="file_attachments")
+
+
+class PersonPublic(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    first_name: str
+    last_name: str
+    gender: Gender
+    bio: Optional[str] = None
+    job_title: Optional[str] = Field(None, validation_alias=AliasPath("staff_profile", "job_title"))
