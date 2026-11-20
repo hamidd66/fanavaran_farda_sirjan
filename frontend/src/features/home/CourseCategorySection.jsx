@@ -4,9 +4,9 @@ import { Ratio } from 'react-bootstrap'
 import { BsArrowLeftShort } from 'react-icons/bs'
 
 import { getCourseCategory } from 'services/courseCategory'
-import "./courseCategorySectoin.css"
+import "./courseCategorySection.css"
 
-function CourseCategorySectoin() {
+function CourseCategorySection() {
     const { data: categories, isPending, isError } = useQuery({
         queryKey: ["getCourseCategory"],
         queryFn: getCourseCategory,
@@ -47,4 +47,4 @@ function CourseCategorySectoin() {
     )
 }
 
-export default CourseCategorySectoin
+export default CourseCategorySection

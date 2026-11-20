@@ -17,7 +17,7 @@ function HeroSection() {
                                 style={{ width: '100%', height: '100%' }}
                                 loop
                                 autoplay
-                            ></Lottie>
+                            />
                         </div>
                     </div>
 
@@ -36,14 +36,18 @@ function HeroSection() {
                         </p>
 
                         <div className="d-flex flex-wrap gap-3 mt-4 justify-content-center">
-                            <Link to="/competition" className="btn btn-primary-custom">
+                            <Link to="/competition" className="btn btn-primary-custom d-flex align-items-center justify-content-center">
                                 <BsFillTrophyFill className="ms-2" />
-                                مسابقات رایگان برنامه‌نویسی
+                                <p className="m-0">
+                                    مسابقات رایگان برنامه‌نویسی
+                                </p>
                             </Link>
 
-                            <Link to="/courses" className="btn btn-outline-custom">
+                            <Link to="/courses" className="btn btn-outline-custom d-flex align-items-center justify-content-center">
                                 <BsPlayCircle className="ms-2" />
-                                مشاهده دوره‌های فعال
+                                <p className="m-0 btn-outline-custom-text">
+                                    مشاهده دوره‌های فعال
+                                </p>
                             </Link>
                         </div>
                     </div>

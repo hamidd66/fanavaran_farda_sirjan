@@ -1,11 +1,13 @@
+import { useState } from "react";
 import { Link } from "react-router-dom"
 import "./promoSection.css"
 
 function PromoSection() {
+    const [isMuted, setIsMuted] = useState(true);
     return (
         <section className="promo-section py-5 mb-3">
             <div className="container">
-                <div className="row align-items-center g-5">
+                <div className="row align-items-center justify-content-center gap-5 gap-lg-0">
                     <div className="col-lg-6 text-center">
                         <span
                             className="badge rounded-pill px-3 py-2 mb-3"
@@ -25,7 +27,7 @@ function PromoSection() {
 
                     <div className="col-lg-6">
                         <div className="promo-video-wrap mx-auto">
-                            <video className="promo-video" muted loop playsInline autoPlay>
+                            <video className="promo-video" muted={isMuted} loop playsInline autoPlay onClick={() => setIsMuted(prev => !prev)}>
                                 <source src="/videos/promoSectionVideo.mp4" type="video/mp4" />
                             </video>
                         </div>

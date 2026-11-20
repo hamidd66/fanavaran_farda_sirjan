@@ -33,3 +33,17 @@ export const whyUsItems = [
     { icon: FaHeadset, title: 'پشتیبانی اختصاصی', text: 'پاسخگویی مستقیم استاد در طول دوره' },
     { icon: FaComputer, title: 'کارگاه مجهز سیرجان', text: 'محیط یادگیری مدرن با تجهیزات به‌روز' },
 ];
+
+export const newsSectionImages = [
+    { image: "/images/newsSectionImage1.jpg", title: "اخبار و مطالب روز دنیای فناوری" },
+    { image: "/images/newsSectionImage2.jpg", title: "تازه‌ترین مطالب هوش مصنوعی و برنامه‌نویسی" },
+    { image: "/images/newsSectionImage3.jpg", title: "اخبار جدید طراحی سایت و توسعه نرم‌افزار" },
+];
+
+export const newsSectionList = [
+    { category: "هوش مصنوعی", title: "تازه‌ترین اخبار و تحولات هوش مصنوعی" },
+    { category: "فرانت‌اند", title: "جدیدترین ابزارهای توسعه رابط کاربری" },
+    { category: "طراحی سایت", title: "ترندهای جدید طراحی سایت‌های مدرن" },
+    { category: "بک‌اند", title: "تکنولوژی‌های جدید توسعه سمت سرور" },
+    { category: "React", title: "اخبار و قابلیت‌های جدید اکوسیستم React" },
+];
