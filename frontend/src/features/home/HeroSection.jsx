@@ -11,7 +11,7 @@ function HeroSection() {
                     <div className="col-lg-6 order-lg-1 order-2">
                         <div className="hero-img">
                             <Lottie
-                                src="/images/Designer.json"
+                                src="/lotties/heroAnimation.json"
                                 background="transparent"
                                 speed="1"
                                 style={{ width: '100%', height: '100%' }}
