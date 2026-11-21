@@ -5,9 +5,11 @@ import { Link, useNavigate } from 'react-router-dom'
 
 import styles from './mainHeader.module.css'
 import { navLinks } from 'constants/ui';
+import { useGetUser } from 'hooks/user';
 
 function MainHeader() {
     const navigate = useNavigate();
+    const { user, isError } = useGetUser();
     const { setShowOffcanvas } = useMainOffcanvas();
 
     return (
@@ -25,7 +27,9 @@ function MainHeader() {
                 ))}
             </Nav>
             <div className="">
-                <Button onClick={() => navigate("/login")} variant='outline-primary' className='rounded-pill px-3 border-2'>ورود</Button>
+                <Button onClick={() => navigate("/login")} variant='outline-primary' className='rounded-pill px-3 border-2'>
+                    {!user || isError ? "ورود" : "پنل کاربری" }
+                </Button>
                 <Button onClick={() => setShowOffcanvas(true)} className="bg-transparent text-dark border-0 p-0 d-lg-none me-3">
                     <FaBars fontSize="20px" />
                 </Button>

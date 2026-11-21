@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 
 import { getActiveRole } from "utils/user";
 import { useGetUser } from "hooks/user";
+import { roles } from "constants/enums";
 
 function RoleGuard({ role }) {
     const { user, isPending, isError } = useGetUser();
@@ -13,8 +14,10 @@ function RoleGuard({ role }) {
         if (isPending || isError || isPossibility || !user) {
             return;
         }
-        if (!isExist)
-            toast.error(`شما این نقش را ندارید`, { id: "no-access-to-panel" })
+        if (!isExist) {
+            const errorMessage = roles[role] ? `شما نقش ${roles[role]} را ندارید` : "شما این نقش را ندارید"
+            toast.error(errorMessage, { id: "no-access-to-panel" })
+        }
         else if (!isAccess)
             toast.error(`شما به نقش ${roleTitle} دسترسی ندارید`, { id: "no-access-to-role" })
         else if (!isActive)
@@ -23,7 +26,7 @@ function RoleGuard({ role }) {
     }, [isPending, isPossibility, user]);
 
     if (isPending || isError) return null
-    if (!isPossibility) return <Navigate to="/panel" replace />
+    if (!isPossibility || !isExist) return <Navigate to="/panel" replace />
     return <Outlet />
 }
 

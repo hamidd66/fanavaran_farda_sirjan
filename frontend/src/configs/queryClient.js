@@ -55,6 +55,7 @@ const queryClient = new QueryClient({
             },
             refetchOnWindowFocus: false,
             // refetchOnMount: true,
+            select: response =>  response.data,
         },
         mutations: {
             retry: false,

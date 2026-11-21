@@ -52,15 +52,15 @@ function normalizeApiResponse(response) {
     }
 
     return {
-        ...response,
-        data: {
+        // ...response,
+        // data: {
             ...body,
             status: body.status ?? null,
             code: body.code ?? null,
             message: body.message ?? null,
             data: body.data ?? null,
             status_code: body.status_code ?? response.status,
-        },
+        // },
     };
 }
 

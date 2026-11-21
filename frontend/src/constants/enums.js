@@ -40,3 +40,12 @@ export const REFERRAL_SOURCE_OPTIONS = [
   { value: "sms_marketing", label: "بازاریابی پیامکی" },
   { value: "other", label: "سایر" },
 ];
+
+export const roles = {
+  owner: "مدیر",
+  admin: "ادمین",
+  teacher: "استاد",
+  student: "هنرآموز",
+  parent: "والدین",
+  user: "کاربر",
+}

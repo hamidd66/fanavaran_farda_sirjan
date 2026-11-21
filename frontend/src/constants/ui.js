@@ -1,4 +1,4 @@
-import { BsBriefcase, BsEmojiHeartEyes, BsMortarboard, BsPeople } from "react-icons/bs"
+import { BsAwardFill, BsBarChartFill, BsBriefcase, BsCalendarWeekFill, BsCardText, BsClipboardCheckFill, BsEmojiHeartEyes, BsFillMortarboardFill, BsFillPeopleFill, BsFillPersonCheckFill, BsGraphUpArrow, BsJournalCode, BsMortarboard, BsPeople, BsPersonGear, BsPersonWorkspace, BsWallet2, BsWindowStack } from "react-icons/bs"
 import { FaComputer, FaHeadset, FaLaptopCode, FaTrophy } from "react-icons/fa6";
 
 
@@ -46,4 +46,38 @@ export const newsSectionList = [
     { category: "طراحی سایت", title: "ترندهای جدید طراحی سایت‌های مدرن" },
     { category: "بک‌اند", title: "تکنولوژی‌های جدید توسعه سمت سرور" },
     { category: "React", title: "اخبار و قابلیت‌های جدید اکوسیستم React" },
+];
+
+// -----< Panel >----- //
+
+export const userSubItems = [
+    { label: "کاربران سیستم", icon: BsPersonGear, path: "users" },
+    { label: "هنرجویان", icon: BsFillMortarboardFill, path: "students" },
+    { label: "مدرسین", icon: BsPersonWorkspace, path: "teachers" },
+];
+
+export const coursesClassesSubItems = [
+    { label: "دوره‌ها", icon: BsJournalCode, path: "courses" },
+    { label: "کلاس‌ها و تقویم", icon: BsCalendarWeekFill, path: "classes" },
+    { label: "ثبت‌نام‌ها", icon: BsClipboardCheckFill, path: "enrollments" },
+];
+
+export const eduAcademicSubItems = [
+    { label: "نمرات و کارنامه", icon: BsAwardFill, path: "grades" },
+    { label: "حضور و غیاب", icon: BsFillPersonCheckFill, path: "attendance" },
+    { label: "تحلیل غیبت و نمرات", icon: BsFillPersonCheckFill, path: "academicanalytics" },
+];
+
+export const otherNavItems = [
+    { label: "امور مالی", icon: BsWallet2, path: "finance" },
+    { label: "نظرسنجی‌ها", icon: BsBarChartFill, path: "feedbackmanagement" },
+    { label: "مسابقات", icon: BsWindowStack, path: "competitionmanagement" },
+    { label: "پیام رسان", icon: BsWindowStack, path: "messages" },
+    { label: "گزارش‌ها", icon: BsGraphUpArrow, path: "reports" },
+];
+
+export const accessibleItems = [
+    { role: "admin", groups: [{ title: "کاربران و اعضا", icon: BsFillPeopleFill, name: "userSubItems", items: userSubItems }, { title: "سایر آیتم‌ها", icon: BsCardText, name: "otherNavItems", items: otherNavItems }] },
+    { role: "teacher", groups: [{ title: "دوره‌ها و کلاس‌ها", icon: BsJournalCode, name: "coursesClassesSubItems", items: coursesClassesSubItems }] },
+    { role: "student", groups: [{ title: "مدیریت آموزشی", icon: BsMortarboard, name: "eduAcademicSubItems", items: eduAcademicSubItems }] },
 ];

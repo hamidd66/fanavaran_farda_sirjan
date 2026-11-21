@@ -4,11 +4,13 @@ import RoleGuard from "guards/RoleGuard"
 import DefaultPanelRedirect from "guards/DefaultPanelRedirect"
 import MainLayout from "layouts/public/MainLayout"
 import PanelLayout from "layouts/panel/PanelLayout"
+
 import HomePage from "pages/public/HomePage"
 import AdminDashboard from "pages/admin/adminDashboard"
 import TeacherDashboard from "pages/teacher/TeacherDashboard"
 import StudentDashboard from "pages/student/StudentDashboard"
 import LoginPage from "pages/public/LoginPage"
+import AdminTeachers from "pages/admin/AdminTeachers"
 
 function Router() {
 
@@ -26,6 +28,7 @@ function Router() {
                     <Route path="admin" element={<RoleGuard role="admin" />}>
                         <Route index element={<Navigate to="dashboard" replace />} />
                         <Route path="dashboard" element={<AdminDashboard />} />
+                        <Route path="teachers" element={<AdminTeachers />} />
                     </Route>
 
                     <Route path="teacher" element={<RoleGuard role="teacher" />}>

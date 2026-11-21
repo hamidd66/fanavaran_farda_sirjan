@@ -1,20 +1,14 @@
-export const getDefaultPanelPath = user => {
-    const firstRole = user?.user_roles?.find(
+export const getDefaultPanel = user => {
+    const firstRole = user?.roles?.findLast(
         role => role.is_access && role.is_active
     );
 
-    console.log(firstRole);
-
-    if (firstRole) {
-        return "/panel";
-    }
-
-    return `/panel/${firstRole.name}/dashboard`;
+    return firstRole.name;
 };
 
 export const getActiveRole = (user, role) => {
     const userRole = user?.roles?.find(
-        userRole => userRole.name == role
+        userRole => userRole.name === role
     );
 
     return {

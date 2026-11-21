@@ -21,7 +21,7 @@ export const errorMessages = Object.freeze({
     RESOURCE_CONFLICT: "اطلاعات با داده‌های موجود تداخل دارد.",
 
     // Authentication
-    AUTHENTICATION_REQUIRED: "برای ادامه باید وارد حساب کاربری شوید.",
+    AUTHENTICATION_REQUIRED: "برای ادامه باید وارد حساب کاربری خود شوید.",
     INVALID_CREDENTIALS: "کد ملی یا رمز عبور اشتباه است.",
     INVALID_TOKEN: "توکن احراز هویت معتبر نیست.",
     TOKEN_EXPIRED: "اعتبار توکن به پایان رسیده است.",

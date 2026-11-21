@@ -1,24 +1,30 @@
+import { useState } from 'react';
 import { Navigate, Outlet } from 'react-router-dom'
+
 import { useGetUser } from 'hooks/user';
+import PanelHeader from 'components/layout/PanelHeader';
+import PanelSidebar from 'components/layout/PanelSidebar';
+import "./panelLayout.css"
 
 function PanelLayout() {
-  const { isPending, isError } = useGetUser();
+  const { user, isPending, isError, refetch } = useGetUser();
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  if (isPending) return null
-  if (isError) return <Navigate to="/login" /> // --Error!!
+  if (isError) return <Navigate to="/" />
+  if (isPending || !user) return null
   return (
     <>
-      <header>
-        Panel Header
+      <header className={`admin-main ${sidebarOpen ? "sidebar-is-open" : ""} position-sticky top-0 z-3 bg-body`}>
+        <PanelHeader user={user} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
       </header>
 
-      <main>
+      <aside>
+        <PanelSidebar user={user} refetch={refetch} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+      </aside>
+
+      <main className={`admin-main ${sidebarOpen ? "sidebar-is-open" : ""}`} style={{ minHeight: "100dvh" }}>
         <Outlet />
       </main>
-
-      <footer>
-        Panel Footer
-      </footer>
     </>
   )
 }
